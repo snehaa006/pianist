@@ -59,5 +59,7 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 - **Concert rows**: there are no dates, so the Concerts screen shows the approved empty state ("No public dates right now…" → Join the list).
 - **Next season screen**: no project or date exists; it would duplicate the empty state.
 - **Press quote**: none exists, so the fermata is a photograph only.
-- **Repertoire filter chips** (Solo · Concertos · Chamber) and **OptionWheel**: every filmed piece is solo and only one composer is known, so a filter or dial would have nothing to sort. Add them once the list grows.
+- **Repertoire filter chips** (Solo · Concertos · Chamber): every filmed piece is solo, so the filter would have nothing to sort. The OptionWheel dial lists the five pieces instead.
+- **Past concert dates**: the "Past concerts" rows show `[DD]` / `[Month] [Year]` until the real dates are filled in (add a `date` to each film).
+- **GlowCursor and SwarmCursor**: the system allows one cursor per site; GhostCursor is it.
 - **Nav Tickets pill**: nothing is on sale; omitting it keeps one velvet action per viewport.

@@ -13,6 +13,8 @@ const media = slug => ({
 export const performances = [
   {
     id: 'austrian-master-classes',
+    short: 'Austrian Master Classes',
+    tags: ['stage'],
     composer: '[Composer]',
     lifespan: '[Lifespan]',
     work: '[Work]',
@@ -28,6 +30,8 @@ export const performances = [
   },
   {
     id: 'on-stage',
+    short: 'On stage',
+    tags: ['stage'],
     composer: '[Composer]',
     lifespan: '[Lifespan]',
     work: '[Work]',
@@ -42,6 +46,8 @@ export const performances = [
   },
   {
     id: 'at-home-grand',
+    short: 'At the grand piano',
+    tags: ['home'],
     composer: '[Composer]',
     lifespan: '[Lifespan]',
     work: '[Work]',
@@ -56,6 +62,8 @@ export const performances = [
   },
   {
     id: 'song-of-twilight',
+    short: 'Song of Twilight',
+    tags: ['home', 'exam'],
     composer: 'Yoshinao Nakada',
     lifespan: '1923–2000',
     work: 'Song of Twilight',
@@ -73,6 +81,8 @@ export const performances = [
   },
   {
     id: 'lcm-grade-1',
+    short: 'Grade 1 exam',
+    tags: ['home', 'exam'],
     composer: '[Composer]',
     lifespan: '[Lifespan]',
     work: '[Work]',
@@ -88,6 +98,14 @@ export const performances = [
     hint: 'C major, slow and quiet over a low C. Title heard as "Dusk… Mood", composer as "Frederick B…".',
     ...media('lcm-grade-1')
   }
+];
+
+// Filters on the Watch page.
+export const filters = [
+  { key: 'all', label: 'All' },
+  { key: 'stage', label: 'On stage' },
+  { key: 'home', label: 'At home' },
+  { key: 'exam', label: 'Exams' }
 ];
 
 export const byId = id => performances.find(p => p.id === id);

@@ -1,8 +1,32 @@
 # Srinijakara: portfolio site
 
 Vite + React static site built with the `/pianist` design system (`.claude/skills/pianist/`).
-Tokens, base components, Bebas Neue and the client components (MaskedHeading, FoldText, GhostCursor)
-are copied from the skill unchanged, except for one added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width (the original caps type at 200px).
+Tokens, base components, Bebas Neue and the client components are copied from the skill unchanged, except for one
+added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width (the original caps type at 200px).
+
+## Where each client component lives
+
+| Component | Place |
+|---|---|
+| MaskedHeading | Hero: the name filled with a muted concert loop (desktop) |
+| GhostCursor | The one site cursor, in the hero (desktop) |
+| FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |
+| CircularText | "WATCH • THE • FILM •" badge around the featured film's play button |
+| MicroSlats | Behind the repertoire band on Home |
+| RippleDistortion | Fermata photo on Home, portrait on Biography |
+| MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
+| AeroShards | Watch header (WebGPU only; closes up without it) |
+| GooeyNav | Watch filter: All · On stage · At home · Exams (chips on phones) |
+| BorderGlow | Brass edge-light on the lead film of the Watch grid |
+| OptionWheel | Repertoire dial with a detail panel (desktop) |
+| DepthText, TextPressure | 404 only |
+
+Budget: `src/lib/fxStage.jsx` lets only the section filling most of the viewport run its WebGL/canvas effect;
+effects are code-split and never load on phones, touch devices or with reduced motion.
+
+Text motion: FoldText headlines, mask *rise* for lead lines, *wipe* for captions, notes and portraits, *track* for opus
+tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark, counted display numerals, an ink curtain
+between pages and the keyboard-rhythm loader while a page loads.
 
 ## Run
 

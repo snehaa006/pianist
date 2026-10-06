@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import MaskedHeading from './fx/MaskedHeading/MaskedHeading.jsx';
 import { presets } from './fx/presets';
-import SiteCursor from './SiteCursor.jsx';
+import { CursorLayer } from './Effects.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { useFx } from '../lib/hooks';
 
@@ -11,6 +11,7 @@ import { useFx } from '../lib/hooks';
 export default function Hero({ item }) {
   const fx = useFx();
   const { open } = useLightbox();
+  const zone = useRef(null);
   // MaskedHeading takes one source: H.264 where the browser has it, VP9 WebM otherwise.
   const loop = useMemo(() => {
     const v = document.createElement('video');
@@ -18,9 +19,9 @@ export default function Hero({ item }) {
   }, []);
 
   return (
-    <section className="stage screen hero" aria-labelledby="name">
+    <section ref={zone} className="stage screen hero" aria-labelledby="name">
       {fx ? (
-        <SiteCursor />
+        <CursorLayer zoneRef={zone} />
       ) : (
         <div className="hero__media frame scrim">
           <img src="/media/posters/hero.webp" alt={item.alt} width="848" height="480" fetchPriority="high" />
@@ -45,10 +46,10 @@ export default function Hero({ item }) {
             <span aria-hidden="true">jakara</span>
           </h1>
         )}
-        <p className="lead hero__lead">
+        <p className="lead hero__lead reveal reveal--rise" style={{ '--i': 6 }}>
           Watch {item.composer}'s {item.work}, filmed at an Austrian Master Classes concert in {item.year}.
         </p>
-        <div className="hero__actions">
+        <div className="hero__actions reveal" style={{ '--i': 10 }}>
           <button type="button" className="btn btn--primary btn--lg btn--block-mobile" onClick={e => open(item, e.currentTarget)}>
             Watch the performance
           </button>
