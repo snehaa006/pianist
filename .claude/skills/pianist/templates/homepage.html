@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Srinijakara · Pianist</title>
+  <meta name="description" content="Srinijakara, pianist. Concerts, recordings and repertoire.">
+  <link rel="preload" href="../assets/fonts/BebasNeue-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="../assets/tokens.css">
+  <link rel="stylesheet" href="../assets/components.css">
+  <style>
+    /* page-specific layout only; every value is a token */
+    .hero { min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; padding-block: calc(var(--nav-height) + var(--space-8)) var(--space-8); }
+    .hero__media { position: absolute; inset: 0; }
+    .hero__content { position: relative; }
+    .hero .wordmark { margin-left: -0.04em; }
+    .hero__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); margin-top: var(--space-6); }
+    .split { align-items: end; }
+    .split__media { grid-column: 1 / span 6; }
+    .split__text { grid-column: 8 / span 5; }
+    @media (max-width: 899px) { .split__media, .split__text { grid-column: 1 / -1; } }
+    .record { grid-column: span 4; }
+    @media (max-width: 899px) { .record { grid-column: span 4; } }
+    .actions { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: center; margin-top: var(--space-6); }
+    .contact-rows { list-style: none; padding: 0; margin: var(--space-7) 0; border-top: 1px solid var(--rule); max-width: 720px; }
+    .contact-rows li { display: flex; justify-content: space-between; gap: var(--space-4); flex-wrap: wrap; padding-block: var(--space-5); border-bottom: 1px solid var(--rule); }
+  </style>
+</head>
+<body>
+
+<nav class="nav" id="nav" aria-label="Main">
+  <a class="nav__name" href="#top">Srinijakara</a>
+  <ul class="nav__links">
+    <li><a href="#concerts">Concerts</a></li>
+    <li><a href="#listen">Listen</a></li>
+    <li><a href="#repertoire">Repertoire</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="btn btn--primary btn--sm nav__cta" href="#concerts">Tickets <span class="arrow" aria-hidden="true">→</span></a>
+  <button class="nav__menu" type="button" aria-expanded="false">Menu</button>
+</nav>
+
+<main id="top">
+  <!-- Screen 1 · Hero -->
+  <section class="stage screen hero" aria-labelledby="name">
+    <div class="hero__media frame frame--placeholder scrim">(Photograph: performance, 16:9, warm monochrome)</div>
+    <div class="container hero__content">
+      <h1 class="wordmark" id="name">Srinijakara</h1>
+      <p class="lead">Next: [Composer]'s [Work], [Venue], [City], [Day Month].</p>
+      <div class="hero__actions">
+        <a class="btn btn--primary btn--lg" href="#concerts">Tickets <span class="arrow" aria-hidden="true">→</span></a>
+        <a class="link" href="#concerts">All concerts <span class="arrow" aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 2 · Concerts -->
+  <section class="screen" id="concerts" aria-labelledby="concerts-h">
+    <div class="container">
+      <span class="opus">(Op. 01: Concerts)</span>
+      <h2 class="h1 reveal" id="concerts-h">Hear her live</h2>
+      <p class="lead muted">[N] concerts this season, from [City] to [City].</p>
+      <ul class="concerts">
+        <li class="concert reveal" style="--i:0">
+          <time class="concert__date" datetime="2026-11-14"><span class="concert__day">14</span><span class="concert__month">Nov 2026</span></time>
+          <div><div class="concert__city">[City]</div><div class="concert__venue">[Venue]</div></div>
+          <div class="concert__programme body-sm">[Composer]: [Work]<br><span class="muted">with [Orchestra], [Conductor]</span></div>
+          <a class="link concert__action" href="#">Tickets <span class="arrow" aria-hidden="true">→</span></a>
+        </li>
+        <li class="concert reveal" style="--i:1">
+          <time class="concert__date" datetime="2026-12-02"><span class="concert__day">02</span><span class="concert__month">Dec 2026</span></time>
+          <div><div class="concert__city">[City]</div><div class="concert__venue">[Venue]</div></div>
+          <div class="concert__programme body-sm">Solo recital<br><span class="muted">[Composer], [Composer], [Composer]</span></div>
+          <a class="link concert__action" href="#">Tickets <span class="arrow" aria-hidden="true">→</span></a>
+        </li>
+        <li class="concert concert--soldout reveal" style="--i:2">
+          <time class="concert__date" datetime="2027-01-20"><span class="concert__day">20</span><span class="concert__month">Jan 2027</span></time>
+          <div><div class="concert__city">[City]</div><div class="concert__venue">[Venue]</div></div>
+          <div class="concert__programme body-sm">[Composer]: [Work]</div>
+          <span class="label concert__action">Sold out</span>
+        </li>
+      </ul>
+      <div class="actions"><a class="link" href="#">All concerts <span class="arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+
+  <!-- Screen 3 · Listen -->
+  <section class="stage screen" id="listen" aria-labelledby="listen-h">
+    <div class="container grid split">
+      <figure class="split__media frame frame--placeholder ratio-1x1">(Album cover, 1:1)</figure>
+      <div class="split__text">
+        <span class="opus">(Op. 02: Listen)</span>
+        <h2 class="h1 reveal" id="listen-h">[Album title]</h2>
+        <p class="lead muted">[Composer]'s [work], recorded at [hall], [year].</p>
+        <div class="actions">
+          <a class="btn btn--primary" href="#">Listen <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="link" href="#">All recordings <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 4 · Watch -->
+  <section class="stage screen" style="padding-block:0" aria-labelledby="watch-h">
+    <div class="frame frame--placeholder scrim ratio-16x9" style="display:block">
+      <div class="container" style="position:absolute; inset:auto 0 var(--space-8) 0; z-index:1; display:flex; align-items:end; justify-content:space-between; gap:var(--space-5)">
+        <div><span class="label" style="color:var(--color-dust)">[Composer]</span><h2 class="h3" id="watch-h">[Work] · Filmed live at [Venue], [Year]</h2></div>
+        <button class="play" type="button" aria-label="Watch the performance">▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 5 · Repertoire -->
+  <section class="screen" id="repertoire" aria-labelledby="rep-h">
+    <div class="container">
+      <span class="opus">(Op. 03: Repertoire)</span>
+      <h2 class="h1 reveal" id="rep-h">What she plays</h2>
+      <p class="lead muted">From [earliest composer] to [latest composer]: [N] solo works and [N] concertos ready for the stage.</p>
+      <div class="actions"><a class="btn btn--secondary" href="#">See the repertoire <span class="arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+
+  <!-- Screen 6 · Fermata -->
+  <section class="stage screen" aria-label="Press">
+    <div class="container">
+      <div class="staff" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+      <blockquote class="quote"><span class="quote__mark">“</span>[Exact press quote, 25 words or fewer]<span class="quote__mark">”</span>
+        <cite class="quote__cite">— [Publication], [Year]</cite></blockquote>
+    </div>
+  </section>
+
+  <!-- Screen 7 · About -->
+  <section class="screen" id="about" aria-labelledby="about-h">
+    <div class="container grid split">
+      <figure class="split__media frame frame--placeholder ratio-4x5">(Photograph: portrait, 4:5)</figure>
+      <div class="split__text">
+        <span class="opus">(Op. 04: About)</span>
+        <h2 class="h1 reveal" id="about-h">The pianist</h2>
+        <p class="lead">Srinijakara is a pianist based in [City]. She plays solo recitals, concertos and chamber music.</p>
+        <p class="body muted">She trained at [Institution] with [Teacher]. Since [Year] she has performed at [Venue], [Venue] and [Venue], with [Orchestra/Ensemble].</p>
+        <div class="actions">
+          <a class="link" href="#">Read the biography <span class="arrow" aria-hidden="true">→</span></a>
+          <a class="link" href="#">Press kit (PDF) <span class="arrow" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 9 · Next season -->
+  <section class="stage screen" aria-labelledby="next-h">
+    <div class="container">
+      <span class="opus">(Op. 05: Next)</span>
+      <h2 class="h1 reveal" id="next-h">Next season</h2>
+      <p class="lead muted">[Year]: [Project], first performed at [Venue] on [Date].</p>
+      <div class="actions"><a class="btn btn--primary" href="#contact">Join the list <span class="arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
+
+  <!-- Screen 10 · Contact -->
+  <section class="screen" id="contact" aria-labelledby="contact-h">
+    <div class="container">
+      <h2 class="h1 reveal" id="contact-h">Book a concert</h2>
+      <p class="lead muted">Management, press and direct enquiries.</p>
+      <ul class="contact-rows body-sm">
+        <li><span class="label">Management</span><a class="link" href="mailto:[email]">[Name], [Agency] <span class="arrow" aria-hidden="true">→</span></a></li>
+        <li><span class="label">Press</span><a class="link" href="mailto:[email]">[Name] <span class="arrow" aria-hidden="true">→</span></a></li>
+        <li><span class="label">Direct</span><a class="link" href="mailto:[email]">[email] <span class="arrow" aria-hidden="true">→</span></a></li>
+      </ul>
+      <form class="field" style="max-width:560px" onsubmit="event.preventDefault()">
+        <label class="field__label" for="email">Email</label>
+        <div class="input-row">
+          <input class="input" id="email" type="email" autocomplete="email" required>
+          <button class="btn btn--primary" type="submit">Join the list</button>
+        </div>
+        <span class="body-sm muted">Concert dates, first. One email a month at most.</span>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="stage footer">
+  <div class="container footer__row label">
+    <span>Concerts · Listen · Repertoire · About · Contact</span>
+    <span><a href="#">Instagram</a> · <a href="#">YouTube</a> · <a href="#">Spotify</a></span>
+  </div>
+  <div class="container"><p class="footer__mark" aria-hidden="true">Srinijakara</p></div>
+</footer>
+
+<script>
+  // Nav turns solid after the hero; arpeggio reveals. No dependencies.
+  const nav = document.getElementById('nav');
+  const hero = document.querySelector('.hero');
+  new IntersectionObserver(([e]) => nav.classList.toggle('nav--solid', !e.isIntersecting), { rootMargin: '-72px 0px 0px 0px' }).observe(hero);
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); } }), { threshold: 0.2 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
