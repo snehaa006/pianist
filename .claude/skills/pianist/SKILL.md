@@ -5,13 +5,13 @@ description: Srinijakara design system. Use for anything built for Srinijakara, 
 
 # /pianist: build anything for Srinijakara in her design system
 
-Srinijakara is a professional pianist. Her site is premium, editorial and music-led. It reads like **a recital programme printed on ivory card, then lit for the stage**. Primary visual reference: the New York Philharmonic "Gustavo" pages (inspired by, never copied). Secondary references: 15 Refero DESIGN.md files in `/design`.
+Srinijakara is a professional pianist. Her site is premium, editorial and music-led. It reads like **a recital programme printed on ivory card, then lit for the stage**. Primary visual reference: the New York Philharmonic "Gustavo" pages (inspired by, never copied). Secondary references: 15 Refero DESIGN.md files, summarised in `references/sources.md`.
 
 Whenever `/pianist` runs, build what the user asks for (a page, section, component, email, post, copy) **using this system and nothing else**.
 
 ## Workflow (every time)
 
-1. **Read what the task needs** from this skill folder (paths relative to `.claude/skills/pianist/`):
+1. **Read what the task needs** from this skill's own folder (all paths below are relative to the directory containing this SKILL.md, wherever it is installed: project `.claude/skills/pianist/`, global `~/.claude/skills/pianist/`, or an uploaded skill):
    - `references/design-system.md`: the full spec (palette, type, grid, radius, components, imagery, music motifs, motion, hover states, responsive). **Always read it.**
    - `references/copy-rules.md`: portfolio research plus copy rules plus banned words. **Read it whenever any text is written.**
    - `references/page-copy.md`: approved homepage copy and microcopy. Reuse it verbatim where it fits.
@@ -25,7 +25,7 @@ Whenever `/pianist` runs, build what the user asks for (a page, section, compone
    - `components/<Name>/`, `components/presets.js`, `components/pianist-overrides.css`.
    - `templates/homepage.html`: a working reference page (static, no build). Copy and adapt it.
 3. **Copy the needed assets into the target project** (keep relative font paths working). Never hotlink fonts or stock images.
-4. **Build.** Then run the checklist below before you call it done. If possible, render the page (Playwright/Chromium is available) at 1440px and 390px and look at it.
+4. **Build.** Then run the checklist below before you call it done. If a headless browser (e.g. Playwright) is available, render the page at 1440px and 390px and look at it.
 
 ## Non-negotiables (the short version)
 

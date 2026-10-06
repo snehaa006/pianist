@@ -1,6 +1,6 @@
 # React Components (client-supplied, packaged for the Srinijakara system)
 
-All 15 components the client added (`components.txt/` in the repo) are packaged under `.claude/skills/pianist/components/<Name>/` as `<Name>.jsx` + `<Name>.css`. The CSS was split out of the comment blocks that were appended to each original file. The originals carried `.tsx`/`.ts` extensions but contain untyped JSX, so they are shipped as `.jsx` (rename to `.tsx` and add prop types if the project is strict TypeScript). Every file was syntax-checked with esbuild.
+All 15 components the client supplied are packaged in this skill under `components/<Name>/` as `<Name>.jsx` + `<Name>.css`. The CSS was split out of the comment blocks that were appended to each original file. The originals carried `.tsx`/`.ts` extensions but contain untyped JSX, so they are shipped as `.jsx` (rename to `.tsx` and add prop types if the project is strict TypeScript). Every file was syntax-checked with esbuild.
 
 **Always do this when using one:**
 1. Copy the component folder into the project (e.g. `src/components/fx/<Name>/`).
