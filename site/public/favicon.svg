@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- keyboard rhythm motif: two black keys, then three -->
+  <rect width="64" height="64" fill="#0B0B0C"/>
+  <g fill="#B8935A">
+    <rect x="9" y="16" width="5" height="32"/><rect x="17" y="16" width="5" height="32"/>
+    <rect x="31" y="16" width="5" height="32"/><rect x="39" y="16" width="5" height="32"/><rect x="47" y="16" width="5" height="32"/>
+  </g>
+</svg>
