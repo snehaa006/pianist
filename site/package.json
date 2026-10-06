@@ -12,10 +12,13 @@
   },
   "dependencies": {
     "gsap": "^3.13.0",
+    "motion": "^14.0.0",
+    "ogl": "^1.0.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.0",
-    "three": "^0.177.0"
+    "three": "^0.186.1",
+    "vgpu": "^0.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.5.0",

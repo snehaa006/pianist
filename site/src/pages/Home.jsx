@@ -1,14 +1,20 @@
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero.jsx';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
-import NewsletterForm from '../components/NewsletterForm.jsx';
+import MailingList from '../components/MailingList.jsx';
 import ContactRows from '../components/ContactRows.jsx';
+import Count from '../components/Count.jsx';
+import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
+import { RippleImage, SlatsLayer } from '../components/Effects.jsx';
+import CircularText from '../components/fx/CircularText/CircularText.jsx';
+import { presets } from '../components/fx/presets';
 import { useLightbox } from '../components/Lightbox.jsx';
-import { byId } from '../data/performances';
+import { byId, performances } from '../data/performances';
 import { site } from '../data/site';
-import { usePageTitle, useReveals } from '../lib/hooks';
+import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
 
 const Arrow = () => (
   <span className="arrow" aria-hidden="true">
@@ -17,8 +23,9 @@ const Arrow = () => (
 );
 
 export default function Home() {
+  const [view, setView] = useState('upcoming');
   usePageTitle(null);
-  useReveals();
+  useReveals([view]);
   const concert = byId('austrian-master-classes');
   const stage = byId('on-stage');
   const atHome = ['at-home-grand', 'song-of-twilight', 'lcm-grade-1'].map(byId);
@@ -27,31 +34,20 @@ export default function Home() {
     <>
       <Hero item={concert} />
 
-      {/* Concerts: no public dates yet, so the empty state, never invented rows */}
-      <section className="screen" id="concerts" aria-labelledby="concerts-h">
-        <div className="container">
-          <span className="opus">(Op. 01: Concerts)</span>
-          <Headline id="concerts-h">Hear her live</Headline>
-          <div className="concerts concert-empty">
-            <div className="concert-empty__text">
-              <p className="lead">No public dates right now.</p>
-              <p className="body muted">New concerts reach the mailing list first.</p>
-            </div>
-            <a className="btn btn--primary concert-empty__action" href="#list">
-              Join the list
-            </a>
-          </div>
-        </div>
-      </section>
+      <Concerts view={view} setView={setView} />
 
       <FeaturedFilm item={stage} />
 
       {/* Three films from home, two of them exam recordings */}
       <section className="screen" aria-labelledby="home-h">
         <div className="container">
-          <span className="opus">(Op. 02: Watch)</span>
-          <Headline id="home-h">At home, at the piano</Headline>
-          <p className="lead muted">Three performances filmed at home, two of them for London College of Music exams.</p>
+          <Opus>(Op. 02: Watch)</Opus>
+          <Headline id="home-h" hinge="left" accent="piano">
+            At home, at the piano
+          </Headline>
+          <p className="lead muted reveal reveal--rise">
+            Three performances filmed at home, two of them for London College of Music exams.
+          </p>
           <div className="films">
             {atHome.map((p, i) => (
               <PerformanceCard key={p.id} item={p} index={i} />
@@ -65,32 +61,19 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="stage screen" id="repertoire" aria-labelledby="rep-h">
-        <div className="container">
-          <Staff />
-          <span className="opus">(Op. 03: Repertoire)</span>
-          <Headline id="rep-h">What she plays</Headline>
-          <p className="lead muted">Five solo pieces, each one on film, {site.repertoireRange}.</p>
-          <div className="actions">
-            <Link className="btn btn--secondary" to="/repertoire">
-              See the repertoire <Arrow />
-            </Link>
-          </div>
-        </div>
-      </section>
+      <RepertoireBand />
 
-      {/* Fermata: no press quote exists, so a photograph only */}
+      {/* Fermata: no press quote exists, so a photograph only (it ripples under the pointer) */}
       <section className="stage fermata" aria-label="The hall before the music">
-        <figure className="fermata__figure frame scrim">
-          <img
+        <figure className="fermata__figure scrim">
+          <RippleImage
+            className="fermata__image"
             src="/media/posters/fermata.webp"
             alt="An Austrian Master Classes concert seen from the audience: Srinijakara at the grand piano, beyond the backs of the front-row chairs."
             width="848"
             height="480"
-            loading="lazy"
-            decoding="async"
           />
-          <figcaption className="container fermata__caption label">
+          <figcaption className="container fermata__caption label reveal reveal--wipe">
             Austrian Master Classes, {concert.venue}, {concert.year}.
           </figcaption>
         </figure>
@@ -98,7 +81,7 @@ export default function Home() {
 
       <section className="screen" id="about" aria-labelledby="about-h">
         <div className="container grid split">
-          <figure className="split__media frame ratio-4x5 reveal">
+          <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
             <img
               src="/media/posters/portrait.webp"
               alt="Srinijakara in profile at the grand piano at home, hands on the keys, window light behind her."
@@ -109,10 +92,12 @@ export default function Home() {
             />
           </figure>
           <div className="split__text">
-            <span className="opus">(Op. 04: About)</span>
-            <Headline id="about-h">The pianist</Headline>
-            <p className="lead">Srinijakara is a pianist based in {site.city}.</p>
-            <p className="body muted">
+            <Opus>(Op. 04: About)</Opus>
+            <Headline id="about-h" hinge="right">
+              The pianist
+            </Headline>
+            <p className="lead reveal reveal--rise">Srinijakara is a pianist based in {site.city}.</p>
+            <p className="body muted reveal" style={{ '--i': 2 }}>
               On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
               College of Music exams at Grades 1 and 3.
             </p>
@@ -127,32 +112,98 @@ export default function Home() {
 
       <section className="screen screen--paper" aria-labelledby="note-h">
         <div className="container">
-          <h2 className="label note__label" id="note-h">
+          <h2 className="label note__label reveal reveal--track" id="note-h">
             A note from Srinijakara
           </h2>
-          <p className="h3 note__body">{site.note}</p>
-          <p className="label muted note__sign">— S.</p>
+          <p className="h3 note__body reveal reveal--wipe">{site.note}</p>
+          <p className="label muted note__sign reveal" style={{ '--i': 3 }}>
+            — S.
+          </p>
         </div>
       </section>
 
       <section className="screen" id="contact" aria-labelledby="contact-h">
         <div className="container">
-          <span className="opus">(Op. 05: Contact)</span>
-          <Headline id="contact-h">Book a concert</Headline>
-          <p className="lead muted">Management, press and direct enquiries.</p>
+          <Opus>(Op. 05: Contact)</Opus>
+          <Headline id="contact-h" hinge="top">
+            Book a concert
+          </Headline>
+          <p className="lead muted reveal reveal--rise">Management, press and direct enquiries.</p>
           <ContactRows />
-          <div id="list" className="list-anchor">
-            <NewsletterForm />
-          </div>
         </div>
       </section>
+
+      <MailingList />
     </>
   );
 }
 
-// Watch: one filmed performance, full-bleed, play in place.
+// Op. 01: Upcoming (empty state, never invented rows) or the archive of filmed performances as programme rows.
+function Concerts({ view, setView }) {
+  const { open } = useLightbox();
+  return (
+    <section className="screen" id="concerts" aria-labelledby="concerts-h">
+      <div className="container">
+        <Opus>(Op. 01: Concerts)</Opus>
+        <Headline id="concerts-h">Hear her live</Headline>
+        <div className="chips" role="group" aria-label="Which concerts">
+          <button type="button" className="chip" aria-pressed={view === 'upcoming'} onClick={() => setView('upcoming')}>
+            Upcoming
+          </button>
+          <button type="button" className="chip" aria-pressed={view === 'past'} onClick={() => setView('past')}>
+            Past concerts
+          </button>
+        </div>
+
+        {view === 'upcoming' ? (
+          <div className="concerts concert-empty" key="upcoming">
+            <div className="concert-empty__text">
+              <p className="lead reveal reveal--rise">No public dates right now.</p>
+              <p className="body muted reveal" style={{ '--i': 2 }}>
+                New concerts reach the mailing list first.
+              </p>
+            </div>
+            <a className="btn btn--primary concert-empty__action" href="#list">
+              Join the list <Arrow />
+            </a>
+          </div>
+        ) : (
+          <ul className="concerts" key="past">
+            {performances.map((p, i) => (
+              <li className="concert concert--past reveal" style={{ '--i': i }} key={p.id}>
+                <span className="concert__date">
+                  <span className="concert__day">[DD]</span>
+                  <span className="concert__month">[Month] {p.year}</span>
+                </span>
+                <div>
+                  <div className="concert__city">{p.tags.includes('home') ? 'At home' : p.short}</div>
+                  <div className="concert__venue">{p.tags.includes('home') ? p.occasion : p.venue}</div>
+                </div>
+                <div className="concert__programme body-sm">
+                  {p.composer}: {p.work}
+                  {p.syllabus && (
+                    <>
+                      <br />
+                      <span className="muted">Performance {p.syllabus}</span>
+                    </>
+                  )}
+                </div>
+                <button type="button" className="link concert__action" onClick={e => open(p, e.currentTarget)}>
+                  Watch <Arrow />
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// Watch: one filmed performance, full-bleed; the play button sits inside a slowly turning badge.
 function FeaturedFilm({ item }) {
   const { open } = useLightbox();
+  const reduced = useReducedMotion();
   return (
     <section className="stage feature" aria-labelledby="feature-h">
       <div className="feature__frame frame scrim">
@@ -160,20 +211,66 @@ function FeaturedFilm({ item }) {
       </div>
       <div className="container feature__text">
         <div>
-          <span className="label muted">{item.composer}</span>
-          <h2 className="h1" id="feature-h">
+          <span className="label muted reveal reveal--track">{item.composer}</span>
+          <h2 className="h1 reveal reveal--rise" id="feature-h">
             {item.work}
           </h2>
-          <p className="lead muted feature__lead">
+          <p className="lead muted feature__lead reveal" style={{ '--i': 2 }}>
             Filmed live on stage at {item.venue}, {item.year}.
           </p>
           <Link className="link feature__link" to="/watch">
             All performances <Arrow />
           </Link>
         </div>
-        <button type="button" className="play feature__play" aria-label="Watch the performance" onClick={e => open(item, e.currentTarget)}>
-          <span aria-hidden="true">▶</span>
-        </button>
+        <div className="badge">
+          {!reduced && (
+            <div className="badge__ring" aria-hidden="true">
+              <CircularText {...presets.CircularText} text="WATCH • THE • FILM • WATCH • THE • FILM • " />
+            </div>
+          )}
+          <button type="button" className="play badge__play" aria-label="Watch the performance" onClick={e => open(item, e.currentTarget)}>
+            <span aria-hidden="true">▶</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Op. 03: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
+function RepertoireBand() {
+  const zone = useRef(null);
+  const facts = [
+    { n: performances.length, label: 'Pieces on film' },
+    { n: 2, label: 'London College of Music exams' },
+    { n: 1, label: 'Austrian Master Classes concert' }
+  ];
+  return (
+    <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
+      <SlatsLayer zoneRef={zone} />
+      <div className="container band__content">
+        <Staff />
+        <Opus>(Op. 03: Repertoire)</Opus>
+        <Headline id="rep-h" hinge="top" accent="plays">
+          What she plays
+        </Headline>
+        <p className="lead muted reveal reveal--rise">Five solo pieces, each one on film, {site.repertoireRange}.</p>
+        <dl className="facts">
+          {facts.map((f, i) => (
+            <div className="facts__item reveal" style={{ '--i': i }} key={f.label}>
+              <dt className="label muted">{f.label}</dt>
+              <dd className="display facts__n">
+                <Count to={f.n} />
+                <span className="sr-only">{f.n}</span>
+              </dd>
+            </div>
+          ))}
+        </dl>
+        <div className="actions">
+          <Link className="btn btn--secondary" to="/repertoire">
+            See the repertoire <Arrow />
+          </Link>
+        </div>
       </div>
     </section>
   );

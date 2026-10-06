@@ -1,14 +1,39 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import { LightboxProvider } from './components/Lightbox.jsx';
+import { Keys } from './components/Motifs.jsx';
+import { FxStageProvider } from './lib/fxStage.jsx';
+import { useReducedMotion } from './lib/hooks';
 import Home from './pages/Home.jsx';
-import Watch from './pages/Watch.jsx';
-import Repertoire from './pages/Repertoire.jsx';
-import About from './pages/About.jsx';
-import Contact from './pages/Contact.jsx';
-import NotFound from './pages/NotFound.jsx';
+
+const Watch = lazy(() => import('./pages/Watch.jsx'));
+const Repertoire = lazy(() => import('./pages/Repertoire.jsx'));
+const About = lazy(() => import('./pages/About.jsx'));
+const Contact = lazy(() => import('./pages/Contact.jsx'));
+const NotFound = lazy(() => import('./pages/NotFound.jsx'));
+
+// While a page loads: the keyboard-rhythm loader, lighting up key by key.
+function PageLoader() {
+  return (
+    <div className="page-loader stage">
+      <Keys loading />
+    </div>
+  );
+}
+
+// Page transition: an ink curtain, keyed to the route, lifts away over Andante.
+function Curtain() {
+  const { pathname } = useLocation();
+  const reduced = useReducedMotion();
+  if (reduced) return null;
+  return (
+    <div className="curtain" key={pathname} aria-hidden="true">
+      <Keys />
+    </div>
+  );
+}
 
 // New page → top of page; a #hash → that section.
 function ScrollManager() {
@@ -29,10 +54,13 @@ function ScrollManager() {
 export default function App() {
   return (
     <BrowserRouter>
+      <FxStageProvider>
       <LightboxProvider>
         <ScrollManager />
+        <Curtain />
         <Nav />
         <main id="main" tabIndex={-1}>
+          <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/watch" element={<Watch />} />
@@ -41,9 +69,11 @@ export default function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
         </main>
         <Footer />
       </LightboxProvider>
+      </FxStageProvider>
     </BrowserRouter>
   );
 }

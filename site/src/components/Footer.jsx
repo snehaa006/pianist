@@ -29,7 +29,7 @@ export default function Footer() {
         <span className="micro">© {new Date().getFullYear()} Srinijakara</span>
       </div>
       <div className="container">
-        <p className="footer__mark" aria-hidden="true">
+        <p className="footer__mark reveal reveal--lift" aria-hidden="true">
           Srinijakara
         </p>
       </div>

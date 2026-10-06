@@ -193,3 +193,124 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .fold-text-piece[data-fold-hinge='bottom']::after {
   background: linear-gradient(0deg, rgba(11, 11, 12, 0.58) 0%, rgba(11, 11, 12, 0.22) 42%, rgba(244, 239, 230, 0.26) 100%);
 }
+
+/* ======================================================================
+   Motion layer: text reveals (each variant has a job), curtain, loader
+   ====================================================================== */
+
+/* Wipe: a line or frame is drawn in from the left (Adagio). Captions, notes, portraits. */
+.reveal--wipe { opacity: 1; transform: none; clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dur-adagio) var(--ease-legato); transition-delay: calc(var(--i, 0) * var(--stagger-arpeggio)); }
+.reveal--wipe.is-in { clip-path: inset(0 0 0 0); }
+
+/* Rise: a lead line lifts out of a mask, like a sustained chord arriving (Adagio). */
+.reveal--rise { clip-path: inset(0 0 100% 0); transform: translateY(0.6em);
+  transition: clip-path var(--dur-adagio) var(--ease-legato), transform var(--dur-adagio) var(--ease-legato), opacity var(--dur-andante) var(--ease-legato);
+  transition-delay: calc(var(--dur-allegro) + var(--i, 0) * var(--stagger-arpeggio)); }
+.reveal--rise.is-in { clip-path: inset(0 0 0 0); transform: none; }
+
+/* Track: opus tags and small labels breathe in from wide tracking to label tracking (Largo). */
+.reveal--track { transform: none; letter-spacing: 0.6em;
+  transition: opacity var(--dur-andante) var(--ease-legato), letter-spacing var(--dur-largo) var(--ease-legato); }
+.reveal--track.is-in { letter-spacing: var(--tracking-label); }
+
+/* Lift: the footer wordmark rises into its crop (Largo). */
+.reveal--lift { opacity: 1; transform: translateY(35%); transition: transform var(--dur-largo) var(--ease-legato); }
+.reveal--lift.is-in { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal--wipe, .reveal--rise, .reveal--track, .reveal--lift { clip-path: none; transform: none; opacity: 1; }
+  .reveal--track { letter-spacing: var(--tracking-label); }
+}
+
+/* Page transition: an ink curtain lifts away on every route change (Andante, after a Presto hold). */
+.curtain { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; background: var(--color-ink);
+  pointer-events: none; transform-origin: top;
+  animation: curtain-lift var(--dur-andante) var(--ease-legato) var(--dur-presto) both; }
+.curtain .keys__key { background: var(--color-brass); }
+@keyframes curtain-lift { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+
+.page-loader { min-height: 100svh; display: grid; place-items: center; }
+
+/* ======================================================================
+   Effect layers (one live per viewport, see lib/fxStage.jsx)
+   ====================================================================== */
+.band { position: relative; overflow: hidden; }
+.band__content { position: relative; z-index: 1; }
+.fx-layer { position: absolute; inset: 0; z-index: 0; }
+.fx-layer > * { position: absolute; inset: 0; }
+/* MoltenMetal never sits behind text without a 72% ink scrim */
+.fx-layer--scrim::after { content: ''; position: absolute; inset: 0; background: rgba(11, 11, 12, 0.72); pointer-events: none; }
+.ripple-distortion { background: var(--color-ink); }
+
+.ripple-frame { position: relative; width: 100%; height: 100%; }
+.ripple-frame > img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.fx-layer--ripple .ripple-distortion { position: absolute; inset: 0; }
+
+/* Fermata image fills the screen; the caption stays above the ripple */
+.fermata__figure { margin: 0; }
+.fermata__image { position: absolute; inset: 0; }
+.fermata__figure.scrim::after { z-index: 1; }
+.fermata__caption { z-index: 2; }
+
+/* ======================================================================
+   Components new to the site
+   ====================================================================== */
+.chips { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
+.chip { min-height: var(--control-md); }
+
+.concert--past .concert__day { color: var(--fg-muted); }
+.concert .concert__action { justify-self: end; }
+button.concert__action { padding-inline: 0; }
+@media (max-width: 899px) { .concert .concert__action { justify-self: start; } }
+
+/* CircularText badge turning slowly around the play button */
+.badge { position: relative; width: 168px; height: 168px; flex: none; display: grid; place-items: center; }
+.badge__ring { position: absolute; inset: 0; }
+.badge__ring .circular-text { width: 168px; height: 168px; color: var(--color-brass); }
+.badge__ring .circular-text span { font-size: 14px; }
+.badge__play { position: relative; z-index: 1; }
+@media (max-width: 639px) { .badge { width: 120px; height: 120px; } .badge__ring .circular-text { width: 120px; height: 120px; } .badge__ring .circular-text span { font-size: 12px; } }
+
+/* Counted facts on the repertoire band */
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); margin: var(--space-8) 0 0; max-width: 960px; }
+.facts__item { display: grid; align-content: start; gap: var(--space-2); border-top: 1px solid var(--rule); padding-top: var(--space-4); }
+.facts__item dt { max-width: 22ch; }
+.facts__n { order: -1; margin: 0; color: var(--color-brass); }
+@media (max-width: 639px) { .facts { grid-template-columns: 1fr; gap: var(--space-5); } }
+
+/* Watch page */
+.watch-head--tall { min-height: 72svh; }
+.watch-head { display: flex; align-items: flex-end; position: relative; overflow: hidden; padding-bottom: var(--space-7); }
+.watch-head .container { width: 100%; }
+.watch { padding-top: 0; }
+.watch__filter { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-5);
+  padding-bottom: var(--space-6); border-bottom: 1px solid var(--rule); }
+.watch__filter .chips { margin: 0; }
+.gooey-nav-container { --linear-ease: var(--ease-legato); }
+.gooey-nav-container nav ul { padding: 0; gap: var(--space-2); }
+.gooey-nav-container nav ul li a { display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0 20px; color: inherit; text-decoration: none; }
+.film-glow { grid-column: 1 / -1; }
+.film-glow .border-glow-inner { padding: var(--space-5); }
+@media (min-width: 1200px) { .film-glow .border-glow-inner { padding: var(--space-6); } }
+
+/* Repertoire dial: OptionWheel on the left, the chosen piece on the right */
+.dial { display: grid; grid-template-columns: 5fr 7fr; gap: var(--space-8); align-items: center; margin-top: var(--space-8);
+  padding-block: var(--space-7); border-block: 1px solid var(--rule); }
+.dial__wheel { height: 440px; }
+.option-wheel__item, .option-wheel__item--selected { font-family: var(--font-display); font-weight: 400; }
+.dial__detail { display: grid; gap: var(--space-3); animation: from-ink var(--dur-andante) var(--ease-legato) both; }
+.dial__poster { margin-bottom: var(--space-3); }
+.dial__work { margin: 0; }
+
+/* 404 */
+.notfound__numeral { margin-bottom: var(--space-6); line-height: 0.86; }
+.notfound__plain { font-size: clamp(8rem, 22vw, 20rem); color: var(--color-brass); }
+.depth-text__layer, .depth-text__face { letter-spacing: -0.01em; }
+.notfound__pressure { height: clamp(64px, 6.4vw, 96px); width: 100%; overflow: hidden; }
+.notfound__pressure .text-pressure-title { margin: 0; font-weight: 400; color: var(--color-ivory); }
+/* CircularText rotates full-size letter boxes; keep their corners inside the round badge */
+.badge__ring { overflow: hidden; border-radius: var(--radius-round); }
+.feature { overflow: hidden; }
+/* BorderGlow's edge light reaches 40px past its card; the stage clips it at the page edge */
+.watch { overflow: hidden; }
