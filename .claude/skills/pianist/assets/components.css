@@ -1,0 +1,153 @@
+/* Srinijakara — base component styles. Requires tokens.css. Framework-agnostic class names. */
+
+/* ---- Layout ------------------------------------------------------------ */
+.container { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-margin); box-sizing: border-box; }
+.screen { position: relative; padding-block: var(--section-y); background: var(--bg); color: var(--fg); }
+.screen--full { min-height: 100svh; display: flex; flex-direction: column; justify-content: flex-end; }
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--gutter); }
+@media (max-width: 899px) { .grid { grid-template-columns: repeat(8, minmax(0, 1fr)); } }
+@media (max-width: 639px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---- Type -------------------------------------------------------------- */
+.wordmark { font-size: var(--text-wordmark); line-height: var(--leading-wordmark); letter-spacing: var(--tracking-wordmark); margin: 0; white-space: nowrap; }
+.display  { font-size: var(--text-display); line-height: var(--leading-display); letter-spacing: var(--tracking-display); margin: 0; }
+.h1 { font-size: var(--text-h1); line-height: var(--leading-h1); letter-spacing: var(--tracking-h1); margin: 0; }
+.h2 { font-size: var(--text-h2); line-height: var(--leading-h2); letter-spacing: var(--tracking-h2); margin: 0; }
+.h3 { font-size: var(--text-h3); line-height: var(--leading-h3); letter-spacing: var(--tracking-h3); margin: 0; }
+.h4 { font-size: var(--text-h4); line-height: var(--leading-h4); letter-spacing: var(--tracking-h4); margin: 0; }
+.lead { font-size: var(--text-lead); line-height: var(--leading-lead); letter-spacing: var(--tracking-lead); max-width: 30ch; margin: var(--space-5) 0 0; }
+.body { font-size: var(--text-body); max-width: var(--measure); }
+.body-sm { font-size: var(--text-body-sm); line-height: var(--leading-body-sm); letter-spacing: var(--tracking-body-sm); }
+.label { font-size: var(--text-label); line-height: var(--leading-label); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.muted { color: var(--fg-muted); }
+.opus { display: block; font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); margin-bottom: var(--space-5); }
+.accent-word { color: var(--fg-muted); }
+.stage .accent-word { color: var(--color-brass); }
+
+/* ---- Buttons ----------------------------------------------------------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  height: var(--control-md); padding: 0 28px; box-sizing: border-box;
+  border-radius: var(--radius-pill); border: var(--border) solid transparent;
+  font: inherit; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+  transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato),
+              border-color var(--dur-allegro) var(--ease-legato), transform var(--dur-presto) var(--ease-legato);
+}
+.btn .arrow { display: inline-block; transition: transform var(--dur-allegro) var(--ease-legato); }
+.btn:hover .arrow { transform: translateX(4px); }
+.btn:active { transform: scale(0.98); }
+.btn--lg { height: var(--control-lg); padding: 0 36px; font-size: 1rem; letter-spacing: 0.14em; }
+.btn--sm { height: var(--control-sm); padding: 0 16px; }
+.btn--primary { background: var(--action); color: var(--action-fg); }
+.btn--primary:hover { background: var(--action-hover); }
+.btn--secondary { background: transparent; color: var(--fg); border-color: var(--fg); }
+.btn--secondary:hover { background: var(--fg); color: var(--bg); }
+.btn[disabled], .btn[aria-disabled='true'] { opacity: 0.4; pointer-events: none; }
+@media (max-width: 639px) { .btn--block-mobile { width: 100%; } }
+
+.link {
+  position: relative; display: inline-flex; gap: 8px; align-items: center; color: var(--fg); text-decoration: none;
+  font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; padding-block: 6px;
+}
+.link::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor;
+  transform: scaleX(0); transform-origin: left; transition: transform var(--dur-allegro) var(--ease-legato); }
+.link:hover::after { transform: scaleX(1); }
+.link .arrow { transition: transform var(--dur-allegro) var(--ease-legato); }
+.link:hover .arrow { transform: translateX(4px); }
+
+.play {
+  width: var(--play-size); height: var(--play-size); border-radius: var(--radius-round);
+  border: var(--border) solid var(--color-ivory); background: transparent; color: var(--color-ivory);
+  display: inline-grid; place-items: center; cursor: pointer; font-size: 20px;
+  transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato), transform var(--dur-andante) var(--ease-legato);
+}
+.play:hover { background: var(--color-ivory); color: var(--color-ink); transform: scale(1.06); }
+@media (max-width: 639px) { .play { width: 56px; height: 56px; } }
+
+.chip { height: var(--control-sm); padding: 0 16px; border-radius: var(--radius-pill); border: 1px solid var(--fg-muted);
+  background: transparent; color: var(--fg-muted); font: inherit; font-size: var(--text-label); letter-spacing: var(--tracking-label);
+  text-transform: uppercase; cursor: pointer; transition: all var(--dur-allegro) var(--ease-legato); }
+.chip:hover { border-color: var(--fg); color: var(--fg); }
+.chip[aria-pressed='true'] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+
+/* ---- Navigation -------------------------------------------------------- */
+.nav { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--nav-height); display: flex; align-items: center;
+  justify-content: space-between; gap: var(--space-6); padding-inline: var(--page-margin); color: var(--color-ivory);
+  transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato), border-color var(--dur-allegro); border-bottom: 1px solid transparent; }
+.nav--solid { background: var(--color-ivory); color: var(--color-ink); border-bottom-color: var(--color-hairline); }
+.nav__name { font-size: var(--text-h4); letter-spacing: 0.12em; color: inherit; text-decoration: none; }
+.nav__links { display: flex; gap: var(--space-6); list-style: none; margin: 0; padding: 0; }
+.nav__links a { position: relative; color: inherit; text-decoration: none; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; transition: opacity var(--dur-presto); }
+.nav__links a:hover { opacity: 0.65; }
+.nav__links a[aria-current='page']::after { content: ''; position: absolute; left: 50%; bottom: -10px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: currentColor; }
+.nav__menu { display: none; background: none; border: 0; color: inherit; font: inherit; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; height: 48px; cursor: pointer; }
+@media (max-width: 899px) { .nav { height: 64px; } .nav__links, .nav__cta { display: none; } .nav__menu { display: inline-flex; align-items: center; } }
+
+/* ---- Concert row ------------------------------------------------------- */
+.concerts { list-style: none; margin: var(--space-7) 0 0; padding: 0; border-top: 1px solid var(--rule); }
+.concert { display: grid; grid-template-columns: 2fr 4fr 4fr 2fr; gap: var(--gutter); align-items: center; min-height: 88px;
+  padding-block: var(--space-5); border-bottom: 1px solid var(--rule); transition: background-color var(--dur-andante) var(--ease-legato); }
+.concert__date { display: flex; flex-direction: column; transition: transform var(--dur-andante) var(--ease-legato); }
+.concert__day { font-size: clamp(3.5rem, 6vw, 6rem); line-height: 0.85; }
+.stage .concert__day { color: var(--color-brass); }
+.concert__month { font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); }
+.concert__city { font-size: var(--text-h3); line-height: 1; }
+.concert__venue { font-size: var(--text-body-sm); color: var(--fg-muted); }
+.concert__action { justify-self: end; }
+.concert--soldout .concert__action { color: var(--fg-muted); }
+@media (hover: hover) and (pointer: fine) {
+  .concert:hover { background: var(--bg-alt); }
+  .concert:hover .concert__date { transform: translateX(8px); }
+}
+@media (max-width: 899px) {
+  .concert { grid-template-columns: auto 1fr; row-gap: var(--space-2); }
+  .concert__programme, .concert__action { grid-column: 1 / -1; justify-self: start; }
+}
+
+/* ---- Media ------------------------------------------------------------- */
+.frame { position: relative; overflow: hidden; background: var(--color-lacquer); margin: 0; }
+.frame img, .frame video { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-andante) var(--ease-legato); }
+.frame:hover img { transform: scale(1.03); }
+.frame--placeholder { display: grid; place-items: center; outline: 1px solid var(--color-graphite); outline-offset: -1px; color: var(--color-stone); font-size: var(--text-micro); letter-spacing: var(--tracking-micro); text-transform: uppercase; }
+.scrim::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
+.ratio-16x9 { aspect-ratio: 16 / 9; } .ratio-4x5 { aspect-ratio: 4 / 5; } .ratio-1x1 { aspect-ratio: 1; } .ratio-3x2 { aspect-ratio: 3 / 2; }
+
+/* ---- Music motifs ------------------------------------------------------ */
+.staff { display: grid; gap: 5px; width: 120px; margin-block: var(--space-7); }
+.staff span { display: block; height: 1px; background: var(--rule); }
+.stage .staff span { background: var(--color-brass); }
+.keys { display: inline-flex; gap: 18px; } .keys__group { display: inline-flex; gap: 6px; }
+.keys__key { width: 10px; height: 40px; background: var(--fg); }
+.stage .keys__key { background: var(--color-brass); }
+@keyframes key-press { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
+.keys--loading .keys__key { animation: key-press var(--dur-largo) var(--ease-rubato) infinite; }
+
+/* ---- Quote ------------------------------------------------------------- */
+.quote { margin: 0; font-size: var(--text-h1); line-height: var(--leading-h1); max-width: 18ch; }
+.quote__mark { color: var(--fg-muted); } .stage .quote__mark { color: var(--color-brass); }
+.quote__cite { display: block; margin-top: var(--space-6); font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); font-style: normal; }
+
+/* ---- Form -------------------------------------------------------------- */
+.field { display: grid; gap: var(--space-2); }
+.field__label { font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; }
+.input-row { display: flex; }
+.input { flex: 1; height: var(--control-md); padding: 0 16px; border: 1px solid var(--fg-muted); border-radius: 0; background: var(--color-paper);
+  color: var(--color-ink); font: inherit; font-size: var(--text-body-sm); letter-spacing: var(--tracking-body-sm); transition: border-color var(--dur-presto); }
+.input:hover { border-color: var(--fg); }
+.input[aria-invalid='true'] { border-color: var(--color-velvet); }
+.field__error { color: var(--color-velvet); font-size: var(--text-body-sm); }
+.input-row .btn { margin-left: -1px; }
+@media (max-width: 639px) { .input-row { flex-direction: column; gap: var(--space-3); } .input-row .btn { margin: 0; width: 100%; } }
+
+/* ---- Reveal (arpeggio) ------------------------------------------------- */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity var(--dur-andante) var(--ease-legato), transform var(--dur-andante) var(--ease-legato); transition-delay: calc(var(--i, 0) * var(--stagger-arpeggio)); }
+.reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; } }
+
+/* ---- Footer ------------------------------------------------------------ */
+.footer { overflow: hidden; padding-top: var(--space-9); }
+.footer__mark { font-size: var(--text-wordmark); line-height: 0.8; margin: var(--space-8) 0 -0.24em; white-space: nowrap; }
+.footer__row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-5); }
+.footer a { color: inherit; text-decoration: none; }

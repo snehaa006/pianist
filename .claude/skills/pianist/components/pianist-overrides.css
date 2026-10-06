@@ -1,0 +1,44 @@
+/* Srinijakara theme overrides for the packaged components.
+   Import AFTER each component's own CSS and after assets/tokens.css. */
+
+/* All text-based components inherit the one typeface */
+.fold-text,
+.depth-text,
+.circular-text,
+.option-wheel,
+.gooey-nav-container,
+.masked-heading {
+  font-family: var(--font-display);
+  font-weight: 400;
+}
+
+/* CircularText: small label badge, brass on stage, ink on ivory */
+.circular-text {
+  color: var(--fg);
+  letter-spacing: 0.2em;
+}
+.stage .circular-text { color: var(--color-brass); }
+.circular-text span { font-size: 15px; }
+
+/* OptionWheel: repertoire composer picker */
+.option-wheel { --ow-font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: 0.01em; }
+
+/* GooeyNav: particle colours + monochrome pill (use on .stage only) */
+.gooey-nav-container {
+  --color-1: var(--color-brass);
+  --color-2: var(--color-ivory);
+  --color-3: var(--color-brass-hover);
+  --color-4: var(--color-dust);
+  font-size: var(--text-label);
+  letter-spacing: var(--tracking-label);
+  text-transform: uppercase;
+}
+.gooey-nav-container nav ul li { color: var(--color-ivory); }
+.gooey-nav-container nav ul li.active,
+.gooey-nav-container .effect.text.active { color: var(--color-ink); }
+.gooey-nav-container .effect.filter::after,
+.gooey-nav-container nav ul li::after { background: var(--color-ivory); }
+.gooey-nav-container .effect.filter::before { background: var(--color-ink); }
+
+/* BorderGlow: keep the card sharp per the two-shape system */
+.border-glow-card { border-radius: 0 !important; }

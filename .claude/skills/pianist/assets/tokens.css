@@ -1,0 +1,150 @@
+/* ==========================================================================
+   SRINIJAKARA — Design Tokens
+   Concert-black lacquer, ivory keys, hall-velvet, pedal brass.
+   One typeface (Bebas Neue 400). Two shapes (0 radius + pill). One accent per screen.
+   Copy this file into the project and import it once, before any component CSS.
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Bebas Neue';
+  src: url('./fonts/BebasNeue-Regular.woff2') format('woff2'),
+       url('./fonts/BebasNeue-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ---- Colour: neutrals ------------------------------------------------ */
+  --color-ink: #0B0B0C;        /* piano-black lacquer — text on light, dark surfaces */
+  --color-lacquer: #151517;    /* raised dark surface (cards/panels on ink) */
+  --color-graphite: #2A2A2E;   /* hairlines on dark, pressed dark state */
+  --color-stone: #8F897F;      /* muted text on dark (5.67:1 on ink) */
+  --color-dust: #A8A196;       /* secondary text on dark (7.69:1 on ink) */
+  --color-felt: #6B665E;       /* muted text on light (4.97:1 on ivory) */
+  --color-hairline: #DAD3C7;   /* 1px rules on light — decorative only */
+  --color-ivory: #F4EFE6;      /* default light canvas — aged key ivory */
+  --color-paper: #FBF8F3;      /* lighter alt canvas / inputs on ivory */
+
+  /* ---- Colour: accents (max ONE accent moment per viewport) ------------ */
+  --color-velvet: #7A1C2A;     /* concert-hall seat velvet — the single primary action */
+  --color-velvet-hover: #9A2636;
+  --color-brass: #B8935A;      /* pedal brass — ornament on DARK only (6.89:1 on ink) */
+  --color-brass-hover: #D2B07A;
+
+  /* ---- Semantic roles --------------------------------------------------- */
+  --bg: var(--color-ivory);
+  --bg-alt: var(--color-paper);
+  --bg-inverse: var(--color-ink);
+  --fg: var(--color-ink);
+  --fg-muted: var(--color-felt);
+  --fg-inverse: var(--color-ivory);
+  --fg-inverse-muted: var(--color-dust);
+  --rule: var(--color-hairline);
+  --rule-strong: var(--color-ink);
+  --rule-inverse: var(--color-graphite);
+  --action: var(--color-velvet);
+  --action-hover: var(--color-velvet-hover);
+  --action-fg: var(--color-paper);
+  --ornament: var(--color-brass);
+  --focus: var(--color-velvet);
+
+  /* ---- Typography -------------------------------------------------------- */
+  --font-display: 'Bebas Neue', 'Oswald', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
+  --font-body: var(--font-display);  /* client requirement: Bebas Neue for body too */
+  --font-weight: 400;                /* the only weight that exists — never bold/synthesise */
+
+  /* Fluid scale: size / line-height / tracking */
+  --text-wordmark: clamp(5.5rem, 21vw, 22.5rem);  --leading-wordmark: 0.8;  --tracking-wordmark: -0.01em;
+  --text-display:  clamp(4rem, 10vw, 10rem);      --leading-display: 0.84;  --tracking-display: -0.005em;
+  --text-h1:       clamp(3rem, 6.2vw, 6rem);      --leading-h1: 0.9;        --tracking-h1: 0;
+  --text-h2:       clamp(2.25rem, 4.2vw, 4rem);   --leading-h2: 0.95;       --tracking-h2: 0.005em;
+  --text-h3:       clamp(1.75rem, 2.6vw, 2.25rem);--leading-h3: 1;          --tracking-h3: 0.01em;
+  --text-h4:       1.5rem;                        --leading-h4: 1.05;       --tracking-h4: 0.02em;
+  --text-lead:     clamp(1.375rem, 1.9vw, 1.75rem); --leading-lead: 1.18;   --tracking-lead: 0.025em;
+  --text-body:     1.25rem;                       --leading-body: 1.32;     --tracking-body: 0.035em;
+  --text-body-sm:  1.125rem;                      --leading-body-sm: 1.32;  --tracking-body-sm: 0.04em;
+  --text-label:    0.875rem;                      --leading-label: 1.2;     --tracking-label: 0.16em;
+  --text-micro:    0.75rem;                       --leading-micro: 1.2;     --tracking-micro: 0.2em;
+  --measure: 34ch;             /* Bebas body measure — keep paragraphs narrow */
+
+  /* ---- Spacing (8px base, 4px half-step) ------------------------------- */
+  --space-1: 4px;  --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 24px; --space-6: 32px;  --space-7: 48px;  --space-8: 64px;
+  --space-9: 96px; --space-10: 128px; --space-11: 192px;
+  --section-y: clamp(96px, 14vh, 192px);   /* vertical padding of a "screen" */
+  --gutter: clamp(16px, 2vw, 24px);
+  --page-margin: clamp(16px, 4.5vw, 72px);
+  --page-max: 1440px;
+
+  /* ---- Shape (two-shape system) ----------------------------------------- */
+  --radius-none: 0;      /* images, cards, sections, inputs, modals */
+  --radius-pill: 999px;  /* every interactive control: buttons, chips, nav pills, toggles */
+  --radius-round: 50%;   /* play button, circular badge only */
+  --border: 1px;
+
+  /* ---- Component sizing ------------------------------------------------- */
+  --control-sm: 36px;
+  --control-md: 48px;    /* default button / input height; also min touch target */
+  --control-lg: 60px;
+  --play-size: 72px;
+  --nav-height: 72px;
+
+  /* ---- Motion (named after tempo markings) ------------------------------ */
+  --ease-legato: cubic-bezier(0.22, 1, 0.36, 1);   /* default: long, singing deceleration */
+  --ease-staccato: cubic-bezier(0.5, 0, 0.75, 0);  /* exits only */
+  --ease-rubato: cubic-bezier(0.65, 0, 0.35, 1);   /* symmetrical — crossfades, loops */
+  --dur-presto: 150ms;   /* hover colour, focus */
+  --dur-allegro: 300ms;  /* buttons, underlines, chips */
+  --dur-andante: 600ms;  /* card reveals, image fades */
+  --dur-adagio: 900ms;   /* headline reveals */
+  --dur-largo: 1400ms;   /* hero entrance, page transitions */
+  --stagger-arpeggio: 60ms;
+
+  /* ---- Depth: none. Surfaces invert instead of lifting. ----------------- */
+  --shadow: none;
+  --scrim: linear-gradient(180deg, rgba(11, 11, 12, 0) 40%, rgba(11, 11, 12, 0.72) 100%);
+}
+
+/* Dark "stage" sections: add class="stage" (or data-surface="ink") */
+.stage, [data-surface='ink'] {
+  --bg: var(--color-ink);
+  --bg-alt: var(--color-lacquer);
+  --fg: var(--color-ivory);
+  --fg-muted: var(--color-dust);
+  --rule: var(--color-graphite);
+  --rule-strong: var(--color-ivory);
+  --action: var(--color-ivory);
+  --action-hover: var(--color-paper);
+  --action-fg: var(--color-ink);
+  --focus: var(--color-brass);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* ---- Base ---------------------------------------------------------------- */
+html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-weight: var(--font-weight);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body);
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3, h4, h5, h6, strong, b { font-weight: 400; } /* hierarchy = size, never weight */
+::selection { background: var(--color-velvet); color: var(--color-paper); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
