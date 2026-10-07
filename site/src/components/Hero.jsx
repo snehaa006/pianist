@@ -1,55 +1,48 @@
-import { useMemo, useRef } from 'react';
-import MaskedHeading from './fx/MaskedHeading/MaskedHeading.jsx';
-import { presets } from './fx/presets';
-import { CursorLayer } from './Effects.jsx';
+import { useRef } from 'react';
+import { SlatsLayer } from './Effects.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { useFx } from '../lib/hooks';
 
+const FIRST = 'Srini';
+const SECOND = 'jakara';
+
+// Each letter of the name rises out of a mask, 45ms apart over Andante (about 1.2s in all).
+const Letters = ({ word, offset = 0 }) => (
+  <span className="wm-line" aria-hidden="true">
+    {Array.from(word).map((c, i) => (
+      <span className="wm-letter" style={{ '--i': i + offset }} key={i}>
+        {c}
+      </span>
+    ))}
+  </span>
+);
+
 // Screen 1: the name, one current fact, one action.
-// Desktop: the name is filled with a muted loop of the concert (MaskedHeading).
-// Phones, touch and reduced motion: a plain ivory wordmark over a warm-monochrome still.
+// Desktop: the name over MicroSlats, rows of slats rising and falling like piano hammers (graphite, brass glint).
+// Phones, touch and reduced motion: the same name over a warm-monochrome still of the concert.
 export default function Hero({ item }) {
   const fx = useFx();
   const { open } = useLightbox();
   const zone = useRef(null);
-  // MaskedHeading takes one source: H.264 where the browser has it, VP9 WebM otherwise.
-  const loop = useMemo(() => {
-    const v = document.createElement('video');
-    return v.canPlayType('video/mp4; codecs="avc1.640028"') ? '/media/video/hero-loop.mp4' : '/media/video/hero-loop.webm';
-  }, []);
 
   return (
     <section ref={zone} className="stage screen hero" aria-labelledby="name">
       {fx ? (
-        <CursorLayer zoneRef={zone} />
+        <SlatsLayer zoneRef={zone} />
       ) : (
         <div className="hero__media frame scrim">
           <img src="/media/posters/hero.webp" alt={item.alt} width="848" height="480" fetchPriority="high" />
         </div>
       )}
       <div className="container hero__content">
-        {fx ? (
-          <MaskedHeading
-            {...presets.MaskedHeading}
-            id="name"
-            className="hero__masked"
-            text="Srinijakara"
-            src={loop}
-            poster="/media/posters/hero-fill.webp"
-            grayscale={false}
-            textScale={0.259}
-            maxFontSize={360}
-          />
-        ) : (
-          <h1 className="wordmark hero__wordmark" id="name" aria-label="Srinijakara">
-            <span aria-hidden="true">Srini</span>
-            <span aria-hidden="true">jakara</span>
-          </h1>
-        )}
-        <p className="lead hero__lead reveal reveal--rise" style={{ '--i': 6 }}>
+        <h1 className="wordmark hero__wordmark" id="name" aria-label="Srinijakara">
+          <Letters word={FIRST} />
+          <Letters word={SECOND} offset={FIRST.length} />
+        </h1>
+        <p className="lead hero__lead hero-in" style={{ '--d': '700ms' }}>
           Watch {item.composer}'s {item.work}, filmed at an Austrian Master Classes concert in {item.year}.
         </p>
-        <div className="hero__actions reveal" style={{ '--i': 10 }}>
+        <div className="hero__actions hero-in" style={{ '--d': '900ms' }}>
           <button type="button" className="btn btn--primary btn--lg btn--block-mobile" onClick={e => open(item, e.currentTarget)}>
             Watch the performance
           </button>

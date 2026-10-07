@@ -32,7 +32,7 @@ function Slot({ zoneRef, children }) {
   );
 }
 
-// Hammers rising and falling behind the repertoire band.
+// Hammers rising and falling behind the hero.
 export function SlatsLayer({ zoneRef }) {
   return (
     <div className="fx-layer" aria-hidden="true">
@@ -74,7 +74,7 @@ export function ShardsLayer({ zoneRef, onFail }) {
   );
 }
 
-// The site cursor: one, desktop only, in the hero.
+// The site cursor: one, desktop only, over the Watch grid.
 export function CursorLayer({ zoneRef }) {
   return (
     <Slot zoneRef={zoneRef}>

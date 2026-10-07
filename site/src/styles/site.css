@@ -57,12 +57,12 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .hero__masked { color: var(--color-ivory); }
 .hero__wordmark { font-size: min(var(--text-wordmark-max, 360px), calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) / 3.86));
   margin-left: -0.02em; }
-.hero__wordmark span { display: inline; }
+.hero__wordmark .wm-line { display: inline-block; }
 .hero__lead { max-width: 34ch; margin-top: var(--space-6); }
 .hero__actions { margin-top: var(--space-6); }
 @media (max-width: 639px) {
   .hero__wordmark { font-size: calc((100vw - 2 * var(--page-margin)) / 2.3); white-space: normal; }
-  .hero__wordmark span { display: block; }
+  .hero__wordmark .wm-line { display: block; }
 }
 
 /* ---- Concerts: empty state ------------------------------------------- */
@@ -314,3 +314,17 @@ button.concert__action { padding-inline: 0; }
 .feature { overflow: hidden; }
 /* BorderGlow's edge light reaches 40px past its card; the stage clips it at the page edge */
 .watch { overflow: hidden; }
+
+/* Hero name: each letter rises out of a mask (Andante, 45ms apart), starting right away */
+.wm-line { overflow: hidden; vertical-align: top; padding-bottom: 0.02em; }
+.wm-letter { display: inline-block; transform: translateY(105%);
+  animation: wm-rise var(--dur-andante) var(--ease-legato) forwards;
+  animation-delay: calc(var(--dur-presto) + var(--i, 0) * 45ms); }
+@keyframes wm-rise { to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .wm-letter { transform: none; animation: none; } }
+/* Hero lead and button follow the name on load (not on scroll: the button sits low in the first screen) */
+.hero-in { opacity: 0; transform: translateY(16px); animation: hero-in var(--dur-andante) var(--ease-legato) var(--d, 0ms) forwards; }
+@keyframes hero-in { to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hero-in { opacity: 1; transform: none; animation: none; } }
+/* MicroSlats is graphite on ink: soften it under the lead line with the standard scrim */
+.hero .fx-layer::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }

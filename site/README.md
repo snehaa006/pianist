@@ -8,11 +8,11 @@ added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width 
 
 | Component | Place |
 |---|---|
-| MaskedHeading | Hero: the name filled with a muted concert loop (desktop) |
-| GhostCursor | The one site cursor, in the hero (desktop) |
+| MicroSlats | Hero background: slats rising and falling like piano hammers (desktop); the name rises letter by letter over it |
+| GhostCursor | The one site cursor, over the Watch grid (desktop) |
+| MaskedHeading | Not used since the hero change (the name filled with video was slow to arrive); `hero-loop.*` media is kept if you want it back |
 | FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |
 | CircularText | "WATCH • THE • FILM •" badge around the featured film's play button |
-| MicroSlats | Behind the repertoire band on Home |
 | RippleDistortion | Fermata photo on Home, portrait on Biography |
 | MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
 | AeroShards | Watch header (WebGPU only; closes up without it) |
