@@ -1,4 +1,4 @@
-import { Component, lazy, Suspense, useRef, useState } from 'react';
+import { Component, lazy, Suspense, useState } from 'react';
 import { presets } from './fx/presets';
 import { useFxSlot } from '../lib/fxStage.jsx';
 
@@ -6,7 +6,6 @@ import { useFxSlot } from '../lib/fxStage.jsx';
 // holds the stage (see lib/fxStage.jsx). Phones, touch and reduced motion never download them.
 const MicroSlats = lazy(() => import('./fx/MicroSlats/MicroSlats.jsx'));
 const MoltenMetal = lazy(() => import('./fx/MoltenMetal/MoltenMetal.jsx'));
-const RippleDistortion = lazy(() => import('./fx/RippleDistortion/RippleDistortion.jsx'));
 const AeroShards = lazy(() => import('./fx/AeroShards/AeroShards.jsx'));
 const GhostCursor = lazy(() => import('./fx/GhostCursor/GhostCursor.jsx'));
 
@@ -32,7 +31,7 @@ function Slot({ zoneRef, children }) {
   );
 }
 
-// Hammers rising and falling behind the hero.
+// Hammers rising and falling behind the repertoire band.
 export function SlatsLayer({ zoneRef }) {
   return (
     <div className="fx-layer" aria-hidden="true">
@@ -74,27 +73,11 @@ export function ShardsLayer({ zoneRef, onFail }) {
   );
 }
 
-// The site cursor: one, desktop only, over the Watch grid.
+// The site cursor: one, desktop only, in the hero.
 export function CursorLayer({ zoneRef }) {
   return (
     <Slot zoneRef={zoneRef}>
       <GhostCursor {...presets.GhostCursor} />
     </Slot>
-  );
-}
-
-// A grayscale still that ripples under the pointer. The <img> is always there (content, alt text);
-// the WebGL ripple sits on top of it only while the frame holds the stage.
-export function RippleImage({ src, alt, width, height, className = '', loading = 'lazy' }) {
-  const ref = useRef(null);
-  return (
-    <div ref={ref} className={`ripple-frame ${className}`.trim()}>
-      <img src={src} alt={alt} width={width} height={height} loading={loading} decoding="async" />
-      <div className="fx-layer fx-layer--ripple" aria-hidden="true">
-        <Slot zoneRef={ref}>
-          <RippleDistortion {...presets.RippleDistortion} src={src} />
-        </Slot>
-      </div>
-    </div>
   );
 }

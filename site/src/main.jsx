@@ -16,7 +16,6 @@ import './components/fx/BorderGlow/BorderGlow.css';
 import './components/fx/MicroSlats/MicroSlats.css';
 import './components/fx/MoltenMetal/MoltenMetal.css';
 import './components/fx/AeroShards/AeroShards.css';
-import './components/fx/RippleDistortion/RippleDistortion.css';
 import './components/fx/DepthText/DepthText.css';
 import './components/fx/GhostCursor/GhostCursor.css';
 import App from './App.jsx';

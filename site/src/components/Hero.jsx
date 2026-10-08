@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { SlatsLayer } from './Effects.jsx';
+import { CursorLayer } from './Effects.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { useFx } from '../lib/hooks';
 
@@ -18,8 +18,7 @@ const Letters = ({ word, offset = 0 }) => (
 );
 
 // Screen 1: the name, one current fact, one action.
-// Desktop: the name over MicroSlats, rows of slats rising and falling like piano hammers (graphite, brass glint).
-// Phones, touch and reduced motion: the same name over a warm-monochrome still of the concert.
+// The name over a warm-monochrome still of the concert; on desktop the one site cursor (GhostCursor) lives here.
 export default function Hero({ item }) {
   const fx = useFx();
   const { open } = useLightbox();
@@ -27,13 +26,10 @@ export default function Hero({ item }) {
 
   return (
     <section ref={zone} className="stage screen hero" aria-labelledby="name">
-      {fx ? (
-        <SlatsLayer zoneRef={zone} />
-      ) : (
-        <div className="hero__media frame scrim">
-          <img src="/media/posters/hero.webp" alt={item.alt} width="848" height="480" fetchPriority="high" />
-        </div>
-      )}
+      <div className="hero__media frame scrim">
+        <img src="/media/posters/hero.webp" alt={item.alt} width="848" height="480" fetchPriority="high" />
+      </div>
+      {fx && <CursorLayer zoneRef={zone} />}
       <div className="container hero__content">
         <h1 className="wordmark hero__wordmark" id="name" aria-label="Srinijakara">
           <Letters word={FIRST} />

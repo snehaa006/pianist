@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import Opus from '../components/Opus.jsx';
-import { CursorLayer, ShardsLayer } from '../components/Effects.jsx';
+import { ShardsLayer } from '../components/Effects.jsx';
 import GooeyNav from '../components/fx/GooeyNav/GooeyNav.jsx';
 import BorderGlow from '../components/fx/BorderGlow/BorderGlow.jsx';
 import { presets } from '../components/fx/presets';
@@ -16,7 +16,6 @@ export default function Watch() {
   const [shardsFailed, setShardsFailed] = useState(false);
   const fx = useFx();
   const zone = useRef(null);
-  const grid = useRef(null);
   usePageTitle('Performances');
   useReveals([filter]);
 
@@ -47,8 +46,7 @@ export default function Watch() {
         </div>
       </section>
 
-      <section ref={grid} className="stage screen watch" aria-label="Films">
-        <CursorLayer zoneRef={grid} />
+      <section className="stage screen watch" aria-label="Films">
         <div className="container">
           <div className="watch__filter" role="group" aria-label="Filter the films">
             {fx ? (
