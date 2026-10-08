@@ -8,11 +8,11 @@ import ContactRows from '../components/ContactRows.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
-import { RippleImage, SlatsLayer } from '../components/Effects.jsx';
+import { RippleImage } from '../components/Effects.jsx';
 import CircularText from '../components/fx/CircularText/CircularText.jsx';
 import { presets } from '../components/fx/presets';
 import { useLightbox } from '../components/Lightbox.jsx';
-import { byId, performances } from '../data/performances';
+import { byId, examFilms, inWords, performances, pieces } from '../data/performances';
 import { site } from '../data/site';
 import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
 
@@ -28,7 +28,8 @@ export default function Home() {
   useReveals([view]);
   const concert = byId('austrian-master-classes');
   const stage = byId('on-stage');
-  const atHome = ['at-home-grand', 'song-of-twilight', 'lcm-grade-1'].map(byId);
+  const atHome = performances.filter(p => p.tags.includes('home'));
+  const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
 
   return (
     <>
@@ -46,7 +47,8 @@ export default function Home() {
             At home, at the piano
           </Headline>
           <p className="lead muted reveal reveal--rise">
-            Three performances filmed at home, two of them for London College of Music exams.
+            {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of Music
+            exams.
           </p>
           <div className="films">
             {atHome.map((p, i) => (
@@ -237,24 +239,23 @@ function FeaturedFilm({ item }) {
   );
 }
 
-// Op. 03: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
+// Op. 03: what she plays, with three counted facts.
 function RepertoireBand() {
   const zone = useRef(null);
   const facts = [
-    { n: performances.length, label: 'Pieces on film' },
-    { n: 2, label: 'London College of Music exams' },
-    { n: 1, label: 'Austrian Master Classes concert' }
+    { n: pieces.length, label: 'Pieces on film' },
+    { n: examFilms.length, label: 'London College of Music exam films' },
+    { n: performances.filter(p => p.tags.includes('stage')).length, label: 'Performances on stage' }
   ];
   return (
     <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
-      <SlatsLayer zoneRef={zone} />
       <div className="container band__content">
         <Staff />
         <Opus>(Op. 03: Repertoire)</Opus>
         <Headline id="rep-h" hinge="top" accent="plays">
           What she plays
         </Headline>
-        <p className="lead muted reveal reveal--rise">Five solo pieces, each one on film, {site.repertoireRange}.</p>
+        <p className="lead muted reveal reveal--rise">{inWords(pieces.length, true)} solo pieces, each one on film, {site.repertoireRange}.</p>
         <dl className="facts">
           {facts.map((f, i) => (
             <div className="facts__item reveal" style={{ '--i': i }} key={f.label}>

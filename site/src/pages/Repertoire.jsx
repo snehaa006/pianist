@@ -5,7 +5,7 @@ import { Keys } from '../components/Motifs.jsx';
 import { useLightbox } from '../components/Lightbox.jsx';
 import OptionWheel from '../components/fx/OptionWheel/OptionWheel.jsx';
 import { presets } from '../components/fx/presets';
-import { metaOf, performances } from '../data/performances';
+import { inWords, metaOf, pieces } from '../data/performances';
 import { isPlaceholder } from '../data/site';
 import { useFx, usePageTitle, useReveals } from '../lib/hooks';
 
@@ -34,8 +34,8 @@ export default function Repertoire() {
   const fx = useFx();
   const { open } = useLightbox();
   const [index, setIndex] = useState(0);
-  const groups = byComposer(performances);
-  const current = performances[index];
+  const groups = byComposer(pieces);
+  const current = pieces[index];
 
   return (
     <>
@@ -45,7 +45,7 @@ export default function Repertoire() {
           <Headline as="h1" className="display" id="rep-page-h" hinge="top">
             Repertoire
           </Headline>
-          <p className="lead muted reveal reveal--rise">Five solo pieces, each one filmed, grouped by composer.</p>
+          <p className="lead muted reveal reveal--rise">{inWords(pieces.length, true)} solo pieces, each one filmed, grouped by composer.</p>
 
           {/* Desktop: turn the dial to pick a piece; the programme list below stays for everyone. */}
           {fx && (
@@ -53,7 +53,7 @@ export default function Repertoire() {
               <div className="dial__wheel" aria-hidden="true">
                 <OptionWheel
                   {...presets.OptionWheel}
-                  items={performances.map(wheelLabel)}
+                  items={pieces.map(wheelLabel)}
                   defaultSelected={0}
                   onChange={i => setIndex(i)}
                 />

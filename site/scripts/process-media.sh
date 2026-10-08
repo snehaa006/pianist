@@ -7,7 +7,13 @@
 # Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
-STILLS_ONLY=0; [[ "${1:-}" == "--stills" ]] && STILLS_ONLY=1
+STILLS_ONLY=0; ONLY=""
+for arg in "$@"; do
+  case "$arg" in
+    --stills) STILLS_ONLY=1 ;;
+    --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
+  esac
+done
 
 SRC="$(cd "$(dirname "$0")/../../videos" && pwd)"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/public/media"
@@ -21,6 +27,9 @@ VIDEOS=(
   "at-home-grand|WhatsApp Video 2026-10-06 at 14.22.50.mp4|40"
   "song-of-twilight|WhatsApp Video 2026-10-06 at 14.22.59.mp4|50"
   "lcm-grade-1|WhatsApp Video 2026-10-06 at 14.23.31.mp4|35"
+  "dog-hungry|WhatsApp Video 2026-10-06 at 14.23.06.mp4|38"
+  "grade-1-technical|WhatsApp Video 2026-10-06 at 14.23.15.mp4|62"
+  "andante|WhatsApp Video 2026-10-06 at 14.23.23.mp4|40"
 )
 
 # Imagery rules: performance colour is desaturated ~20% and warm-shifted, never cool.
@@ -34,6 +43,7 @@ LIFT="$WARM,curves=all='0/0.24 0.5/0.62 1/0.96'"
 
 for row in "${VIDEOS[@]}"; do
   IFS='|' read -r slug file t <<<"$row"
+  [[ -n "$ONLY" && "$ONLY" != *",$slug,"* ]] && continue
   in="$SRC/$file"
   echo "→ $slug"
   if (( ! STILLS_ONLY )); then
@@ -47,6 +57,8 @@ for row in "${VIDEOS[@]}"; do
   ffmpeg -v error -y -ss "$t" -i "$in" -frames:v 1 -vf "$MONO,format=yuv420p" \
     -c:v libwebp -quality 82 "$OUT/posters/$slug.webp"
 done
+
+[[ -n "$ONLY" ]] && { ls -la "$OUT"/video "$OUT"/posters; exit 0; }
 
 # Hero loop: 8.5 s from the Austrian Master Classes concert; the last second crossfades into the first.
 HERO="$SRC/WhatsApp Video 2026-10-06 at 14.23.41.mp4"

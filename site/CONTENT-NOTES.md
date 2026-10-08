@@ -1,6 +1,6 @@
 # Content notes: what the videos show, and what is still unknown
 
-No photos, dates, quotes or bio were supplied, so every fact on the site comes from the five videos in `../videos/`.
+No photos, dates, quotes or bio were supplied, so every fact on the site comes from the eight videos in `../videos/`.
 Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 
 ## What each video contains
@@ -12,6 +12,9 @@ Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 | `austrian-master-classes` | `WhatsApp Video 2026-10-06 at 14.23.41.mp4` (1:37) | Concert performance at an **Austrian Master Classes** concert, in a Rococo hall with stucco and columns. Walk-on, bow, applause. | The roll-up banner on stage reads "austrian master classes · in concert" (amc logo). AMC concerts take place at Schloss Zell an der Pram (Upper Austria), a Cuvilliès castle whose hall matches. | Event: high. Hall: likely, confirm |
 | `on-stage` | `WhatsApp Video 2026-10-06 at 14.22.40.mp4` (1:16) | Performance on a theatre stage (black drapes, grand piano, audience applause). | Visible on screen. | Venue unknown |
 | `at-home-grand` | `WhatsApp Video 2026-10-06 at 14.22.50.mp4` (1:34) | Performance at home on a black grand piano, by a window. | Visible on screen. | Piece unknown |
+| `dog-hungry` | `WhatsApp Video 2026-10-06 at 14.23.06.mp4` (1:11) | **Sonny Chua: Dog Hungry**. LCM recorded exam, **Grade 3, Performance List C**. Same room and dress as *Song of Twilight*. | Spoken introduction (heard as "Dog Hug by Sonny…"); "Dog Hungry" by Sonny Chua is on the LCM 2021–2024 Grade 3 List C. Note analysis: C minor. | High (confirm spelling) |
+| `andante` | `WhatsApp Video 2026-10-06 at 14.23.23.mp4` (1:04) | **Charles Henry Wilton: Andante**. LCM recorded exam, **Grade 1, Performance List A**. Same session as the Grade 1 List B piece. | Spoken introduction (heard as "Andante by … Wilton"); an Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook. Note analysis: G major. | Likely, confirm |
+| `grade-1-technical` | `WhatsApp Video 2026-10-06 at 14.23.15.mp4` (2:17) | LCM recorded exam, **Grade 1 technical work**: scales, broken chords and arpeggios, each named on camera (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios). | Spoken throughout. Shown on Watch and in Past concerts; left out of Repertoire (not a piece). | High |
 
 ### Musical analysis of the three unnamed pieces (never shown on the site)
 Notes were transcribed from the audio and analysed for key and texture. These are leads for you to confirm, not identifications:
@@ -34,6 +37,9 @@ Edit `src/data/performances.js` (per film) and `src/data/site.js` (site-wide). N
 | at-home-grand | `[Composer]`, `[Lifespan]`, `[Work]`, `[Year]` |
 | song-of-twilight | `[Year]` |
 | lcm-grade-1 | `[Composer]`, `[Lifespan]`, `[Work]`, `[Year]` |
+| dog-hungry | `[Lifespan]`, `[Year]` |
+| andante | `[Lifespan]`, `[Year]` |
+| grade-1-technical | `[Year]` |
 
 These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Master Classes concert in [Year]."), the featured film, the fermata caption, every card, the lightbox and the repertoire page.
 

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
@@ -24,10 +24,14 @@ function PageLoader() {
 }
 
 // Page transition: an ink curtain, keyed to the route, lifts away over Andante.
+// Not on the first load, so nothing covers the landing screen while the name rises.
 function Curtain() {
   const { pathname } = useLocation();
   const reduced = useReducedMotion();
-  if (reduced) return null;
+  const initial = useRef(pathname);
+  const navigated = useRef(false);
+  if (pathname !== initial.current) navigated.current = true;
+  if (reduced || !navigated.current) return null;
   return (
     <div className="curtain" key={pathname} aria-hidden="true">
       <Keys />

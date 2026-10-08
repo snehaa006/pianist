@@ -2,11 +2,11 @@ import { useRef, useState } from 'react';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import Opus from '../components/Opus.jsx';
-import { ShardsLayer } from '../components/Effects.jsx';
+import { CursorLayer, ShardsLayer } from '../components/Effects.jsx';
 import GooeyNav from '../components/fx/GooeyNav/GooeyNav.jsx';
 import BorderGlow from '../components/fx/BorderGlow/BorderGlow.jsx';
 import { presets } from '../components/fx/presets';
-import { filters, performances } from '../data/performances';
+import { filters, inWords, performances } from '../data/performances';
 import { useFx, usePageTitle, useReveals } from '../lib/hooks';
 
 // Every performance on the stage. Desktop filters with GooeyNav, phones with pill chips;
@@ -16,6 +16,7 @@ export default function Watch() {
   const [shardsFailed, setShardsFailed] = useState(false);
   const fx = useFx();
   const zone = useRef(null);
+  const grid = useRef(null);
   usePageTitle('Performances');
   useReveals([filter]);
 
@@ -42,11 +43,12 @@ export default function Watch() {
           <Headline as="h1" className="display" id="watch-h" hinge="left">
             Performances
           </Headline>
-          <p className="lead muted reveal reveal--rise">Five performances on film: in concert, on stage and at home.</p>
+          <p className="lead muted reveal reveal--rise">{inWords(performances.length, true)} films: in concert, on stage and at home.</p>
         </div>
       </section>
 
-      <section className="stage screen watch" aria-label="Films">
+      <section ref={grid} className="stage screen watch" aria-label="Films">
+        <CursorLayer zoneRef={grid} />
         <div className="container">
           <div className="watch__filter" role="group" aria-label="Filter the films">
             {fx ? (
