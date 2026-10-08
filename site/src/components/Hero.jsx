@@ -3,8 +3,8 @@ import { CursorLayer } from './Effects.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { useFx } from '../lib/hooks';
 
-const FIRST = 'Srini';
-const SECOND = 'jakara';
+const FIRST = 'Selin';
+const SECOND = 'Incekara';
 
 // Each letter of the name rises out of a mask, 45ms apart over Andante (about 1.2s in all).
 const Letters = ({ word, offset = 0 }) => (
@@ -31,7 +31,7 @@ export default function Hero({ item }) {
       </div>
       {fx && <CursorLayer zoneRef={zone} />}
       <div className="container hero__content">
-        <h1 className="wordmark hero__wordmark" id="name" aria-label="Srinijakara">
+        <h1 className="wordmark hero__wordmark" id="name" aria-label="Selin Incekara">
           <Letters word={FIRST} />
           <Letters word={SECOND} offset={FIRST.length} />
         </h1>

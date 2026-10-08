@@ -1,4 +1,4 @@
-// Srinijakara on-brand defaults for the packaged React components.
+// Selin Incekara on-brand defaults for the packaged React components.
 // Usage: <GhostCursor {...presets.GhostCursor} />  (spread first, then override per instance)
 // Colours are the design tokens from assets/tokens.css, written as literals because
 // WebGL shaders cannot read CSS variables.

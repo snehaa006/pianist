@@ -24,7 +24,7 @@ export default function About() {
           <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
             <img
               src="/media/posters/portrait.webp"
-              alt="Srinijakara in profile at the grand piano at home, hands on the keys, window light behind her."
+              alt="Selin Incekara in profile at the grand piano at home, hands on the keys, window light behind her."
               width="371"
               height="464"
               decoding="async"
@@ -35,7 +35,7 @@ export default function About() {
             <Headline as="h1" className="display" id="bio-h" hinge="right">
               Biography
             </Headline>
-            <p className="lead reveal reveal--rise">Srinijakara is a pianist based in {site.city}.</p>
+            <p className="lead reveal reveal--rise">Selin Incekara is a pianist based in {site.city}.</p>
             <p className="body reveal" style={{ '--i': 2 }}>
               She studies with {site.teacher} at {site.school}. {site.beginnings}
             </p>
@@ -60,7 +60,7 @@ export default function About() {
       <section className="screen screen--paper" aria-labelledby="note-h">
         <div className="container">
           <h2 className="label note__label reveal reveal--track" id="note-h">
-            A note from Srinijakara
+            A note from Selin Incekara
           </h2>
           <p className="h3 note__body reveal reveal--wipe">{site.note}</p>
           <p className="label muted note__sign">— S.</p>

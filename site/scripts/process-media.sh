@@ -84,7 +84,7 @@ ffmpeg -v error -y -ss 70 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4" -f
 # wordmark bottom-left in ivory.
 ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
   -f lavfi -i "color=c=0x0B0B0C:s=1200x630,format=rgba,geq=r=11:g=11:b=12:a='184*clip((Y-252)/378\\,0\\,1)'" \
-  -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SRINIJAKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
-  -frames:v 1 -q:v 3 "$OUT/og/srinijakara-share.jpg"
+  -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
+  -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
 
 ls -la "$OUT"/*
