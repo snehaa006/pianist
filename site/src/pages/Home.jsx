@@ -8,7 +8,7 @@ import ContactRows from '../components/ContactRows.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
-import { RippleImage } from '../components/Effects.jsx';
+import { SlatsLayer } from '../components/Effects.jsx';
 import CircularText from '../components/fx/CircularText/CircularText.jsx';
 import { presets } from '../components/fx/presets';
 import { useLightbox } from '../components/Lightbox.jsx';
@@ -65,16 +65,19 @@ export default function Home() {
 
       <RepertoireBand />
 
-      {/* Fermata: no press quote exists, so a photograph only (it ripples under the pointer) */}
+      {/* Fermata: no press quote exists, so a photograph only */}
       <section className="stage fermata" aria-label="The hall before the music">
         <figure className="fermata__figure scrim">
-          <RippleImage
-            className="fermata__image"
-            src="/media/posters/fermata.webp"
-            alt="An Austrian Master Classes concert seen from the audience: Srinijakara at the grand piano, beyond the backs of the front-row chairs."
-            width="848"
-            height="480"
-          />
+          <div className="fermata__image">
+            <img
+              src="/media/posters/fermata.webp"
+              alt="An Austrian Master Classes concert seen from the audience: Srinijakara at the grand piano, beyond the backs of the front-row chairs."
+              width="848"
+              height="480"
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
           <figcaption className="container fermata__caption label reveal reveal--wipe">
             Austrian Master Classes, {concert.venue}, {concert.year}.
           </figcaption>
@@ -239,7 +242,7 @@ function FeaturedFilm({ item }) {
   );
 }
 
-// Op. 03: what she plays, with three counted facts.
+// Op. 03: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
 function RepertoireBand() {
   const zone = useRef(null);
   const facts = [
@@ -249,6 +252,7 @@ function RepertoireBand() {
   ];
   return (
     <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
+      <SlatsLayer zoneRef={zone} />
       <div className="container band__content">
         <Staff />
         <Opus>(Op. 03: Repertoire)</Opus>

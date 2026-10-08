@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import Headline from '../components/Headline.jsx';
 import Opus from '../components/Opus.jsx';
-import { RippleImage } from '../components/Effects.jsx';
 import { site, isPlaceholder } from '../data/site';
 import { byId } from '../data/performances';
 import { usePageTitle, useReveals } from '../lib/hooks';
@@ -23,12 +22,12 @@ export default function About() {
       <section className="screen page-top" aria-labelledby="bio-h">
         <div className="container grid split split--top">
           <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
-            <RippleImage
+            <img
               src="/media/posters/portrait.webp"
               alt="Srinijakara in profile at the grand piano at home, hands on the keys, window light behind her."
               width="371"
               height="464"
-              loading="eager"
+              decoding="async"
             />
           </figure>
           <div className="split__text">

@@ -250,6 +250,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* Fermata image fills the screen; the caption stays above the ripple */
 .fermata__figure { margin: 0; }
 .fermata__image { position: absolute; inset: 0; }
+.fermata__image img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .fermata__figure.scrim::after { z-index: 1; }
 .fermata__caption { z-index: 2; }
 
@@ -326,5 +327,3 @@ button.concert__action { padding-inline: 0; }
 .hero-in { opacity: 0; transform: translateY(16px); animation: hero-in var(--dur-andante) var(--ease-legato) var(--d, 0ms) forwards; }
 @keyframes hero-in { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-in { opacity: 1; transform: none; animation: none; } }
-/* MicroSlats is graphite on ink: soften it under the lead line with the standard scrim */
-.hero .fx-layer::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
