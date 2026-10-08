@@ -60,6 +60,6 @@ export function useReveals(deps = []) {
 
 export function usePageTitle(title) {
   useEffect(() => {
-    document.title = title ? `${title} · Srinijakara` : 'Srinijakara · Pianist';
+    document.title = title ? `${title} · Selin Incekara` : 'Selin Incekara · Pianist';
   }, [title]);
 }

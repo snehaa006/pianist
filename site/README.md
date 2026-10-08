@@ -1,4 +1,4 @@
-# Srinijakara: portfolio site
+# Selin Incekara: portfolio site
 
 Vite + React static site built with the `/pianist` design system (`.claude/skills/pianist/`).
 Tokens, base components, Bebas Neue and the client components are copied from the skill unchanged, except for one
@@ -52,7 +52,7 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | `public/media/video/<slug>.mp4/.webm` | Each performance, H.264 + VP9, native size (all under 1080p), 30 fps max, lightly graded (−20% saturation, warm) |
 | `public/media/video/hero-loop.*` | 7.5 s muted loop for the name in the hero, seamless crossfade, no audio track |
 | `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata, 4:5 portrait |
-| `public/media/og/srinijakara-share.jpg` | 1200×630 share image |
+| `public/media/og/selin-incekara-share.jpg` | 1200×630 share image |
 
 Videos load only when the lightbox opens (`preload="metadata"` on click). Images below the first screen are lazy.
 

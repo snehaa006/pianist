@@ -44,7 +44,7 @@ export default function Nav() {
       </a>
       <nav className={`nav ${mode}`} aria-label="Main">
         <Link className="nav__name" to="/">
-          Srinijakara
+          Selin Incekara
         </Link>
         <ul className="nav__links">
           {links.map(l => (
@@ -87,7 +87,7 @@ function MenuPanel({ onClose }) {
     <div className="menu stage" id="menu-panel" role="dialog" aria-modal="true" aria-label="Menu">
       <div className="menu__bar">
         <Link className="nav__name" to="/" onClick={onClose}>
-          Srinijakara
+          Selin Incekara
         </Link>
         <button ref={closeRef} className="nav__menu menu__close" type="button" onClick={onClose}>
           Close

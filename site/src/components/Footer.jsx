@@ -26,11 +26,11 @@ export default function Footer() {
             ))}
           </ul>
         )}
-        <span className="micro">© {new Date().getFullYear()} Srinijakara</span>
+        <span className="micro">© {new Date().getFullYear()} Selin Incekara</span>
       </div>
       <div className="container">
         <p className="footer__mark reveal reveal--lift" aria-hidden="true">
-          Srinijakara
+          Selin Incekara
         </p>
       </div>
     </footer>

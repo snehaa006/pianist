@@ -1,4 +1,4 @@
-/* Srinijakara — base component styles. Requires tokens.css. Framework-agnostic class names. */
+/* Selin Incekara — base component styles. Requires tokens.css. Framework-agnostic class names. */
 
 /* ---- Layout ------------------------------------------------------------ */
 .container { width: 100%; max-width: var(--page-max); margin-inline: auto; padding-inline: var(--page-margin); box-sizing: border-box; }

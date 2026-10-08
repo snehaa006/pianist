@@ -24,7 +24,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:37',
     durationIso: 'PT1M37S',
-    alt: 'Srinijakara at a concert grand in a stucco-panelled hall, mid-phrase, the lid raised beside her.',
+    alt: 'Selin Incekara at a concert grand in a stucco-panelled hall, mid-phrase, the lid raised beside her.',
     hint: 'E minor; flowing broken chords, a middle phrase in B minor. Hall looks like the Rococo Festsaal of Schloss Zell an der Pram (AMC concert venue). Confirm.',
     ...media('austrian-master-classes')
   },
@@ -40,7 +40,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:16',
     durationIso: 'PT1M16S',
-    alt: 'Srinijakara alone at a grand piano on a dark stage, lit from above.',
+    alt: 'Selin Incekara alone at a grand piano on a dark stage, lit from above.',
     hint: 'D minor, fast, about 45 seconds of music. Walk-on, bow, applause.',
     ...media('on-stage')
   },
@@ -56,7 +56,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:34',
     durationIso: 'PT1M34S',
-    alt: 'Srinijakara in profile at a grand piano beside a window, hands on the keys.',
+    alt: 'Selin Incekara in profile at a grand piano beside a window, hands on the keys.',
     hint: 'G minor with long passages in E-flat major; waltz pattern in 3/4 (bass on the beat, two chords).',
     ...media('at-home-grand')
   },
@@ -75,7 +75,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:45',
     durationIso: 'PT1M45S',
-    alt: 'Srinijakara at a digital piano, seen over her shoulder, mid-phrase.',
+    alt: 'Selin Incekara at a digital piano, seen over her shoulder, mid-phrase.',
     hint: 'A major. Confirmed by her spoken introduction.',
     ...media('song-of-twilight')
   },
@@ -94,7 +94,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:55',
     durationIso: 'PT1M55S',
-    alt: 'Srinijakara at a digital piano with the score open, eyes on the keys.',
+    alt: 'Selin Incekara at a digital piano with the score open, eyes on the keys.',
     hint: 'C major, slow and quiet over a low C. Title heard as "Dusk… Mood", composer as "Frederick B…".',
     ...media('lcm-grade-1')
   },
@@ -113,7 +113,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:11',
     durationIso: 'PT1M11S',
-    alt: 'Srinijakara at a digital piano by a white wall, seen over her shoulder, both hands on the keys.',
+    alt: 'Selin Incekara at a digital piano by a white wall, seen over her shoulder, both hands on the keys.',
     hint: 'C minor. Title matched against the LCM 2021–2024 Grade 3 List C; confirm.',
     ...media('dog-hungry')
   },
@@ -132,7 +132,7 @@ export const performances = [
     year: '[Year]',
     duration: '1:04',
     durationIso: 'PT1M4S',
-    alt: 'Srinijakara at a digital piano with the score open, playing from the music.',
+    alt: 'Selin Incekara at a digital piano with the score open, playing from the music.',
     hint: 'G major. Composer matched against the LCM 2021–2024 Grade 1 handbook; confirm.',
     ...media('andante')
   },
@@ -151,7 +151,7 @@ export const performances = [
     year: '[Year]',
     duration: '2:17',
     durationIso: 'PT2M17S',
-    alt: 'Srinijakara at a digital piano, both hands running through a scale.',
+    alt: 'Selin Incekara at a digital piano, both hands running through a scale.',
     hint: 'Same session as the Grade 1 piece (same room and dress).',
     ...media('grade-1-technical')
   }

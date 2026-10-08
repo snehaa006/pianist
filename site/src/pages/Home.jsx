@@ -71,7 +71,7 @@ export default function Home() {
           <div className="fermata__image">
             <img
               src="/media/posters/fermata.webp"
-              alt="An Austrian Master Classes concert seen from the audience: Srinijakara at the grand piano, beyond the backs of the front-row chairs."
+              alt="An Austrian Master Classes concert seen from the audience: Selin Incekara at the grand piano, beyond the backs of the front-row chairs."
               width="848"
               height="480"
               loading="lazy"
@@ -89,7 +89,7 @@ export default function Home() {
           <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
             <img
               src="/media/posters/portrait.webp"
-              alt="Srinijakara in profile at the grand piano at home, hands on the keys, window light behind her."
+              alt="Selin Incekara in profile at the grand piano at home, hands on the keys, window light behind her."
               width="371"
               height="464"
               loading="lazy"
@@ -101,7 +101,7 @@ export default function Home() {
             <Headline id="about-h" hinge="right">
               The pianist
             </Headline>
-            <p className="lead reveal reveal--rise">Srinijakara is a pianist based in {site.city}.</p>
+            <p className="lead reveal reveal--rise">Selin Incekara is a pianist based in {site.city}.</p>
             <p className="body muted reveal" style={{ '--i': 2 }}>
               On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
               College of Music exams at Grades 1 and 3.
@@ -118,7 +118,7 @@ export default function Home() {
       <section className="screen screen--paper" aria-labelledby="note-h">
         <div className="container">
           <h2 className="label note__label reveal reveal--track" id="note-h">
-            A note from Srinijakara
+            A note from Selin Incekara
           </h2>
           <p className="h3 note__body reveal reveal--wipe">{site.note}</p>
           <p className="label muted note__sign reveal" style={{ '--i': 3 }}>

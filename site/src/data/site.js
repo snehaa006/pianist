@@ -1,7 +1,7 @@
 // Site-wide facts. Every [bracketed] value is unknown and must be filled with a real fact before launch.
 
 export const site = {
-  name: 'Srinijakara',
+  name: 'Selin Incekara',
   city: '[City]',
   teacher: '[Teacher]',
   school: '[School]',
@@ -27,7 +27,7 @@ export const site = {
     { label: 'YouTube', url: '' }
   ],
 
-  // Shown on About only once a real file is set, e.g. '/press/srinijakara-press-kit.pdf'.
+  // Shown on About only once a real file is set, e.g. '/press/selin-incekara-press-kit.pdf'.
   pressKit: ''
 };
 
