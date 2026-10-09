@@ -55,13 +55,12 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @keyframes from-ink { from { opacity: 0; } to { opacity: 1; } }
 .hero__content { position: relative; z-index: 1; }
 .hero__masked { color: var(--color-ivory); }
-.hero__wordmark { font-size: min(var(--text-wordmark-max, 360px), calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) / 3.86));
-  margin-left: -0.02em; }
+.hero__wordmark { font-size: var(--wordmark-one-line); margin-left: -0.02em; }
 .hero__wordmark .wm-line { display: inline-block; }
 .hero__lead { max-width: 34ch; margin-top: var(--space-6); }
 .hero__actions { margin-top: var(--space-6); }
 @media (max-width: 639px) {
-  .hero__wordmark { font-size: calc((100vw - 2 * var(--page-margin)) / 2.3); white-space: normal; }
+  .hero__wordmark { font-size: var(--wordmark-two-line); white-space: normal; }
   .hero__wordmark .wm-line { display: block; }
 }
 

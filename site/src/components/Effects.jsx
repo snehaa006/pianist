@@ -7,7 +7,6 @@ import { useFxSlot } from '../lib/fxStage.jsx';
 const MicroSlats = lazy(() => import('./fx/MicroSlats/MicroSlats.jsx'));
 const MoltenMetal = lazy(() => import('./fx/MoltenMetal/MoltenMetal.jsx'));
 const AeroShards = lazy(() => import('./fx/AeroShards/AeroShards.jsx'));
-const GhostCursor = lazy(() => import('./fx/GhostCursor/GhostCursor.jsx'));
 
 // If an effect fails (no WebGL, no WebGPU), the still underneath simply stays.
 class Quiet extends Component {
@@ -73,11 +72,3 @@ export function ShardsLayer({ zoneRef, onFail }) {
   );
 }
 
-// The site cursor: one, desktop only, in the hero.
-export function CursorLayer({ zoneRef }) {
-  return (
-    <Slot zoneRef={zoneRef}>
-      <GhostCursor {...presets.GhostCursor} />
-    </Slot>
-  );
-}

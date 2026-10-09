@@ -1,7 +1,4 @@
-import { useRef } from 'react';
-import { CursorLayer } from './Effects.jsx';
 import { useLightbox } from './Lightbox.jsx';
-import { useFx } from '../lib/hooks';
 
 const FIRST = 'Selin';
 const SECOND = 'Incekara';
@@ -18,21 +15,18 @@ const Letters = ({ word, offset = 0 }) => (
 );
 
 // Screen 1: the name, one current fact, one action.
-// The name over a warm-monochrome still of the concert; on desktop the one site cursor (GhostCursor) lives here.
+// The name over a warm-monochrome still of the concert.
 export default function Hero({ item }) {
-  const fx = useFx();
   const { open } = useLightbox();
-  const zone = useRef(null);
 
   return (
-    <section ref={zone} className="stage screen hero" aria-labelledby="name">
+    <section className="stage screen hero" aria-labelledby="name">
       <div className="hero__media frame scrim">
         <img src="/media/posters/hero.webp" alt={item.alt} width="848" height="480" fetchPriority="high" />
       </div>
-      {fx && <CursorLayer zoneRef={zone} />}
       <div className="container hero__content">
         <h1 className="wordmark hero__wordmark" id="name" aria-label="Selin Incekara">
-          <Letters word={FIRST} />
+          <Letters word={FIRST} />{' '}
           <Letters word={SECOND} offset={FIRST.length} />
         </h1>
         <p className="lead hero__lead hero-in" style={{ '--d': '700ms' }}>

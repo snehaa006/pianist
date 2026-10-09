@@ -8,7 +8,6 @@ added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width 
 
 | Component | Place |
 |---|---|
-| GhostCursor | The one site cursor, in the hero (desktop); the name rises letter by letter over a still of the concert |
 | MicroSlats | Behind the repertoire band on Home |
 | MaskedHeading | Not used since the hero change (the name filled with video was slow to arrive); `hero-loop.*` media is kept if you want it back |
 | FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |

@@ -17,7 +17,6 @@ import './components/fx/MicroSlats/MicroSlats.css';
 import './components/fx/MoltenMetal/MoltenMetal.css';
 import './components/fx/AeroShards/AeroShards.css';
 import './components/fx/DepthText/DepthText.css';
-import './components/fx/GhostCursor/GhostCursor.css';
 import App from './App.jsx';
 import './components/fx/pianist-overrides.css';
 import './styles/site.css';

@@ -67,5 +67,5 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 - **Press quote**: none exists, so the fermata is a photograph only.
 - **Repertoire filter chips** (Solo · Concertos · Chamber): every filmed piece is solo, so the filter would have nothing to sort. The OptionWheel dial lists the five pieces instead.
 - **Past concert dates**: the "Past concerts" rows show `[DD]` / `[Month] [Year]` until the real dates are filled in (add a `date` to each film).
-- **GlowCursor and SwarmCursor**: the system allows one cursor per site; GhostCursor is it.
+- **GhostCursor, GlowCursor and SwarmCursor**: no cursor effect; the hero glow was removed at the client's request.
 - **Nav Tickets pill**: nothing is on sale; omitting it keeps one velvet action per viewport.
