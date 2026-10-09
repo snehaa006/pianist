@@ -76,6 +76,9 @@
   --gutter: clamp(16px, 2vw, 24px);
   --page-margin: clamp(16px, 4.5vw, 72px);
   --page-max: 1440px;
+  /* Wordmark that fits the content width: "SELIN INCEKARA" is 4.70em wide on one line, "INCEKARA" 2.90em. */
+  --wordmark-one-line: calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) / 4.8);
+  --wordmark-two-line: calc((100vw - 2 * var(--page-margin)) / 3);
 
   /* ---- Shape (two-shape system) ----------------------------------------- */
   --radius-none: 0;      /* images, cards, sections, inputs, modals */

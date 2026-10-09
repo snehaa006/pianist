@@ -16,7 +16,7 @@ export function useMedia(query) {
 
 export const useReducedMotion = () => useMedia('(prefers-reduced-motion: reduce)');
 
-// Effects (MaskedHeading fill, cursor) run on laptop/desktop only: ≥900px, fine pointer,
+// Effects (MaskedHeading fill, canvas layers) run on laptop/desktop only: ≥900px, fine pointer,
 // motion allowed and not a touch device (allowFx from presets.js).
 export function useFx() {
   const wide = useMedia('(min-width: 900px)');
