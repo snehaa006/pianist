@@ -1,23 +1,30 @@
 # Selin Incekara: films
 
-Two edits from the eight performance videos in `../videos/` (the originals are never modified):
+Three edits from the eight performance videos in `../videos/` (the originals are never modified):
 
 - **Reel** (`src/reel/`): 14.7 s on the closing two phrases of her at-home grand recording. A concert
   programme in motion: ivory and ink pages with an opus number and a bar line that fills as the music plays.
   On each downbeat the frames glide into a new layout (window, spread, triptych, a 15-frame contact sheet
   with one frame ringed in grease pencil, a portrait on ink, two cinemascope strips), footage changes
   behind rising masks, and the last page carries her name edge to edge over her final phrase at the grand.
+- **Vintage reel** (`src/reel/Vintage.jsx`): 15.5 s in black and white on the opening of the same recording,
+  a waltz. A programme title card whose black-key ornament is played note by note, silent-film irises, a wipe
+  in piano-key strips (two octaves, black keys standing over the seams), a gapless 3 × 3 grid that builds like
+  a chord and divides into 4 × 4 before one frame opens onto the stage, and an end card. Film grain, gate
+  weave, projector flicker, the odd speck of dust.
 - **Film** (`src/edl.js`): 87 s, the long landing-page cut described below.
 
-### Reel: rebuild
+### Reels: rebuild
 
 ```bash
 npm install && pip install rembg onnxruntime scipy numpy pillow
 python3 scripts/grain.py                        # grain tiles
 bash scripts/proxies.sh                         # graded proxies (incl. H3, the reel's opening phrase)
-bash scripts/reel-audio.sh                      # soundtrack: the home grand, 76.96–91.70 s, at −14 LUFS
+bash scripts/reel-audio.sh                      # both soundtracks (home grand: 76.96–91.70 s and 5.35–20.25 s)
 COMP=Reel node scripts/render.mjs out/reel-master.mp4   # ~5 min
 bash scripts/encode-reel.sh                     # out/web/: Instagram MP4, web MP4/WebM, poster
+COMP=ReelVintage node scripts/render.mjs out/vintage-master.mp4   # ~7 min
+bash scripts/encode-reel.sh vintage
 ```
 
 ## The film (87 s)
