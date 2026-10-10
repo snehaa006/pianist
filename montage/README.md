@@ -2,10 +2,11 @@
 
 Two edits from the eight performance videos in `../videos/` (the originals are never modified):
 
-- **Reel** (`src/reel/`): 13.8 s, cut to the accents of the ending of Dog Hungry. A new layout or move on the
-  beat: letterbox and type flicker, sliding split, punch-in, triptych, stripe wipe, picture-in-picture, iris,
-  a 4×4 contact sheet that dives into one tile, film strip, footage inside her name, burn to white, gliding
-  columns, diagonal split, the silence, and an end card of cut-outs. Warm black and white.
+- **Reel** (`src/reel/`): 14.7 s on the closing two phrases of her at-home grand recording. A concert
+  programme in motion: ivory and ink pages with an opus number and a bar line that fills as the music plays.
+  On each downbeat the frames glide into a new layout (window, spread, triptych, a 15-frame contact sheet
+  with one frame ringed in grease pencil, a portrait on ink, two cinemascope strips), footage changes
+  behind rising masks, and the last page carries her name edge to edge over her final phrase at the grand.
 - **Film** (`src/edl.js`): 87 s, the long landing-page cut described below.
 
 ### Reel: rebuild
@@ -13,9 +14,8 @@ Two edits from the eight performance videos in `../videos/` (the originals are n
 ```bash
 npm install && pip install rembg onnxruntime scipy numpy pillow
 python3 scripts/grain.py                        # grain tiles
-bash scripts/proxies.sh                         # graded proxies (incl. D2, the synced Dog Hungry window)
-bash scripts/reel-audio.sh                      # soundtrack: Dog Hungry 51.47–65.30 s at −14 LUFS
-python3 scripts/cutouts.py                      # end-card cut-outs → public/cutouts/
+bash scripts/proxies.sh                         # graded proxies (incl. H3, the reel's opening phrase)
+bash scripts/reel-audio.sh                      # soundtrack: the home grand, 76.96–91.70 s, at −14 LUFS
 COMP=Reel node scripts/render.mjs out/reel-master.mp4   # ~5 min
 bash scripts/encode-reel.sh                     # out/web/: Instagram MP4, web MP4/WebM, poster
 ```

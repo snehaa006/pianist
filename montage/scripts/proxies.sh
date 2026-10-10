@@ -26,6 +26,7 @@ ROWS=(
   "O1|14.22.40|15.4|26.4|30|$STAGE"
   "O2|14.22.40|63.0|70.7|60|$STAGE"
   "D2|14.23.06|51.3|65.4|30|$GRADE3"
+  "H3|14.22.50|76.0|84.4|60|$HOME_GRAND"
 )
 for row in "${ROWS[@]}"; do
   IFS='|' read -r id clip a b fps eqf <<<"$row"

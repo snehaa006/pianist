@@ -1,16 +1,25 @@
-import { AbsoluteFill, Audio, Img, OffthreadVideo, Sequence, continueRender, delayRender, staticFile, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, Audio, OffthreadVideo, Sequence, continueRender, delayRender, staticFile, useCurrentFrame } from 'remotion';
 import { PROXIES } from '../edl.js';
 import { Grain } from '../Overlays.jsx';
-import { clamp, easeInOut, legato, mixView, viewBox } from '../util.js';
-import { CARD, CHORD, GRID, GRID_ORDER, GRID_ZOOM_TILE, HITS, PLAY_END, REEL_FPS, V, syncSrc } from './plan.js';
+import { clamp, easeInOut, legato, lerp, viewBox } from '../util.js';
+import {
+  BARS, BIG_LEFT, BREATH, CHORD, CW, FINAL, M, PORTRAIT, REEL_FPS, REEL_FRAMES, RIGHT_SMALL, SHEET, SHEET_MARK, SLOT,
+  STRIP_BOTTOM, STRIP_TOP, TILE, TRI, V, sheetAppear, sync
+} from './plan.js';
 
 const W = 1920;
 const H = 1080;
 const INK = '#0B0B0C';
-const IVORY = '#F4EFE6';
+const GRAPHITE = '#2A2A2E';
+const FELT = '#6B665E';
 const DUST = '#A8A196';
+const HAIRLINE = '#DAD3C7';
+const IVORY = '#F4EFE6';
 const BRASS = '#B8935A';
 const font = { fontFamily: 'Bebas Neue', fontWeight: 400, fontSynthesis: 'none', textTransform: 'uppercase', whiteSpace: 'nowrap', lineHeight: 1 };
+// Footage: her colour, quietened and warmed, as on the site.
+const GRADE = 'saturate(0.8) sepia(0.06) contrast(1.04)';
+const SWAP = 9; // frames for footage to rise into a frame
 
 const fontHandle = delayRender('Bebas Neue (reel)');
 new FontFace('Bebas Neue', `url(${staticFile('fonts/BebasNeue-Regular.woff2')}) format('woff2')`)
@@ -21,49 +30,76 @@ new FontFace('Bebas Neue', `url(${staticFile('fonts/BebasNeue-Regular.woff2')}) 
   })
   .catch(() => continueRender(fontHandle));
 
-// ── building blocks ────────────────────────────────────────────────────────────────────────────────────────
+// ── helpers ────────────────────────────────────────────────────────────────────────────────────────────────
 
-// A proxy, playing from `src` (source seconds) at the start of its Sequence, framed by `view` inside w × h.
-function Clip({ p, src, view, w = W, h = H, rate = 1 }) {
+// Keyframed values: [{ f, ...fields }], eased between neighbours, held outside.
+function keyAt(keys, f, ease = legato) {
+  if (f <= keys[0].f) return keys[0];
+  for (let i = 0; i < keys.length - 1; i++) {
+    const a = keys[i], b = keys[i + 1];
+    if (f <= b.f) {
+      const e = ease(clamp((f - a.f) / (b.f - a.f || 1)));
+      const out = {};
+      for (const k of Object.keys(b)) out[k] = typeof b[k] === 'number' && typeof a[k] === 'number' ? lerp(a[k], b[k], e) : b[k];
+      return out;
+    }
+  }
+  return keys[keys.length - 1];
+}
+
+function Clip({ p, src, view, w, h }) {
   const box = viewBox(view, w, h);
   const trimBefore = Math.max(0, Math.round((src - PROXIES[p].start) * REEL_FPS));
   return (
-    <div style={{ position: 'absolute', left: box.left, top: box.top, width: box.width, height: box.height }}>
-      <OffthreadVideo src={staticFile(`proxies/${p}.mp4`)} trimBefore={trimBefore} playbackRate={rate} muted style={{ width: '100%', height: '100%', display: 'block' }} />
+    <div style={{ position: 'absolute', left: box.left, top: box.top, width: box.width, height: box.height, filter: GRADE }}>
+      <OffthreadVideo src={staticFile(`proxies/${p}.mp4`)} trimBefore={trimBefore} muted style={{ width: '100%', height: '100%', display: 'block' }} />
     </div>
   );
 }
 
-// A framed cell. `pop` (frame it appears, local) gives a white flash and a small scale settle.
-function Cell({ x, y, w, h, shot, k = 0, pop, style, children }) {
+// A frame that moves between layouts (rects, keyed on downbeats) and changes footage behind a rising mask.
+function Frame({ rects, shots, until, rise = false, offsetY = 0 }) {
   const f = useCurrentFrame();
-  if (pop !== undefined && f < pop) return null;
-  const since = pop === undefined ? 99 : f - pop;
-  const s = since < 6 ? 1.08 - 0.08 * legato(since / 6) : 1;
-  const view = shot.to ? mixView(shot.view, shot.to, k) : shot.view;
+  if (f < rects[0].f || (until !== undefined && f >= until)) return null;
+  const r = keyAt(rects, f);
+  let clip;
+  let ty = 0;
+  if (rise) {
+    const e = legato(clamp((f - rects[0].f) / 11));
+    if (e < 1) clip = `inset(${(1 - e) * 100}% 0 0 0)`;
+    ty = (1 - e) * 46;
+  }
   return (
-    <div style={{ position: 'absolute', left: x, top: y, width: w, height: h, overflow: 'hidden', background: INK, ...style }}>
-      <div style={{ position: 'absolute', inset: 0, transform: `scale(${s})` }}>
-        <Clip p={shot.p} src={shot.src} view={view} w={w} h={h} rate={shot.rate} />
-      </div>
-      {since < 2 && <div style={{ position: 'absolute', inset: 0, background: IVORY, opacity: since === 0 ? 1 : 0.55 }} />}
-      {children}
-    </div>
-  );
-}
-
-const Full = ({ shot, k, style }) => <Cell x={0} y={0} w={W} h={H} shot={shot} k={k} style={style} />;
-const useK = dur => clamp(useCurrentFrame() / Math.max(1, dur - 1));
-
-// Letters rising out of a mask, one frame apart.
-function Rise({ text, size, color = IVORY, at = 0, gap = 1, style }) {
-  const f = useCurrentFrame();
-  return (
-    <div style={{ display: 'flex', overflow: 'hidden', ...style }}>
-      {Array.from(text).map((c, i) => {
-        const e = legato(clamp((f - at - i * gap) / 6));
+    <div style={{ position: 'absolute', left: r.x, top: r.y + ty + offsetY, width: r.w, height: r.h, overflow: 'hidden', clipPath: clip, background: INK }}>
+      {shots.map((s, i) => {
+        const next = shots[i + 1];
+        const end = next ? next.f + SWAP : REEL_FRAMES;
+        if (f < s.f || f >= end) return null;
+        const e = i === 0 ? 1 : legato(clamp((f - s.f) / SWAP));
+        const view = s.views ? keyAt(s.views, f, s.ease || legato) : s.view;
         return (
-          <span key={i} style={{ ...font, fontSize: size, color, display: 'inline-block', transform: `translateY(${(1 - e) * 105}%)`, whiteSpace: 'pre' }}>
+          <div key={i} style={{ position: 'absolute', inset: 0, clipPath: e < 1 ? `inset(${(1 - e) * 100}% 0 0 0)` : undefined }}>
+            <Sequence from={s.f} layout="none">
+              <Clip p={s.p} src={s.src} view={view} w={r.w} h={r.h} />
+            </Sequence>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// Letters rising out of a mask, `gap` frames apart; fades out after `until`.
+function Rise({ text, size, at, gap = 1, until, color = INK, tracking = '0.16em', style }) {
+  const f = useCurrentFrame();
+  if (f < at || (until !== undefined && f >= until + 6)) return null;
+  const out = until !== undefined ? clamp((f - until) / 6) : 0;
+  return (
+    <div style={{ display: 'flex', overflow: 'hidden', paddingBottom: 2, opacity: 1 - out, ...style }}>
+      {Array.from(text).map((c, i) => {
+        const e = legato(clamp((f - at - i * gap) / 8));
+        return (
+          <span key={i} style={{ ...font, fontSize: size, color, letterSpacing: tracking, display: 'inline-block', transform: `translateY(${(1 - e) * 110}%)`, whiteSpace: 'pre' }}>
             {c}
           </span>
         );
@@ -72,446 +108,293 @@ function Rise({ text, size, color = IVORY, at = 0, gap = 1, style }) {
   );
 }
 
-// ── the beats ──────────────────────────────────────────────────────────────────────────────────────────────
-
-// 1 · Letterbox opens on the stage; her name flickers through Bebas treatments, then settles.
-const NAME_STYLES = [
-  { fontSize: 150, letterSpacing: '0.06em', color: IVORY },
-  { fontSize: 164, letterSpacing: '0.12em', color: 'transparent', WebkitTextStroke: `2px ${IVORY}` },
-  { fontSize: 132, letterSpacing: '0.34em', color: BRASS },
-  { fontSize: 128, letterSpacing: '0.02em', color: IVORY, transform: 'scaleY(1.55)' },
-  { stacked: true, fontSize: 124, color: IVORY },
-  { fontSize: 150, letterSpacing: '0.05em', color: IVORY, transform: 'skewX(-13deg)' },
-  { fontSize: 112, letterSpacing: '0.14em', color: INK, background: IVORY, padding: '10px 26px 0' }
-];
-const NAME_SEQ = [0, 1, 2, 3, 4, 5, 6, 1, 3, 2, 0, 4];
-function Opening({ dur }) {
+// A rule drawn from its centre outwards.
+function Rule({ x, y, w, at, frames = 12, color = INK, thick = 1, until }) {
   const f = useCurrentFrame();
-  const k = useK(dur);
-  const band = 0.03 + 0.97 * legato(clamp(f / 12));
-  const inset = ((1 - band) / 2) * 100;
-  return (
-    <AbsoluteFill style={{ clipPath: `inset(${inset}% 0 ${inset}% 0)` }}>
-      <Full shot={{ p: 'O1', src: 16.3, view: V.stageWide, to: { ...V.stageWide, z: 1.14 } }} k={k} />
-    </AbsoluteFill>
-  );
-}
-function OpeningName() {
-  const f = useCurrentFrame();
-  if (f < 9) return null;
-  const idx = f >= 39 ? 0 : NAME_SEQ[Math.floor((f - 9) / 3) % NAME_SEQ.length];
-  const { stacked, ...st } = NAME_STYLES[idx];
-  return (
-    <AbsoluteFill style={{ alignItems: 'center', top: 96, justifyContent: 'flex-start' }}>
-      {stacked ? (
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ ...font, ...st, lineHeight: 0.86 }}>Selin</div>
-          <div style={{ ...font, ...st, lineHeight: 0.86 }}>Incekara</div>
-        </div>
-      ) : (
-        <div style={{ ...font, ...st, paddingLeft: st.letterSpacing }}>Selin Incekara</div>
-      )}
-      <div style={{ ...font, fontSize: 26, letterSpacing: '0.5em', paddingLeft: '0.5em', color: DUST, marginTop: 26, opacity: clamp((f - 14) / 6) }}>Pianist</div>
-    </AbsoluteFill>
-  );
+  if (f < at || (until !== undefined && f >= until + 8)) return null;
+  const e = legato(clamp((f - at) / frames));
+  const out = until !== undefined ? clamp((f - until) / 8) : 0;
+  return <div style={{ position: 'absolute', left: x + (w * (1 - e)) / 2, top: y, width: w * e, height: thick, background: color, opacity: 1 - out }} />;
 }
 
-// 2 · Split screen: the hall drops in from above, home rises from below.
-function SplitV() {
+// ── page furniture ─────────────────────────────────────────────────────────────────────────────────────────
+
+const onInk = f => f >= 225 && f < 345;
+const OPUS = [[58, 1], [115, 2], [169, 3], [225, 4], [281, 5]];
+
+function Header() {
   const f = useCurrentFrame();
-  // already a third of the way in on the cut, so the accent never lands on an empty frame
-  const e = legato(clamp((f + 2) / 9));
-  const pw = (W - 6) / 2;
+  const vis = clamp((f - 58) / 8) * (1 - clamp((f - 331) / 6));
+  if (vis <= 0) return null;
+  const color = onInk(f) ? IVORY : INK;
+  // the opus number turns over on each new page
+  const idx = OPUS.reduce((a, [at], i) => (f >= at ? i : a), 0);
+  const since = f - OPUS[idx][0];
+  const roll = idx > 0 && since < 8 ? legato(since / 8) : 1;
+  const nameVis = clamp((f - 115) / 8);
   return (
-    <AbsoluteFill style={{ background: INK }}>
-      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${(e - 1) * 100}%)` }}>
-        <Cell x={0} y={0} w={pw} h={H} shot={{ p: 'M', src: 14.85, view: V.hallMid }} />
+    <>
+      <div style={{ position: 'absolute', left: M, top: 44, ...font, fontSize: 22, letterSpacing: '0.16em', color, opacity: vis * nameVis }}>Selin Incekara</div>
+      <div style={{ position: 'absolute', right: M, top: 44, display: 'flex', ...font, fontSize: 22, letterSpacing: '0.16em', color: onInk(f) ? BRASS : color, opacity: vis }}>
+        <span>(Op. 0</span>
+        <span style={{ display: 'inline-block', height: 22, overflow: 'hidden', position: 'relative', width: '0.62em' }}>
+          {idx > 0 && roll < 1 && <span style={{ position: 'absolute', left: 0, top: 0, transform: `translateY(${-roll * 110}%)` }}>{OPUS[idx - 1][1]}</span>}
+          <span style={{ position: 'absolute', left: 0, top: 0, transform: `translateY(${(1 - roll) * 110}%)` }}>{OPUS[idx][1]}</span>
+        </span>
+        <span>)</span>
       </div>
-      <div style={{ position: 'absolute', inset: 0, transform: `translateY(${(1 - e) * 100}%)` }}>
-        <Cell x={pw + 6} y={0} w={pw} h={H} shot={{ p: 'H1', src: 12.4, view: { x: 0.33, y: 0.45, z: 1.15 } }} />
-      </div>
-    </AbsoluteFill>
+    </>
   );
 }
 
-// 3 · Punch-in on her hands.
-function Punch({ shot, from = 1.16, frames = 7 }) {
+// The bar line: a rule along the foot of the page with a tick for every bar of the music, filling as it plays.
+function BarLine() {
   const f = useCurrentFrame();
-  const s = from - (from - 1) * legato(clamp(f / frames));
+  const vis = clamp((f - 58) / 8) * (1 - clamp((f - 331) / 6));
+  if (vis <= 0) return null;
+  const ink = onInk(f);
+  const base = ink ? GRAPHITE : HAIRLINE;
+  const fill = ink ? BRASS : INK;
+  const xAt = fr => M + CW * (fr / REEL_FRAMES);
   return (
-    <AbsoluteFill style={{ transform: `scale(${s})` }}>
-      <Full shot={shot} />
-    </AbsoluteFill>
-  );
-}
-
-// 4 · Triptych, popping in left to right, SOLO / PIANO in the corners.
-function Triptych() {
-  const pw = (W - 12) / 3;
-  const shots = [
-    { p: 'S', src: 22.0, view: { x: 0.6, y: 0.45, z: 1.3 } },
-    { p: 'A', src: 18.5, view: { x: 0.4, y: 0.38, z: 1.4 } },
-    { p: 'D2', src: syncSrc(86), view: { x: 0.58, y: 0.42, z: 1.25 } }
-  ];
-  return (
-    <AbsoluteFill style={{ background: INK }}>
-      {shots.map((s, i) => (
-        <Cell key={i} x={i * (pw + 6)} y={0} w={pw} h={H} shot={s} pop={i * 4} />
+    <div style={{ position: 'absolute', left: 0, top: 1040, width: W, opacity: vis }}>
+      <div style={{ position: 'absolute', left: M, width: CW, height: 1, background: base }} />
+      <div style={{ position: 'absolute', left: M, width: xAt(f) - M, height: 1, background: fill }} />
+      {BARS.map(b => (
+        <div key={b} style={{ position: 'absolute', left: xAt(b), top: -8, width: 1, height: 8, background: f >= b ? fill : base }} />
       ))}
-      <Rise text="Solo" size={150} at={4} style={{ position: 'absolute', left: 56, top: 44 }} />
-      <Rise text="Piano" size={150} at={10} style={{ position: 'absolute', right: 56, bottom: 40 }} />
-    </AbsoluteFill>
+    </div>
   );
 }
 
-// 6 · Diagonal stripes sweep the hall in.
-function Stripes({ shot, frames = 10, k }) {
+// ── pages ──────────────────────────────────────────────────────────────────────────────────────────────────
+
+const textW = (size, track) => size * (4.842 + track * 14);
+
+// Her name: tracks in over the opening window, then steps aside into the right-hand column.
+function NameBlock() {
   const f = useCurrentFrame();
-  const e = legato(clamp(f / frames));
-  const P = 260;
-  const w = e * P;
-  const mask = e < 1 ? `repeating-linear-gradient(115deg, #000 0px, #000 ${w}px, transparent ${w}px, transparent ${P}px)` : undefined;
+  if (f < 6 || f >= 122) return null;
+  const move = legato(clamp((f - 44) / 14));
+  const size = lerp(150, 92, move);
+  const track = lerp(0.6, 0.06, legato(clamp((f - 6) / 34)));
+  const centred = W / 2 - textW(size, track) / 2 + (size * track) / 2;
+  const left = lerp(centred, RIGHT_SMALL.x, move);
+  const top = lerp(140, 130, move);
+  const opacity = clamp((f - 6) / 12) * (1 - clamp((f - 112) / 8));
+  const first = clamp((f - 22) / 10) * (1 - clamp((f - 38) / 6));
+  const second = clamp((f - 60) / 8);
   return (
-    <AbsoluteFill>
-      <AbsoluteFill style={{ WebkitMaskImage: mask, maskImage: mask, WebkitMaskPosition: `${e * 220}px 0`, maskPosition: `${e * 220}px 0` }}>
-        <Full shot={shot} k={k} />
-      </AbsoluteFill>
-      {e < 1 && (
-        <AbsoluteFill
-          style={{
-            background: `repeating-linear-gradient(115deg, transparent 0px, transparent ${w}px, rgba(244,239,230,0.95) ${w}px, rgba(244,239,230,0.95) ${w + 22}px, transparent ${w + 22}px, transparent ${P}px)`,
-            backgroundPosition: `${e * 220}px 0`,
-            opacity: 1 - e * 0.6
-          }}
-        />
-      )}
-    </AbsoluteFill>
-  );
-}
-function HallWithTiles({ dur }) {
-  const k = useK(dur);
-  const qw = (W - 6) / 2;
-  const qh = (H - 6) / 2;
-  return (
-    <AbsoluteFill>
-      <Stripes shot={{ p: 'M', src: 10.5, view: V.hallWide, to: { ...V.hallWide, z: 1.08 } }} k={k} />
-      {/* picture-in-picture tiles snap into three quadrants on the accents */}
-      <Cell x={0} y={0} w={qw} h={qh} shot={{ p: 'O1', src: 18.0, view: V.stageClose }} pop={13} />
-      <Cell x={qw + 6} y={0} w={qw} h={qh} shot={{ p: 'H2', src: 86.0, view: V.homeClose }} pop={18} />
-      <Cell x={0} y={qh + 6} w={qw} h={qh} shot={{ p: 'S', src: 25.0, view: V.twiHands }} pop={26} />
-    </AbsoluteFill>
+    <>
+      <div style={{ position: 'absolute', left, top, ...font, fontSize: size, letterSpacing: `${track}em`, color: INK, opacity }}>Selin Incekara</div>
+      {first > 0 && <div style={{ position: 'absolute', left: 0, right: 0, top: 782, textAlign: 'center', ...font, fontSize: 24, letterSpacing: '0.5em', paddingLeft: '0.5em', color: FELT, opacity: first }}>Pianist</div>}
+      {second > 0 && <div style={{ position: 'absolute', left: RIGHT_SMALL.x, top: 246, ...font, fontSize: 24, letterSpacing: '0.5em', color: FELT, opacity: second * opacity }}>Pianist</div>}
+    </>
   );
 }
 
-// 7 · Circle iris opens from her hands.
-function Iris({ dur }) {
+// The opening line: drawn across the page, it opens into the first window.
+function OpeningLine() {
   const f = useCurrentFrame();
-  const k = useK(dur);
-  const e = legato(clamp(f / 9));
-  const r = 20 + 1280 * e;
-  const cx = 860, cy = 600;
+  if (f >= 42) return null;
+  const draw = legato(clamp(f / 9));
+  const h = f < 9 ? 0 : keyAt([{ f: 9, h: 0 }, { f: 29, h: SLOT.h }], f).h;
+  const fade = 1 - clamp((f - 30) / 12);
+  const w = CW * draw;
+  const x = M + (CW - w) / 2;
   return (
-    <AbsoluteFill>
-      <AbsoluteFill style={{ clipPath: e < 1 ? `circle(${r}px at ${cx}px ${cy}px)` : undefined }}>
-        <Full shot={{ p: 'O2', src: 63.4, view: V.stageEnd, to: { ...V.stageEnd, z: 1.62 } }} k={k} />
-      </AbsoluteFill>
-      {e < 1 && (
-        <div style={{ position: 'absolute', left: cx - r, top: cy - r, width: 2 * r, height: 2 * r, borderRadius: '50%', border: `3px solid ${IVORY}`, opacity: 1 - e }} />
-      )}
-    </AbsoluteFill>
+    <>
+      <div style={{ position: 'absolute', left: x, top: 540 - h / 2 - 1, width: w, height: 1.5, background: INK, opacity: fade }} />
+      {h > 0 && <div style={{ position: 'absolute', left: x, top: 540 + h / 2, width: w, height: 1.5, background: INK, opacity: fade }} />}
+    </>
   );
 }
 
-// 8 · The contact sheet: sixteen tiles in a scattered arpeggio, then the camera dives into one.
-const GAP = 4;
-const TW = (W - 3 * GAP) / 4;
-const TH = (H - 3 * GAP) / 4;
-function Grid({ zoomAt }) {
+// The contact sheet's frame numbers, and the grease-pencil ring around the chosen frame.
+function SheetMarks() {
   const f = useCurrentFrame();
-  const zi = GRID_ZOOM_TILE;
-  const col = zi % 4, row = Math.floor(zi / 4);
-  const cx = col * (TW + GAP) + TW / 2;
-  const cy = row * (TH + GAP) + TH / 2;
-  const S = H / TH;
-  const e = easeInOut(clamp((f - zoomAt) / 7));
-  const s = 1 + (S - 1) * e;
-  const tx = cx + (W / 2 - cx) * e - cx * s;
-  const ty = cy + (H / 2 - cy) * e - cy * s;
+  if (f < 169) return null;
+  const ring = legato(clamp((f - 199) / 14));
+  const t = TILE(SHEET_MARK);
+  const cx = t.x + t.w / 2, cy = t.y + t.h / 2;
+  const pts = [];
+  for (let i = 0; i <= 120; i++) {
+    const a = -0.35 + (i / 120) * (Math.PI * 2 + 0.75);
+    const r = 1 + 0.03 * Math.sin(3 * a + 1.1) + 0.018 * Math.sin(7 * a + 0.4) + 0.05 * (i / 120);
+    pts.push(`${(cx + Math.cos(a) * 222 * r).toFixed(1)},${(cy + Math.sin(a) * 140 * r).toFixed(1)}`);
+  }
   return (
-    <AbsoluteFill style={{ background: INK }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, transformOrigin: '0 0', transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
-        {GRID.map((g, i) => (
-          <Cell key={i} x={(i % 4) * (TW + GAP)} y={Math.floor(i / 4) * (TH + GAP)} w={TW} h={TH} shot={g} pop={GRID_ORDER.indexOf(i)} />
-        ))}
-      </div>
-    </AbsoluteFill>
-  );
-}
-
-// 9 · Film strip racing across the frame.
-function FilmStrip() {
-  const f = useCurrentFrame();
-  const e = 1 - Math.pow(1 - clamp(f / 21), 2.2);
-  const fw = 760, fh = 428, gap = 34;
-  const shots = [
-    { p: 'O1', src: 21.0, view: V.stageFace },
-    { p: 'M', src: 16.0, view: V.hallClose },
-    { p: 'S', src: 23.5, view: V.twiFace },
-    { p: 'A', src: 20.0, view: V.andHands },
-    { p: 'D', src: 36.0, view: V.dogWide },
-    { p: 'H2', src: 88.0, view: V.homeWide },
-    { p: 'G', src: 21.0, view: V.g1Her }
-  ];
-  const x = 300 - 3400 * e;
-  const holes = Array.from({ length: 110 });
-  return (
-    <AbsoluteFill style={{ background: INK }}>
-      <div style={{ position: 'absolute', left: -300, top: H / 2 - 270, width: W + 600, height: 540, transform: 'rotate(-3deg)', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', left: x, top: 0, height: 540, width: shots.length * (fw + gap) + 900, background: '#151517' }}>
-          {[16, 500].map(top => (
-            <div key={top} style={{ position: 'absolute', top, left: 0, display: 'flex', gap: 22 }}>
-              {holes.map((_, i) => (
-                <div key={i} style={{ width: 18, height: 24, background: '#2A2A2E' }} />
-              ))}
-            </div>
-          ))}
-          {shots.map((s, i) => (
-            <Cell key={i} x={300 + i * (fw + gap)} y={56} w={fw} h={fh} shot={s} />
-          ))}
-        </div>
-      </div>
-    </AbsoluteFill>
-  );
-}
-
-// 10 · Her first name, cut out of the hall footage; burns out to white.
-function NameMask({ dur }) {
-  const f = useCurrentFrame();
-  const s = 1.3 - 0.3 * legato(clamp(f / 6));
-  const burn = clamp((f - (dur - 4)) / 4);
-  return (
-    <AbsoluteFill style={{ background: INK, filter: burn > 0 ? `blur(${2 + 10 * burn}px) contrast(${1 + 5 * burn}) brightness(${1 + 3 * burn})` : undefined }}>
-      <AbsoluteFill style={{ isolation: 'isolate' }}>
-        <AbsoluteFill style={{ filter: 'brightness(1.25) contrast(0.9)' }}>
-          <Full shot={{ p: 'H1', src: 8.0, view: { x: 0.42, y: 0.45, z: 1.15 } }} />
-        </AbsoluteFill>
-        <AbsoluteFill style={{ background: '#000', mixBlendMode: 'multiply', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ ...font, fontSize: 760, letterSpacing: '0.02em', color: '#fff', transform: `scale(${s})`, marginTop: 40 }}>Selin</div>
-        </AbsoluteFill>
-      </AbsoluteFill>
-      <AbsoluteFill style={{ alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ ...font, fontSize: 760, letterSpacing: '0.02em', color: 'transparent', WebkitTextStroke: `2px ${IVORY}`, transform: `scale(${s})`, marginTop: 40 }}>Selin</div>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-}
-
-// 11 · Home again, burning in from white.
-function BurnIn({ shot, dur, frames = 7 }) {
-  const f = useCurrentFrame();
-  const k = useK(dur);
-  const b = 1 - easeInOut(clamp(f / frames));
-  return (
-    <AbsoluteFill style={{ filter: b > 0 ? `blur(${10 * b}px) contrast(${1 + 5 * b}) brightness(${1 + 3 * b})` : undefined }}>
-      <Full shot={shot} k={k} />
-    </AbsoluteFill>
-  );
-}
-
-// 12 · Three columns gliding in opposite directions.
-function Columns({ dur }) {
-  const f = useCurrentFrame();
-  const e = easeInOut(clamp(f / (dur - 1)));
-  const cw = (W - 12) / 3;
-  const th = 700;
-  const travel = 2 * th + 6 - H;
-  const cols = [
-    [{ p: 'O1', src: 20.2, view: V.stageFace }, { p: 'D2', src: syncSrc(272), view: { x: 0.6, y: 0.45, z: 1.3 } }],
-    [{ p: 'S', src: 24.0, view: V.twiHands }, { p: 'M', src: 18.0, view: V.hallFace }],
-    [{ p: 'A', src: 17.0, view: V.andFace }, { p: 'O2', src: 64.6, view: V.stageEnd }]
-  ];
-  return (
-    <AbsoluteFill style={{ background: INK }}>
-      {cols.map((c, i) => {
-        const y = i === 1 ? -travel + travel * e : -travel * e;
+    <>
+      {Array.from({ length: 15 }).map((_, i) => {
+        const tile = TILE(i);
+        const at = i % 2 === 0 && i <= 4 ? 181 : sheetAppear(i);
         return (
-          <div key={i} style={{ position: 'absolute', left: i * (cw + 6), top: 0, width: cw, height: H, overflow: 'hidden' }}>
-            <div style={{ position: 'absolute', left: 0, top: y, width: cw }}>
-              {c.map((s, j) => (
-                <Cell key={j} x={0} y={j * (th + 6)} w={cw} h={th} shot={s} />
-              ))}
-            </div>
+          <div key={i} style={{ position: 'absolute', left: tile.x, top: tile.y + tile.h + 10, ...font, fontSize: 18, letterSpacing: '0.16em', color: i === SHEET_MARK && f >= 205 ? INK : FELT, opacity: clamp((f - at) / 6) }}>
+            {String(i + 1).padStart(2, '0')}
           </div>
         );
       })}
+      {f >= 199 && (
+        <svg width={W} height={H} style={{ position: 'absolute', inset: 0, transform: `rotate(-5deg)`, transformOrigin: `${cx}px ${cy}px` }}>
+          <path d={`M${pts.join(' L')}`} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - ring} stroke={INK} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </svg>
+      )}
+    </>
+  );
+}
+
+function SheetTile({ i }) {
+  const f = useCurrentFrame();
+  const at = sheetAppear(i);
+  if (f < at) return null;
+  const e = legato(clamp((f - at) / 9));
+  const t = TILE(i);
+  return (
+    <div style={{ position: 'absolute', left: t.x, top: t.y + (1 - e) * 14, width: t.w, height: t.h, overflow: 'hidden', opacity: e, background: INK }}>
+      <Sequence from={at} layout="none">
+        <Clip {...SHEET[i]} w={t.w} h={t.h} />
+      </Sequence>
+    </div>
+  );
+}
+
+// Pages 1–3 on ivory: the window, the spread, the triptych, the contact sheet; then the camera enters frame 08.
+function Paper() {
+  const f = useCurrentFrame();
+  if (f > 225) return null;
+  const t = TILE(SHEET_MARK);
+  const cx = t.x + t.w / 2, cy = t.y + t.h / 2;
+  const S = W / t.w;
+  const e = easeInOut(clamp((f - BREATH) / (225 - BREATH)));
+  const s = 1 + (S - 1) * e;
+  const tx = cx + (W / 2 - cx) * e - cx * s;
+  const ty = cy + (H / 2 - cy) * e - cy * s;
+  const tri = [TRI(0), TRI(1), TRI(2)];
+  return (
+    <AbsoluteFill style={{ background: IVORY }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, transformOrigin: '0 0', transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
+        <OpeningLine />
+        {/* A: the window → the large frame → triptych left → sheet 01 */}
+        <Frame
+          rects={[{ f: 9, ...SLOT, y: 540, h: 0 }, { f: 29, ...SLOT }, { f: 58, ...SLOT }, { f: 65, ...SLOT, w: BIG_LEFT.w }, { f: 74, ...BIG_LEFT }, { f: 115, ...BIG_LEFT }, { f: 127, ...tri[0] }, { f: 169, ...tri[0] }, { f: 181, ...TILE(0) }]}
+          shots={[
+            { f: 0, p: 'H3', src: sync(0), views: [{ f: 0, ...V.homeBand }, { f: 58, ...V.homeBand }, { f: 72, ...V.homeWide }] },
+            { f: 86, p: 'M', src: 10.5, view: V.hallWide },
+            { f: 115, p: 'O1', src: 17.0, view: V.stagePortrait },
+            { f: 142, p: 'M', src: 15.5, view: V.hallFace }
+          ]}
+        />
+        {/* B: the small frame in the right column → triptych right → sheet 05 */}
+        <Frame
+          rise
+          rects={[{ f: 67, ...RIGHT_SMALL }, { f: 115, ...RIGHT_SMALL }, { f: 127, ...tri[2] }, { f: 169, ...tri[2] }, { f: 181, ...TILE(4) }]}
+          shots={[
+            { f: 67, p: 'H3', src: sync(67), view: V.homeFace },
+            { f: 115, p: 'A', src: 18.0, view: V.andFace },
+            { f: 148, p: 'D', src: 36.0, view: V.dogFace }
+          ]}
+        />
+        {/* C: rises into the middle of the triptych on the second beat → sheet 03 */}
+        <Frame
+          rise
+          rects={[{ f: 124, ...tri[1] }, { f: 169, ...tri[1] }, { f: 181, ...TILE(2) }]}
+          shots={[
+            { f: 124, p: 'S', src: 22.0, view: V.twiFace },
+            { f: 145, p: 'G', src: 15.0, view: V.g1Her }
+          ]}
+        />
+        <NameBlock />
+        <Rule x={RIGHT_SMALL.x} y={300} w={RIGHT_SMALL.w} at={72} until={110} />
+        {/* captions: the spread, then one under each panel of the triptych */}
+        <Rise text="At home, the grand" size={24} at={72} until={84} style={{ position: 'absolute', left: M, top: 984 }} />
+        <Rise text="Austrian Master Classes, in concert" size={24} at={90} until={110} gap={0.6} style={{ position: 'absolute', left: M, top: 984 }} />
+        {[['On stage', 'In concert'], ['Song of Twilight', 'Grade 1'], ['Andante', 'Dog Hungry']].map(([a, b], i) => (
+          <div key={i}>
+            <Rise text={a} size={24} at={128 + i * 3} until={140} style={{ position: 'absolute', left: tri[i].x, top: 962 }} />
+            <Rise text={b} size={24} at={146 + i * 3} until={164} style={{ position: 'absolute', left: tri[i].x, top: 962 }} />
+          </div>
+        ))}
+        {SHEET.map((s, i) => (s ? <SheetTile key={i} i={i} /> : null))}
+        <SheetMarks />
+      </div>
     </AbsoluteFill>
   );
 }
 
-// 13 · Diagonal split: the stage sweeps in over Dog Hungry along a slanted edge.
-function Diagonal() {
+// Pages 4–5 on ink: the stage, then two cinemascope strips gliding in from either side.
+function Stage() {
   const f = useCurrentFrame();
-  const off = 1000 * (1 - legato(clamp(f / 5)));
-  const x1 = 1120 + off, x2 = 800 + off;
+  if (f < 225 || f >= 352) return null;
+  const tileStart = sheetAppear(SHEET_MARK);
+  // the brass frame follows the portrait frame while it rests, then leaves with it
+  const frameRect = keyAt([{ f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...PORTRAIT, y: -930 }], f);
+  const border = legato(clamp((f - 266) / 14));
   return (
     <AbsoluteFill style={{ background: INK }}>
-      <AbsoluteFill style={{ clipPath: `polygon(0 0, ${x1}px 0, ${x2}px ${H}px, 0 ${H}px)` }}>
-        <Full shot={{ p: 'D2', src: syncSrc(286), view: { x: 0.45, y: 0.52, z: 1.55 } }} />
-      </AbsoluteFill>
-      <AbsoluteFill style={{ clipPath: `polygon(${x1}px 0, ${W}px 0, ${W}px ${H}px, ${x2}px ${H}px)` }}>
-        <Full shot={{ p: 'O2', src: 64.2, view: { x: 0.5, y: 0.45, z: 1.5 } }} />
-      </AbsoluteFill>
-      <svg width={W} height={H} style={{ position: 'absolute', inset: 0 }}>
-        <line x1={x1} y1={0} x2={x2} y2={H} stroke={IVORY} strokeWidth={5} />
-      </svg>
+      <Frame
+        until={294}
+        rects={[{ f: 225, x: 0, y: 0, w: W, h: H }, { f: 254, x: 0, y: 0, w: W, h: H }, { f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...PORTRAIT, y: -930 }]}
+        shots={[{ f: 225, p: 'O1', src: SHEET[SHEET_MARK].src + (225 - tileStart) / REEL_FPS, views: [{ f: 225, ...V.stageWide }, { f: 254, ...V.stageWide }, { f: 266, ...V.stagePortrait }] }]}
+      />
+      {f >= 266 && f < 294 && (
+        <svg width={W} height={H} style={{ position: 'absolute', inset: 0 }}>
+          <rect x={frameRect.x - 16} y={frameRect.y - 16} width={frameRect.w + 32} height={frameRect.h + 32} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - border} stroke={BRASS} strokeWidth={1.2} fill="none" />
+        </svg>
+      )}
+      <Rise text="On stage" size={26} at={268} until={280} color={BRASS} style={{ position: 'absolute', left: 0, right: 0, top: 958, justifyContent: 'center' }} />
+      <Frame
+        until={352}
+        rects={[{ f: 281, ...STRIP_TOP, x: W }, { f: 295, ...STRIP_TOP }]}
+        shots={[
+          { f: 281, p: 'M', src: 11.5, views: [{ f: 281, ...V.hallWide }, { f: 337, ...V.hallWide, x: 0.54 }], ease: x => x },
+          { f: 310, p: 'O2', src: 63.8, view: V.stageEnd }
+        ]}
+      />
+      <Frame
+        until={352}
+        rects={[{ f: 285, ...STRIP_BOTTOM, x: -CW }, { f: 299, ...STRIP_BOTTOM }]}
+        shots={[
+          { f: 285, p: 'H1', src: 14.0, views: [{ f: 285, x: 0.42, y: 0.55, z: 1.0 }, { f: 337, x: 0.38, y: 0.55, z: 1.0 }], ease: x => x },
+          { f: 313, p: 'S', src: 23.0, view: V.twiWide }
+        ]}
+      />
+      <Rise text="In concert" size={22} at={297} until={309} color={BRASS} style={{ position: 'absolute', left: M, top: 526 }} />
+      <Rise text="On stage" size={22} at={314} until={334} color={BRASS} style={{ position: 'absolute', left: M, top: 526 }} />
+      <Rise text="At home" size={22} at={301} until={312} color={BRASS} style={{ position: 'absolute', left: M, top: 946 }} />
+      <Rise text="Song of Twilight" size={22} at={317} until={334} color={BRASS} style={{ position: 'absolute', left: M, top: 946 }} />
     </AbsoluteFill>
   );
 }
 
-// 14 · The silence: her hands leave the keys and travel to the final chord, in sync; the frame closes in.
-function Silence({ dur }) {
+// Page 6: an ivory page rises over the stage, carrying her last phrase at the grand and her name, edge to edge.
+function Finale() {
   const f = useCurrentFrame();
-  const k = legato(clamp(f / (dur - 1)));
+  if (f < 337) return null;
+  const up = legato(clamp((f - 337) / 14));
+  const top = lerp(H, 0, up);
   return (
-    <AbsoluteFill style={{ filter: `brightness(${1 - 0.28 * k})` }}>
-      <Full shot={{ p: 'D2', src: syncSrc(PLAY_END), view: { x: 0.47, y: 0.5, z: 1.2 }, to: { x: 0.42, y: 0.55, z: 1.75 } }} k={k} />
-    </AbsoluteFill>
+    <div style={{ position: 'absolute', left: 0, top, width: W, height: H, background: IVORY }}>
+      {up < 1 && <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: 1, background: INK }} />}
+      <Frame
+        rects={[{ f: 337, ...FINAL }]}
+        shots={[{ f: 337, p: 'H2', src: sync(337), views: [{ f: 337, ...V.homeWide, z: 1.12 }, { f: 441, ...V.homeWide, z: 1.0 }], ease: easeInOut }]}
+      />
+      <Rise text="Selin Incekara" size={366} at={347} gap={2} tracking="0" style={{ position: 'absolute', left: M - 4, top: 742, lineHeight: 0.8 }} />
+      <Rule x={M} y={1046} w={CW} at={CHORD} frames={16} />
+      <Rise text="Pianist" size={26} at={CHORD} gap={1.2} color={FELT} tracking="0.5em" style={{ position: 'absolute', left: 0, right: 0, top: 54, justifyContent: 'center' }} />
+    </div>
   );
 }
-
-// 15 · End card: cut-outs of her at five pianos pop onto warm grey under her name.
-const CUTS = [
-  { name: 'hall', h: 400, left: 40, bottom: 250, at: 4 },
-  { name: 'stage', h: 450, left: 1420, bottom: 240, at: 8 },
-  { name: 'andante', h: 560, left: 150, bottom: -40, at: 12 },
-  { name: 'twilight', h: 520, left: 1110, bottom: -60, at: 16 },
-  { name: 'home', h: 700, left: 640, bottom: -30, at: 20 }
-];
-const SIZES = { hall: [568, 370], stage: [342, 326], andante: [548, 439], twilight: [796, 479], home: [591, 464] };
-const GLINTS = [
-  [1180, 120, 18, 0], [1560, 300, 12, 1.3], [980, 260, 10, 2.1], [1300, 250, 16, 0.6], [1320, 420, 9, 2.8],
-  [600, 520, 12, 1.9], [1850, 330, 10, 0.9], [880, 90, 8, 3.4], [1240, 40, 10, 2.4], [420, 600, 9, 0.3]
-];
-function Glint({ x, y, s, phase }) {
-  const f = useCurrentFrame();
-  const tw = 0.35 + 0.65 * Math.abs(Math.sin(f / 7 + phase));
-  const z = s * (0.7 + 0.5 * tw);
-  return (
-    <svg width={z * 2} height={z * 2} style={{ position: 'absolute', left: x - z, top: y - z, opacity: tw }}>
-      <path d={`M${z} 0 L${z * 1.18} ${z * 0.82} L${z * 2} ${z} L${z * 1.18} ${z * 1.18} L${z} ${z * 2} L${z * 0.82} ${z * 1.18} L0 ${z} L${z * 0.82} ${z * 0.82} Z`} fill={IVORY} />
-    </svg>
-  );
-}
-function EndCard({ dur }) {
-  const f = useCurrentFrame();
-  const zoom = 1 + 0.035 * (f / dur);
-  const slam = 1.18 - 0.18 * legato(clamp(f / 6));
-  const tag = legato(clamp((f - 6) / 5));
-  return (
-    <AbsoluteFill style={{ background: 'radial-gradient(ellipse 90% 80% at 50% 30%, #A8A196 0%, #8F897F 55%, #6B665E 100%)', overflow: 'hidden' }}>
-      <AbsoluteFill style={{ transform: `scale(${zoom})` }}>
-        {CUTS.map(c => {
-          const [w0, h0] = SIZES[c.name];
-          const w = (c.h * w0) / h0;
-          const since = f - c.at;
-          if (since < 0) return null;
-          const e = legato(clamp(since / 7));
-          const silhouette = since < 2;
-          return (
-            <Img
-              key={c.name}
-              src={staticFile(`cutouts/${c.name}.png`)}
-              style={{
-                position: 'absolute',
-                left: c.left,
-                bottom: c.bottom,
-                height: c.h,
-                width: w,
-                transform: `translateY(${(1 - e) * 60}px) scale(${0.94 + 0.06 * e})`,
-                transformOrigin: '50% 100%',
-                filter: silhouette ? 'brightness(0) invert(0.95)' : 'grayscale(1) contrast(1.12) brightness(1.02)'
-              }}
-            />
-          );
-        })}
-        <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 260, background: `linear-gradient(rgba(11,11,12,0), rgba(11,11,12,0.55))` }} />
-      </AbsoluteFill>
-      <div style={{ position: 'absolute', left: 84, top: 70, transform: `scale(${slam})`, transformOrigin: '0 0' }}>
-        <div style={{ ...font, fontSize: 250, letterSpacing: '0.01em', color: IVORY, lineHeight: 0.8 }}>Selin</div>
-        <div style={{ ...font, fontSize: 250, letterSpacing: '0.01em', color: IVORY, lineHeight: 0.8 }}>Incekara</div>
-        <div
-          style={{
-            position: 'absolute', left: 150, top: 168, padding: '10px 22px 6px', borderRadius: 999, background: INK,
-            ...font, fontSize: 30, letterSpacing: '0.28em', color: IVORY, transform: `scale(${tag})`, transformOrigin: '0 50%'
-          }}
-        >
-          Pianist
-        </div>
-      </div>
-      <div style={{ position: 'absolute', right: 84, top: 92, textAlign: 'right' }}>
-        <Rise text="On stage · in concert" size={52} at={9} gap={0.5} style={{ justifyContent: 'flex-end' }} />
-        <Rise text="and at home" size={52} at={14} gap={0.5} style={{ justifyContent: 'flex-end' }} />
-      </div>
-      {f > 10 && GLINTS.map(([x, y, s, p], i) => <Glint key={i} x={x} y={y} s={s} phase={p} />)}
-    </AbsoluteFill>
-  );
-}
-
-// ── timeline ───────────────────────────────────────────────────────────────────────────────────────────────
-
-// [from, to) frames; later entries draw over earlier ones (overlaps carry the outgoing shot under a wipe).
-const TIMELINE = [
-  [0, 43, Opening],
-  [43, 77, SplitV],
-  [77, 86, () => <Punch shot={{ p: 'G', src: 18.3, view: V.g1Hands }} />],
-  [86, 121, Triptych],
-  [121, 139, () => <Punch shot={{ p: 'T', src: 17.2, view: V.scaleHands }} from={1.1} />],
-  [129, 173, HallWithTiles],
-  [164, 194, Iris],
-  [194, 223, () => <Grid zoomAt={22} />],
-  [223, 229, () => <Full shot={{ p: 'H1', src: 12.4 + 29 / 30, view: V.homeWide }} />],
-  [229, 250, FilmStrip],
-  [250, 259, NameMask],
-  [259, 272, ({ dur }) => <BurnIn dur={dur} shot={{ p: 'H2', src: 86.6, view: V.homeWide, to: { ...V.homeWide, z: 1.1 } }} />],
-  [272, 286, Columns],
-  [286, 294, Diagonal],
-  [294, 300, () => <Punch shot={{ p: 'D2', src: syncSrc(294), view: { x: 0.42, y: 0.55, z: 1.7 } }} from={1.12} frames={5} />],
-  [300, CHORD, Silence],
-  [CHORD, CARD, () => <Punch shot={{ p: 'D2', src: syncSrc(CHORD), view: { x: 0.42, y: 0.56, z: 1.8 } }} from={1.22} frames={6} />]
-];
-
-// White flashes on the biggest accents: [frame, peak, length].
-const FLASHES = [[294, 0.9, 3], [CHORD, 1, 4], [CARD, 0.75, 3]];
 
 export function Reel() {
-  const f = useCurrentFrame();
-  // every accent nudges the picture: a quick 3% bump that settles in five frames
-  const last = [...HITS].reverse().find(h => h <= f);
-  const since = last === undefined ? 99 : f - last;
-  const bump = since < 5 && f < PLAY_END ? 1 + 0.03 * Math.pow(1 - since / 5, 2) : 1;
-  // an exposure flicker as the stage cuts in (frame 286)
-  const flicker = { 286: 1.7, 287: 1.0, 288: 1.4 }[f] || 1;
-  const flash = FLASHES.map(([at, peak, len]) => (f >= at && f < at + len ? peak * (1 - (f - at) / len) : 0)).reduce((a, b) => Math.max(a, b), 0);
   return (
-    <AbsoluteFill style={{ background: INK }}>
+    <AbsoluteFill style={{ background: IVORY }}>
       <Audio src={staticFile('audio/reel.wav')} />
-      {/* the picture: warm black and white, high contrast */}
-      <AbsoluteFill style={{ transform: `scale(${bump})`, filter: `grayscale(1) sepia(0.14) contrast(1.2) brightness(${1.02 * flicker})` }}>
-        {TIMELINE.map(([a, b, C], i) => (
-          <Sequence key={i} from={a} durationInFrames={b - a} layout="none">
-            <C dur={b - a} />
-          </Sequence>
-        ))}
-      </AbsoluteFill>
-      <Sequence from={0} durationInFrames={43} layout="none">
-        <AbsoluteFill style={{ transform: `scale(${bump})` }}>
-          <OpeningName />
-        </AbsoluteFill>
-      </Sequence>
-      <Sequence from={CARD} durationInFrames={415 - CARD} layout="none">
-        <EndCard dur={415 - CARD} />
-      </Sequence>
-      {flash > 0 && <AbsoluteFill style={{ background: IVORY, opacity: flash }} />}
+      <Paper />
+      <Stage />
+      <Header />
+      <BarLine />
+      <Finale />
       <Grain />
     </AbsoluteFill>
   );

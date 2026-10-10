@@ -19,7 +19,8 @@ export const PROXIES = {
   M: { clip: '14.23.41', start: 5.0 }, // Austrian Master Classes, in concert
   O1: { clip: '14.22.40', start: 15.4 }, // on stage
   O2: { clip: '14.22.40', start: 63.0 }, // on stage, final chords and bow (60 fps)
-  D2: { clip: '14.23.06', start: 51.3 } // Dog Hungry, the ending (the reel's soundtrack)
+  D2: { clip: '14.23.06', start: 51.3 }, // Dog Hungry, the ending
+  H3: { clip: '14.22.50', start: 76.0 } // at home, the grand: the reel's opening phrase (60 fps)
 };
 
 // Audio cues, cut from the original files. `gain` is added after per-cue loudness matching (dB).
