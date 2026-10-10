@@ -3,8 +3,10 @@ import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import { LightboxProvider } from './components/Lightbox.jsx';
+import SoundGate from './components/SoundGate.jsx';
 import { Keys } from './components/Motifs.jsx';
 import { FxStageProvider } from './lib/fxStage.jsx';
+import { SoundProvider } from './lib/sound.jsx';
 import { useReducedMotion } from './lib/hooks';
 import Home from './pages/Home.jsx';
 
@@ -58,8 +60,10 @@ function ScrollManager() {
 export default function App() {
   return (
     <BrowserRouter>
+      <SoundProvider>
       <FxStageProvider>
       <LightboxProvider>
+        <SoundGate />
         <ScrollManager />
         <Curtain />
         <Nav />
@@ -78,6 +82,7 @@ export default function App() {
         <Footer />
       </LightboxProvider>
       </FxStageProvider>
+      </SoundProvider>
     </BrowserRouter>
   );
 }

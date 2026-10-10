@@ -4,6 +4,7 @@
 #     30 fps max, light brand grade (about 20% desaturated, slightly warm)
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
 #   - stills: warm-monochrome WebP posters, a 4:5 portrait and a 1200x630 share image
+#   - site sound: the at-home grand performance as audio only (Opus WebM + AAC M4A), played after "Enter with sound"
 # Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
@@ -18,7 +19,7 @@ done
 SRC="$(cd "$(dirname "$0")/../../videos" && pwd)"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/public/media"
 FONT="$(cd "$(dirname "$0")/.." && pwd)/src/styles/fonts/BebasNeue-Regular.ttf"
-mkdir -p "$OUT/video" "$OUT/posters" "$OUT/og"
+mkdir -p "$OUT/video" "$OUT/posters" "$OUT/og" "$OUT/audio"
 
 # slug | source file | poster time (s)
 VIDEOS=(
@@ -86,5 +87,14 @@ ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
   -f lavfi -i "color=c=0x0B0B0C:s=1200x630,format=rgba,geq=r=11:g=11:b=12:a='184*clip((Y-252)/378\\,0\\,1)'" \
   -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
   -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
+
+# Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
+# applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.
+GRAND="$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4"
+SOUND="atrim=5.2:92.6,asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st=86.4:d=1,loudnorm=I=-20:TP=-1.5:LRA=11"
+if (( ! STILLS_ONLY )); then
+  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/at-home-grand.webm"
+  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/at-home-grand.m4a"
+fi
 
 ls -la "$OUT"/*

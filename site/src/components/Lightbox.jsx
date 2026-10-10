@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { metaOf } from '../data/performances';
+import { useSound } from '../lib/sound.jsx';
 
 const LightboxContext = createContext({ open: () => {} });
 export const useLightbox = () => useContext(LightboxContext);
@@ -32,6 +33,10 @@ function Lightbox({ item, onClose }) {
   const dialogRef = useRef(null);
   const closeRef = useRef(null);
   const videoRef = useRef(null);
+  const { hold } = useSound();
+
+  // The film has its own sound: the site piano fades out while it is open and returns after.
+  useEffect(() => hold(), [hold]);
 
   useEffect(() => {
     const { overflow } = document.body.style;

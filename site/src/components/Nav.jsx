@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
+import SoundToggle from './SoundToggle.jsx';
 
 export const links = [
   { to: '/watch', label: 'Watch' },
@@ -53,6 +54,7 @@ export default function Nav() {
             </li>
           ))}
         </ul>
+        <SoundToggle className="nav__sound" />
         <button
           className="nav__menu"
           type="button"
