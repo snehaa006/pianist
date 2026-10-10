@@ -326,3 +326,68 @@ button.concert__action { padding-inline: 0; }
 .hero-in { opacity: 0; transform: translateY(16px); animation: hero-in var(--dur-andante) var(--ease-legato) var(--d, 0ms) forwards; }
 @keyframes hero-in { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-in { opacity: 1; transform: none; animation: none; } }
+
+/* ---- Sound gate --------------------------------------------------------
+   First screen of a visit: the Watch ribbon of shards closed into a ring, the name, one question, two answers.
+   Above the curtain (95) and the lightbox (80); the page underneath waits until a choice is made. */
+.gate { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow: hidden;
+  background: var(--color-ink); color: var(--color-ivory); --focus: var(--color-brass); }
+.gate__ring { position: absolute; inset: 0; pointer-events: none;
+  transition: transform var(--dur-adagio) var(--ease-legato), opacity var(--dur-adagio) var(--ease-legato); }
+.gate__ring > *, .dust-ring { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.gate__ring > * { animation: from-ink var(--dur-largo) var(--ease-legato) both; }
+/* Arriving: mark, question, line and answers rise in turn (arpeggio) */
+.gate__content > * { opacity: 0; transform: translateY(16px);
+  animation: arpeggio var(--dur-andante) var(--ease-legato) forwards; animation-delay: calc(300ms + var(--i, 0) * var(--stagger-arpeggio) * 2); }
+.gate__content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
+  max-width: 34ch; padding: var(--space-7) var(--page-margin);
+  transition: opacity var(--dur-andante) var(--ease-staccato), transform var(--dur-andante) var(--ease-staccato); }
+.gate__mark { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
+.gate__mark .keys { gap: 10px; } .gate__mark .keys__group { gap: 4px; } .gate__mark .keys__key { width: 6px; height: 26px; }
+.gate__name { font-size: var(--text-h4); letter-spacing: 0.12em; text-transform: uppercase; margin-top: var(--space-2); }
+.gate__mark .label { margin-top: calc(-1 * var(--space-2)); }
+.gate__title { margin-top: var(--space-7); }
+.gate__lead { margin: var(--space-4) auto 0; max-width: 30ch; }
+.gate__actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
+.gate__sound { gap: var(--space-3); }
+.gate__quiet { background: none; border: 0; padding: 0 var(--space-2); color: var(--color-dust); cursor: pointer; font: inherit;
+  font-size: var(--text-label); letter-spacing: var(--tracking-label); }
+.gate__quiet:hover { color: var(--color-ivory); }
+/* Three bars inside the button, rising and falling in turn: the sound waiting to start */
+.gate__wave, .sound-toggle__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; }
+.gate__wave span, .sound-toggle__bars span { width: 2px; height: 100%; background: currentColor; transform-origin: bottom;
+  transform: scaleY(0.35); }
+.gate__wave span { animation: bar 1.2s var(--ease-rubato) infinite alternate; }
+.gate__wave span:nth-child(2), .sound-toggle__bars span:nth-child(2) { animation-delay: 200ms; }
+.gate__wave span:nth-child(3), .sound-toggle__bars span:nth-child(3) { animation-delay: 400ms; }
+@keyframes bar { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
+/* Leaving: the words step back, the ring opens outwards and fades, the page shows through */
+.gate--closing { pointer-events: none; background: transparent; transition: background-color var(--dur-adagio) var(--ease-legato); }
+.gate--closing .gate__content { opacity: 0; transform: translateY(-12px); }
+.gate--closing .gate__ring { opacity: 0; transform: scale(1.35); }
+@media (prefers-reduced-motion: reduce) {
+  .gate, .gate__ring, .gate__content, .gate__ring > * { animation: none; transition: none; }
+  .gate__content > * { opacity: 1; transform: none; animation: none; }
+  .gate__wave span { animation: none; transform: scaleY(0.6); }
+}
+@media (max-width: 639px) { .gate__title { margin-top: var(--space-6); } .gate__actions { margin-top: var(--space-6); } }
+
+/* While the gate is up, the hero name and lead wait to rise until the visitor is in */
+.is-gated .wm-letter, .is-gated .hero-in { animation-play-state: paused; }
+
+/* ---- Sound toggle (nav): the visible stop control -------------------- */
+.nav__name { margin-right: auto; }
+.sound-toggle { display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0; background: none; border: 0;
+  color: inherit; font: inherit; cursor: pointer; }
+.sound-toggle__pill { display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control-sm); padding: 0 14px;
+  border: 1px solid currentColor; border-radius: var(--radius-pill); font-size: var(--text-label);
+  letter-spacing: var(--tracking-label); text-transform: uppercase; opacity: 0.8;
+  transition: opacity var(--dur-presto), background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato); }
+.sound-toggle:hover .sound-toggle__pill { opacity: 1; }
+.sound-toggle__text { padding-top: 2px; }
+.sound-toggle.is-playing .sound-toggle__bars span { animation: bar 0.9s var(--ease-rubato) infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .sound-toggle.is-playing .sound-toggle__bars span { animation: none; transform: scaleY(0.8); } }
+.sound-toggle__text, .nav__name { white-space: nowrap; }
+@media (max-width: 899px) { .nav__sound { margin-right: var(--space-3); } }
+/* Phones: the bars alone (the button keeps its spoken label) */
+@media (max-width: 639px) { .sound-toggle__text { display: none; } .sound-toggle__pill { padding: 0 12px; } }

@@ -163,7 +163,26 @@ export const presets = {
     chromaticAberration: 0,
     interaction: 'repel',
     interactionStrength: 0.3
+  },  // The Watch ribbon closed into a circle, for the sound gate. Centred, finer shards, dust-toned.
+  AeroShardsRing: {
+    backgroundColor: palette.ink,
+    shardColor: palette.dust,
+    accentColor: palette.brass,
+    material: 'satin',
+    flow: 'ring',
+    placement: 'center',
+    detail: 'fine',
+    spread: 0.7,
+    speed: 0.5,
+    spin: 0.4,
+    glow: 0.5,
+    bloom: 0.25,
+    grain: 0.04,
+    chromaticAberration: 0,
+    interaction: 'repel',
+    interactionStrength: 0.3
   },
+
   RippleDistortion: {
     grayscale: true,
     tint: palette.brass,

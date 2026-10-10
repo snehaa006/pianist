@@ -15,6 +15,7 @@ added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width 
 | RippleDistortion | Not used (removed from the fermata photo and the portrait at the client's request) |
 | MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
 | AeroShards | Watch header (WebGPU only; closes up without it) |
+| AeroShards (`ring` flow) | Sound gate: the Watch ribbon closed into a circle (WebGPU desktop); `DustRing.jsx` draws the same path in 2D canvas everywhere else |
 | GooeyNav | Watch filter: All · On stage · At home · Exams (chips on phones) |
 | BorderGlow | Brass edge-light on the lead film of the Watch grid |
 | OptionWheel | Repertoire dial with a detail panel (desktop) |
@@ -37,6 +38,14 @@ npm run preview      # serve dist/ on :4173
 ```
 
 Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages, S3). Set the project root to `site/`, build command `npm run build`, output `dist`.
+
+## Sound
+
+Every visit opens on a sound gate (`src/components/SoundGate.jsx`): *Enter with sound* starts her at-home grand
+recording (`public/media/audio/at-home-grand.webm|.m4a`, the cleanest of the eight recordings) inside that click,
+fading in over Largo; *Enter quietly* keeps the site silent for the session. The nav's sound pill is the visible stop
+control. The piano fades out while a film is open in the lightbox, rests 2.4 s between plays and pauses in hidden tabs.
+Logic lives in `src/lib/sound.jsx`.
 
 ## Media
 

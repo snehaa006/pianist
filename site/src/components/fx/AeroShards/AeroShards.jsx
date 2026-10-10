@@ -9,7 +9,7 @@ const PLACEMENTS = { right: 0, left: 1, center: 2, full: 3 };
 const MATERIALS = { pearl: 0, chrome: 1, satin: 2 };
 const INTERACTIONS = { none: 0, repel: 1, attract: 2 };
 const EFFECTS = { none: 0, dither: 1, ascii: 2 };
-const FLOWS = { stream: 0, vortex: 1, ribbon: 2 };
+const FLOWS = { stream: 0, vortex: 1, ribbon: 2, ring: 3 };
 const RIPPLE_SPEED = 4.2;
 const RIPPLE_TAIL = 1.8;
 const MATERIAL_PRESETS = {
@@ -527,7 +527,7 @@ fn vs_main(
     + cos(path.phase * 31.4159265359 + seedLane * 8.0) * 0.06 * view.shape.z;
   var renderPosition = path.position + vec3f(planarNormal * laneWidth, depthLane);
 
-  if (view.formation.y + view.formation.z > 0.00001) {
+  if (view.formation.y + view.formation.z + view.formation.w > 0.00001) {
     let center = vec2f((view.composition.x - view.composition.y) * aspect * 0.56, 0.0);
     var formedPosition = renderPosition * view.formation.x;
     var formedDirection = direction * view.formation.x;
@@ -552,6 +552,25 @@ fn vs_main(
       let tangent = safeNormalize(vec3f(aspect * 2.7, cos(angle) * 2.638938, -sin(angle) * 2.199115 * view.shape.y));
       formedPosition += position * view.formation.z;
       formedDirection += tangent * view.formation.z;
+    }
+    if (view.formation.w > 0.00001) {
+      // The ribbon closed into a circle: its sine wave becomes three slow crests travelling round the ring,
+      // and the band keeps its twist (twice per turn), so the ring thickens and thins like the ribbon does.
+      let ringRadius = min(0.68, aspect * 1.1);
+      let phase = fract(seedPhase + view.viewport.w / (6.28318530718 * ringRadius));
+      let angle = phase * 6.28318530718;
+      let radial = vec2f(cos(angle), sin(angle));
+      let crest = sin(angle * 3.0 - view.viewport.w * 1.4) * 0.045;
+      let ribbonWidth = (seedLane - 0.5) * 0.36 * view.shape.x;
+      let twist = angle * 2.0 + view.viewport.w * 0.5;
+      let radius = ringRadius + crest + cos(twist) * ribbonWidth;
+      let position = vec3f(
+        center + radial * radius,
+        (sin(twist) * ribbonWidth + (seedDepth - 0.5) * 0.12) * view.shape.y
+      );
+      let tangent = safeNormalize(vec3f(-radial.y, radial.x, cos(twist) * 0.3 * view.shape.y));
+      formedPosition += position * view.formation.w;
+      formedDirection += tangent * view.formation.w;
     }
     renderPosition = formedPosition;
     direction = safeNormalize(formedDirection + vec3f(0.0, 0.0, 0.02 * view.formation.x * (1.0 - view.formation.x)));
