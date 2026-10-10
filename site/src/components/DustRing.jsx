@@ -58,7 +58,7 @@ export default function DustRing({ still = false, count }) {
     const draw = t => {
       // Same units as the shader: half the height is 1.
       const unit = h / 2;
-      const ring = Math.min(0.68, (w / h) * 1.1);
+      const ring = Math.min(0.82, (w / h) * 1.1);
       const travel = t * 0.17; // speed 0.5 × 0.34, as in AeroShards
       ctx.clearRect(0, 0, w, h);
       const cx = w / 2;

@@ -556,7 +556,7 @@ fn vs_main(
     if (view.formation.w > 0.00001) {
       // The ribbon closed into a circle: its sine wave becomes three slow crests travelling round the ring,
       // and the band keeps its twist (twice per turn), so the ring thickens and thins like the ribbon does.
-      let ringRadius = min(0.68, aspect * 1.1);
+      let ringRadius = min(0.82, aspect * 1.1);
       let phase = fract(seedPhase + view.viewport.w / (6.28318530718 * ringRadius));
       let angle = phase * 6.28318530718;
       let radial = vec2f(cos(angle), sin(angle));

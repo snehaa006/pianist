@@ -330,6 +330,7 @@ button.concert__action { padding-inline: 0; }
 /* ---- Sound gate --------------------------------------------------------
    First screen of a visit: the Watch ribbon of shards closed into a ring, the name, one question, two answers.
    Above the curtain (95) and the lightbox (80); the page underneath waits until a choice is made. */
+.gate:focus { outline: none; }
 .gate { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow: hidden;
   background: var(--color-ink); color: var(--color-ivory); --focus: var(--color-brass); }
 .gate__ring { position: absolute; inset: 0; pointer-events: none;
@@ -342,17 +343,36 @@ button.concert__action { padding-inline: 0; }
 .gate__content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
   max-width: 34ch; padding: var(--space-7) var(--page-margin);
   transition: opacity var(--dur-andante) var(--ease-staccato), transform var(--dur-andante) var(--ease-staccato); }
-.gate__mark { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); }
-.gate__mark .keys { gap: 10px; } .gate__mark .keys__group { gap: 4px; } .gate__mark .keys__key { width: 6px; height: 26px; }
-.gate__name { font-size: var(--text-h4); letter-spacing: 0.12em; text-transform: uppercase; margin-top: var(--space-2); }
-.gate__mark .label { margin-top: calc(-1 * var(--space-2)); }
-.gate__title { margin-top: var(--space-7); }
-.gate__lead { margin: var(--space-4) auto 0; max-width: 30ch; }
-.gate__actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-3); margin-top: var(--space-7); }
-.gate__sound { gap: var(--space-3); }
-.gate__quiet { background: none; border: 0; padding: 0 var(--space-2); color: var(--color-dust); cursor: pointer; font: inherit;
-  font-size: var(--text-label); letter-spacing: var(--tracking-label); }
-.gate__quiet:hover { color: var(--color-ivory); }
+.gate__mark { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); }
+.gate__mark .keys { gap: 14px; } .gate__mark .keys__group { gap: 6px; } .gate__mark .keys__key { width: 9px; height: 48px; background: var(--color-ivory); }
+.gate__name { font-size: var(--text-h4); letter-spacing: 0.06em; text-transform: uppercase; }
+/* The one accent on the screen: the question, in brass, wide-tracked like a programme heading */
+.gate__title { margin: var(--space-8) 0 0; font-size: var(--text-h3); line-height: 1.08; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--color-brass); }
+.gate__lead { margin: var(--space-3) auto 0; max-width: 34ch; font-size: var(--text-body); line-height: var(--leading-body);
+  letter-spacing: var(--tracking-body); color: var(--color-ivory); }
+.gate__actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); margin-top: var(--space-7); }
+/* Enter with sound: a dashed ring around a round icon and a dark pill; on hover the pill inverts to ivory */
+.gate__sound { display: inline-flex; align-items: center; gap: 6px; padding: 5px; border: 1px dashed var(--color-stone);
+  border-radius: var(--radius-pill); background: none; color: var(--color-ivory); font: inherit; cursor: pointer;
+  transition: border-color var(--dur-allegro) var(--ease-legato); }
+.gate__sound-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-round);
+  background: var(--color-lacquer); border: 1px solid var(--color-graphite); }
+.gate__sound-label { display: inline-flex; align-items: center; height: 44px; padding: 0 24px; border-radius: var(--radius-pill);
+  background: var(--color-lacquer); border: 1px solid var(--color-graphite); font-size: 1rem; letter-spacing: 0.14em;
+  text-transform: uppercase; padding-top: 2px;
+  transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato); }
+.gate__sound:hover { border-color: var(--color-ivory); }
+.gate__sound:hover .gate__sound-label { background: var(--color-ivory); color: var(--color-ink); }
+.gate__sound:active { transform: scale(0.98); }
+.gate__quiet { min-height: var(--control-md); background: none; border: 0; padding: 0 var(--space-3); color: var(--color-ivory);
+  cursor: pointer; font: inherit; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase;
+  transition: color var(--dur-presto); }
+.gate__quiet:hover { color: var(--color-dust); }
+/* Film grain over the ink, as on a lit stage */
+.gate::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.07; mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.94 0 0 0 0 0.9 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+.gate--closing::before { opacity: 0; transition: opacity var(--dur-adagio) var(--ease-legato); }
 /* Three bars inside the button, rising and falling in turn: the sound waiting to start */
 .gate__wave, .sound-toggle__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; }
 .gate__wave span, .sound-toggle__bars span { width: 2px; height: 100%; background: currentColor; transform-origin: bottom;
@@ -370,7 +390,7 @@ button.concert__action { padding-inline: 0; }
   .gate__content > * { opacity: 1; transform: none; animation: none; }
   .gate__wave span { animation: none; transform: scaleY(0.6); }
 }
-@media (max-width: 639px) { .gate__title { margin-top: var(--space-6); } .gate__actions { margin-top: var(--space-6); } }
+@media (max-width: 639px) { .gate__title { margin-top: var(--space-7); } .gate__actions { margin-top: var(--space-6); } }
 
 /* While the gate is up, the hero name and lead wait to rise until the visitor is in */
 .is-gated .wm-letter, .is-gated .hero-in { animation-play-state: paused; }

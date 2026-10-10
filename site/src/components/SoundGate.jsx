@@ -41,11 +41,11 @@ function Ring() {
 // recording inside that click; "Enter quietly" keeps the site silent (the nav can still turn it on).
 function Gate({ closing }) {
   const { enter } = useSound();
-  const first = useRef(null);
   const ref = useRef(null);
 
   useEffect(() => {
-    first.current?.focus();
+    // Focus the dialog, not the button: keyboard users Tab straight to it, and nobody sees a ring they didn't ask for.
+    ref.current?.focus({ preventScroll: true });
     const root = document.getElementById('root');
     const { overflow } = document.body.style;
     document.body.style.overflow = 'hidden';
@@ -86,6 +86,7 @@ function Gate({ closing }) {
       aria-modal="true"
       aria-labelledby="gate-h"
       aria-describedby="gate-d"
+      tabIndex={-1}
     >
       <div className="gate__ring" aria-hidden="true">
         <Ring />
@@ -94,24 +95,27 @@ function Gate({ closing }) {
         <div className="gate__mark" style={{ '--i': 0 }}>
           <Keys />
           <span className="gate__name">Selin Incekara</span>
-          <span className="label muted">Pianist</span>
         </div>
-        <h2 className="h2 gate__title" id="gate-h" style={{ '--i': 1 }}>
-          Hear her <span className="accent-word">play</span>
+        <h2 className="gate__title" id="gate-h" style={{ '--i': 1 }}>
+          Hear her play
+          <br />
+          while you browse
         </h2>
-        <p className="body muted gate__lead" id="gate-d" style={{ '--i': 2 }}>
-          Her grand piano recording from home plays while you look around. Best with sound on.
+        <p className="gate__lead" id="gate-d" style={{ '--i': 2 }}>
+          We recommend sound on: her grand piano recording from home plays as you look around.
         </p>
         <div className="gate__actions" style={{ '--i': 3 }}>
-          <button ref={first} type="button" className="btn btn--primary btn--lg gate__sound" onClick={() => enter(true)}>
-            <span className="gate__wave" aria-hidden="true">
-              <span />
-              <span />
-              <span />
+          <button type="button" className="gate__sound" onClick={() => enter(true)}>
+            <span className="gate__sound-icon" aria-hidden="true">
+              <span className="gate__wave">
+                <span />
+                <span />
+                <span />
+              </span>
             </span>
-            Enter with sound
+            <span className="gate__sound-label">Enter with sound</span>
           </button>
-          <button type="button" className="link gate__quiet label" onClick={() => enter(false)}>
+          <button type="button" className="gate__quiet" onClick={() => enter(false)}>
             Enter quietly
           </button>
         </div>
