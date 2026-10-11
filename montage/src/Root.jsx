@@ -12,7 +12,9 @@ export function Root() {
       <Composition id="Montage" component={Montage} durationInFrames={frames} fps={FPS} width={WIDTH} height={HEIGHT} defaultProps={{ portrait: false }} />
       {/* phones: the same edit, reframed for a 9:16 screen */}
       {/* the 14-second social cut on the ending of Dog Hungry */}
-      <Composition id="Reel" component={Reel} durationInFrames={REEL_FRAMES} fps={REEL_FPS} width={WIDTH} height={HEIGHT} />
+      <Composition id="Reel" component={Reel} durationInFrames={REEL_FRAMES} fps={REEL_FPS} width={WIDTH} height={HEIGHT} defaultProps={{ phone: false }} />
+      {/* the same reel laid out for a phone screen, 9:16 */}
+      <Composition id="ReelPhone" component={Reel} durationInFrames={REEL_FRAMES} fps={REEL_FPS} width={HEIGHT} height={WIDTH} defaultProps={{ phone: true }} />
       {/* the black-and-white cut on the opening of the home grand recording */}
       <Composition id="ReelVintage" component={Vintage} durationInFrames={VINTAGE_FRAMES} fps={VINTAGE_FPS} width={WIDTH} height={HEIGHT} />
       <Composition id="MontagePortrait" component={Montage} durationInFrames={frames} fps={FPS} width={HEIGHT} height={WIDTH} defaultProps={{ portrait: true }} />

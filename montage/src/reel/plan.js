@@ -72,3 +72,79 @@ export const SHEET = [
 ];
 export const SHEET_MARK = 7;
 export const sheetAppear = i => 169 + 2 * ((i % 5) + Math.floor(i / 5)); // a diagonal cascade
+
+// The phone sheet (3 × 5): the three moving frames arrive along the top row; tile 7, in the middle, is still
+// the stage and still the one entered.
+const SHEET_PHONE = [
+  null, null, null,
+  { p: 'H1', src: 9.0, view: V.homeClose },
+  { p: 'S', src: 25.0, view: V.twiHands },
+  { p: 'T', src: 16.5, view: V.scaleWide },
+  { p: 'A', src: 19.0, view: V.andFace },
+  { p: 'O1', src: 18.0, view: V.stageWide },
+  { p: 'O2', src: 63.6, view: V.stageEnd },
+  { p: 'H2', src: 84.5, view: V.homeWide },
+  { p: 'M', src: 11.0, view: V.hallWide },
+  { p: 'S', src: 21.5, view: V.twiWide },
+  { p: 'D', src: 37.5, view: V.dogHands },
+  { p: 'G', src: 19.0, view: V.g1Hands },
+  { p: 'O1', src: 22.0, view: V.stageClose }
+];
+
+// Every page's geometry, per orientation. Landscape is the 1920 × 1080 reel; phone is 1080 × 1920.
+const triL = [TRI(0), TRI(1), TRI(2)];
+const PW = (968 - 2 * 24) / 3;
+const PH = PW * (9 / 16);
+const triP = [0, 1, 2].map(i => ({ x: 56, y: 180 + i * 560, w: 968, h: 480 }));
+export const LAYOUTS = {
+  landscape: {
+    W: 1920, H: 1080, M, CW,
+    header: { top: 44, size: 22 },
+    barTop: 1040,
+    SLOT, BIG: BIG_LEFT, SMALL: RIGHT_SMALL, TRI: triL,
+    cols: 5, TILE, moving: [0, 2, 4], sheet: SHEET, mark: SHEET_MARK,
+    nameStart: { top: 140, size: 150, track: 0.6 },
+    nameEnd: { left: RIGHT_SMALL.x, top: 130, size: 92 },
+    pianist1Top: 782,
+    pianist2: { left: RIGHT_SMALL.x, top: 246 },
+    nameRule: { x: RIGHT_SMALL.x, y: 300, w: RIGHT_SMALL.w },
+    spreadCaption: { left: M, top: 984 },
+    triCaption: i => ({ left: triL[i].x, top: 962 }),
+    ring: { rx: 222, ry: 140 },
+    PORTRAIT, portraitExitY: -930, onStageTop: 958,
+    STRIP_TOP, STRIP_BOTTOM,
+    stripCaptions: { top: { left: M, top: 526 }, bottom: { left: M, top: 946 } },
+    FINAL,
+    finaleName: [{ text: 'Selin Incekara', top: 742 }], finaleSize: 366, finaleRuleY: 1046, finalePianistTop: 54,
+    stageViews: [V.stageWide, V.stageWide, V.stagePortrait]
+  },
+  phone: {
+    W: 1080, H: 1920, M: 56, CW: 968,
+    header: { top: 52, size: 26 },
+    barTop: 1868,
+    SLOT: { x: 56, y: 640, w: 968, h: 560 },
+    BIG: { x: 56, y: 340, w: 968, h: 900 },
+    SMALL: { x: 480, y: 1330, w: 544, h: 400 },
+    TRI: triP,
+    cols: 3,
+    TILE: i => ({ x: 56 + (i % 3) * (PW + 24), y: 410 + Math.floor(i / 3) * (PH + 52), w: PW, h: PH }),
+    moving: [0, 1, 2], sheet: SHEET_PHONE, mark: 7,
+    nameStart: { top: 300, size: 104, track: 0.3 },
+    nameEnd: { left: 56, top: 150, size: 72 },
+    pianist1Top: 1240,
+    pianist2: { left: 56, top: 240 },
+    nameRule: { x: 56, y: 292, w: 968 },
+    spreadCaption: { left: 56, top: 1256 },
+    triCaption: i => ({ left: 56, top: triP[i].y + triP[i].h + 12 }),
+    ring: { rx: PW * 0.66, ry: PH * 0.74 },
+    PORTRAIT: { x: 140, y: 420, w: 800, h: 1000 }, portraitExitY: -1100, onStageTop: 1460,
+    STRIP_TOP: { x: 56, y: 330, w: 968, h: 560 },
+    STRIP_BOTTOM: { x: 56, y: 1030, w: 968, h: 560 },
+    stripCaptions: { top: { left: 56, top: 902 }, bottom: { left: 56, top: 1602 } },
+    FINAL: { x: 56, y: 210, w: 968, h: 900 },
+    finaleName: [{ text: 'Selin', top: 1160 }, { text: 'Incekara', top: 1420 }], finaleSize: 324, finaleRuleY: 1800, finalePianistTop: 112,
+    // the stage enters exactly where the zoomed sheet frame left it, then centres on her in the portrait frame
+    stageViews: [{ x: 0.4718, y: 0.5, z: 1.06 }, V.stageWide, { x: 0.43, y: 0.55, z: 1.15 }]
+  }
+};
+export const sheetAppearIn = (L, i) => 169 + 2 * ((i % L.cols) + Math.floor(i / L.cols));

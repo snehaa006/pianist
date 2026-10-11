@@ -7,6 +7,9 @@ Three edits from the eight performance videos in `../videos/` (the originals are
   On each downbeat the frames glide into a new layout (window, spread, triptych, a 15-frame contact sheet
   with one frame ringed in grease pencil, a portrait on ink, two cinemascope strips), footage changes
   behind rising masks, and the last page carries her name edge to edge over her final phrase at the grand.
+  `ReelPhone` is the same reel laid out for a 9:16 phone screen (layouts per orientation in `LAYOUTS`,
+  `src/reel/plan.js`): the triptych becomes three stacked bands, the contact sheet 3 × 5, the strips stack,
+  and her name closes the film on two lines.
 - **Vintage reel** (`src/reel/Vintage.jsx`): 15.5 s in black and white on the opening of the same recording,
   a waltz. A programme title card whose black-key ornament is played note by note, silent-film irises, a wipe
   in piano-key strips (two octaves, black keys standing over the seams), a gapless 3 × 3 grid that builds like
@@ -23,6 +26,7 @@ bash scripts/proxies.sh                         # graded proxies (incl. H3, the 
 bash scripts/reel-audio.sh                      # both soundtracks (home grand: 76.96–91.70 s and 5.35–20.25 s)
 COMP=Reel node scripts/render.mjs out/reel-master.mp4   # ~5 min
 bash scripts/encode-reel.sh                     # out/web/: Instagram MP4, web MP4/WebM, poster
+COMP=ReelPhone node scripts/render.mjs out/reel-phone-master.mp4   # the 9:16 cut, ~5 min
 COMP=ReelVintage node scripts/render.mjs out/vintage-master.mp4   # ~7 min
 bash scripts/encode-reel.sh vintage
 ```
