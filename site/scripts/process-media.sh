@@ -88,25 +88,9 @@ ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
   -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
   -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
 
-# Hero reel: the 14.7 s black-and-white reel from ../montage (exported there as a .mov), for the landing page.
-# Upscaled to 720p with Lanczos (the export is 848x480), silent: the hero autoplays muted, the site sound is separate.
-REEL="$(cd "$(dirname "$0")/../../montage" && pwd)/1d18e3ec-5fda-4ba3-9762-acb3453353d9.mov"
-if (( ! STILLS_ONLY )) && [[ -f "$REEL" ]]; then
-  ffmpeg -v error -y -i "$REEL" -an -vf "scale=1280:720:flags=lanczos,format=yuv420p" \
-    -c:v libx264 -preset slow -crf 23 -profile:v high -movflags +faststart "$OUT/video/hero-reel.mp4"
-  ffmpeg -v error -y -i "$REEL" -an -vf "scale=1280:720:flags=lanczos,format=yuv420p" \
-    -c:v libvpx-vp9 -crf 33 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 "$OUT/video/hero-reel.webm"
-  ffmpeg -v error -y -i "$REEL" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -c:v libwebp -quality 82 "$OUT/posters/hero-reel.webp"
-  ffmpeg -v error -y -ss 6.6 -i "$REEL" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -c:v libwebp -quality 82 "$OUT/posters/hero-reel-still.webp"
-fi
-# The same reel laid out for phones (9:16, 1080x1920), for portrait screens.
-PHONE="$(cd "$(dirname "$0")/../../montage" && pwd)/selin-incekara-reel-phone.mov"
-if (( ! STILLS_ONLY )) && [[ -f "$PHONE" ]]; then
-  ffmpeg -v error -y -i "$PHONE" -an -vf "format=yuv420p" -c:v libx264 -preset slow -crf 24 -profile:v high -movflags +faststart "$OUT/video/hero-reel-phone.mp4"
-  ffmpeg -v error -y -i "$PHONE" -an -vf "format=yuv420p" -c:v libvpx-vp9 -crf 35 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 "$OUT/video/hero-reel-phone.webm"
-  ffmpeg -v error -y -i "$PHONE" -frames:v 1 -c:v libwebp -quality 82 "$OUT/posters/hero-reel-phone.webp"
-  ffmpeg -v error -y -ss 6.6 -i "$PHONE" -frames:v 1 -c:v libwebp -quality 82 "$OUT/posters/hero-reel-phone-still.webp"
-fi
+# Hero reels (public/media/video/hero-reel{,-phone}.*, posters hero-reel*): built from the full-resolution
+# renders in ../montage by ../montage/scripts/grade-reels.sh, in the Silvertone black-and-white grade matched from
+# the exported reels. (The exports themselves are 848x480 and come out soft at hero size, so they are not used.)
 
 # Site sound: the hero reel's soundtrack, the closing phrases of the at-home grand recording (noise floor about
 # -78 dB, no speech or applause), cut exactly as in the reel (76.96 s to 91.70 s, fades as in
