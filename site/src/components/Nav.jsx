@@ -9,14 +9,13 @@ export const links = [
   { to: '/contact', label: 'Contact' }
 ];
 
-// Pages that open on an ink stage: the nav starts transparent with ivory text.
-// Home turns solid ivory once the hero has scrolled away; Watch stays on ink.
+// Pages that open on an ink stage: the nav starts transparent with ivory text; Watch stays on ink.
+// Home opens on the reel's ivory paper, so its nav is solid ivory from the top.
 const onInk = { top: 'stage', after: 'ink', threshold: () => 24 };
 const surfaces = {
-  '/': { top: 'stage', after: 'ivory', threshold: () => window.innerHeight * 0.8 },
   '/watch': onInk
 };
-const ivoryPages = ['/repertoire', '/about', '/contact'];
+const ivoryPages = ['/', '/repertoire', '/about', '/contact'];
 // Unknown paths render the 404, which is on ink too.
 const surfaceFor = path => surfaces[path] || (ivoryPages.includes(path) ? undefined : onInk);
 

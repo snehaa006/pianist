@@ -1,14 +1,13 @@
+import { createContext, useContext } from 'react';
 import { AbsoluteFill, Audio, OffthreadVideo, Sequence, continueRender, delayRender, staticFile, useCurrentFrame } from 'remotion';
 import { PROXIES } from '../edl.js';
 import { Grain } from '../Overlays.jsx';
 import { clamp, easeInOut, legato, lerp, viewBox } from '../util.js';
-import {
-  BARS, BIG_LEFT, BREATH, CHORD, CW, FINAL, M, PORTRAIT, REEL_FPS, REEL_FRAMES, RIGHT_SMALL, SHEET, SHEET_MARK, SLOT,
-  STRIP_BOTTOM, STRIP_TOP, TILE, TRI, V, sheetAppear, sync
-} from './plan.js';
+import { BARS, BREATH, CHORD, LAYOUTS, REEL_FPS, REEL_FRAMES, V, sheetAppearIn, sync } from './plan.js';
 
-const W = 1920;
-const H = 1080;
+// The page geometry for this render: landscape (1920 × 1080) or phone (1080 × 1920). See LAYOUTS in plan.js.
+const LayoutContext = createContext(LAYOUTS.landscape);
+const useL = () => useContext(LayoutContext);
 const INK = '#0B0B0C';
 const GRAPHITE = '#2A2A2E';
 const FELT = '#6B665E';
@@ -123,10 +122,12 @@ const onInk = f => f >= 225 && f < 345;
 const OPUS = [[58, 1], [115, 2], [169, 3], [225, 4], [281, 5]];
 
 function Header() {
+  const L = useL();
   const f = useCurrentFrame();
   const vis = clamp((f - 58) / 8) * (1 - clamp((f - 331) / 6));
   if (vis <= 0) return null;
   const color = onInk(f) ? IVORY : INK;
+  const { top, size } = L.header;
   // the opus number turns over on each new page
   const idx = OPUS.reduce((a, [at], i) => (f >= at ? i : a), 0);
   const since = f - OPUS[idx][0];
@@ -134,10 +135,10 @@ function Header() {
   const nameVis = clamp((f - 115) / 8);
   return (
     <>
-      <div style={{ position: 'absolute', left: M, top: 44, ...font, fontSize: 22, letterSpacing: '0.16em', color, opacity: vis * nameVis }}>Selin Incekara</div>
-      <div style={{ position: 'absolute', right: M, top: 44, display: 'flex', ...font, fontSize: 22, letterSpacing: '0.16em', color: onInk(f) ? BRASS : color, opacity: vis }}>
+      <div style={{ position: 'absolute', left: L.M, top, ...font, fontSize: size, letterSpacing: '0.16em', color, opacity: vis * nameVis }}>Selin Incekara</div>
+      <div style={{ position: 'absolute', right: L.M, top, display: 'flex', ...font, fontSize: size, letterSpacing: '0.16em', color: onInk(f) ? BRASS : color, opacity: vis }}>
         <span>(Op. 0</span>
-        <span style={{ display: 'inline-block', height: 22, overflow: 'hidden', position: 'relative', width: '0.62em' }}>
+        <span style={{ display: 'inline-block', height: size, overflow: 'hidden', position: 'relative', width: '0.62em' }}>
           {idx > 0 && roll < 1 && <span style={{ position: 'absolute', left: 0, top: 0, transform: `translateY(${-roll * 110}%)` }}>{OPUS[idx - 1][1]}</span>}
           <span style={{ position: 'absolute', left: 0, top: 0, transform: `translateY(${(1 - roll) * 110}%)` }}>{OPUS[idx][1]}</span>
         </span>
@@ -149,17 +150,18 @@ function Header() {
 
 // The bar line: a rule along the foot of the page with a tick for every bar of the music, filling as it plays.
 function BarLine() {
+  const L = useL();
   const f = useCurrentFrame();
   const vis = clamp((f - 58) / 8) * (1 - clamp((f - 331) / 6));
   if (vis <= 0) return null;
   const ink = onInk(f);
   const base = ink ? GRAPHITE : HAIRLINE;
   const fill = ink ? BRASS : INK;
-  const xAt = fr => M + CW * (fr / REEL_FRAMES);
+  const xAt = fr => L.M + L.CW * (fr / REEL_FRAMES);
   return (
-    <div style={{ position: 'absolute', left: 0, top: 1040, width: W, opacity: vis }}>
-      <div style={{ position: 'absolute', left: M, width: CW, height: 1, background: base }} />
-      <div style={{ position: 'absolute', left: M, width: xAt(f) - M, height: 1, background: fill }} />
+    <div style={{ position: 'absolute', left: 0, top: L.barTop, width: L.W, opacity: vis }}>
+      <div style={{ position: 'absolute', left: L.M, width: L.CW, height: 1, background: base }} />
+      <div style={{ position: 'absolute', left: L.M, width: xAt(f) - L.M, height: 1, background: fill }} />
       {BARS.map(b => (
         <div key={b} style={{ position: 'absolute', left: xAt(b), top: -8, width: 1, height: 8, background: f >= b ? fill : base }} />
       ))}
@@ -171,71 +173,76 @@ function BarLine() {
 
 const textW = (size, track) => size * (4.842 + track * 14);
 
-// Her name: tracks in over the opening window, then steps aside into the right-hand column.
+// Her name: tracks in over the opening window, then steps aside (landscape: into the right-hand column;
+// phone: up to the head of the page).
 function NameBlock() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f < 6 || f >= 122) return null;
   const move = legato(clamp((f - 44) / 14));
-  const size = lerp(150, 92, move);
-  const track = lerp(0.6, 0.06, legato(clamp((f - 6) / 34)));
-  const centred = W / 2 - textW(size, track) / 2 + (size * track) / 2;
-  const left = lerp(centred, RIGHT_SMALL.x, move);
-  const top = lerp(140, 130, move);
+  const size = lerp(L.nameStart.size, L.nameEnd.size, move);
+  const track = lerp(L.nameStart.track, 0.06, legato(clamp((f - 6) / 34)));
+  const centred = L.W / 2 - textW(size, track) / 2 + (size * track) / 2;
+  const left = lerp(centred, L.nameEnd.left, move);
+  const top = lerp(L.nameStart.top, L.nameEnd.top, move);
   const opacity = clamp((f - 6) / 12) * (1 - clamp((f - 112) / 8));
   const first = clamp((f - 22) / 10) * (1 - clamp((f - 38) / 6));
   const second = clamp((f - 60) / 8);
   return (
     <>
       <div style={{ position: 'absolute', left, top, ...font, fontSize: size, letterSpacing: `${track}em`, color: INK, opacity }}>Selin Incekara</div>
-      {first > 0 && <div style={{ position: 'absolute', left: 0, right: 0, top: 782, textAlign: 'center', ...font, fontSize: 24, letterSpacing: '0.5em', paddingLeft: '0.5em', color: FELT, opacity: first }}>Pianist</div>}
-      {second > 0 && <div style={{ position: 'absolute', left: RIGHT_SMALL.x, top: 246, ...font, fontSize: 24, letterSpacing: '0.5em', color: FELT, opacity: second * opacity }}>Pianist</div>}
+      {first > 0 && <div style={{ position: 'absolute', left: 0, right: 0, top: L.pianist1Top, textAlign: 'center', ...font, fontSize: 24, letterSpacing: '0.5em', paddingLeft: '0.5em', color: FELT, opacity: first }}>Pianist</div>}
+      {second > 0 && <div style={{ position: 'absolute', left: L.pianist2.left, top: L.pianist2.top, ...font, fontSize: 24, letterSpacing: '0.5em', color: FELT, opacity: second * opacity }}>Pianist</div>}
     </>
   );
 }
 
 // The opening line: drawn across the page, it opens into the first window.
 function OpeningLine() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f >= 42) return null;
+  const cy = L.SLOT.y + L.SLOT.h / 2;
   const draw = legato(clamp(f / 9));
-  const h = f < 9 ? 0 : keyAt([{ f: 9, h: 0 }, { f: 29, h: SLOT.h }], f).h;
+  const h = f < 9 ? 0 : keyAt([{ f: 9, h: 0 }, { f: 29, h: L.SLOT.h }], f).h;
   const fade = 1 - clamp((f - 30) / 12);
-  const w = CW * draw;
-  const x = M + (CW - w) / 2;
+  const w = L.CW * draw;
+  const x = L.M + (L.CW - w) / 2;
   return (
     <>
-      <div style={{ position: 'absolute', left: x, top: 540 - h / 2 - 1, width: w, height: 1.5, background: INK, opacity: fade }} />
-      {h > 0 && <div style={{ position: 'absolute', left: x, top: 540 + h / 2, width: w, height: 1.5, background: INK, opacity: fade }} />}
+      <div style={{ position: 'absolute', left: x, top: cy - h / 2 - 1, width: w, height: 1.5, background: INK, opacity: fade }} />
+      {h > 0 && <div style={{ position: 'absolute', left: x, top: cy + h / 2, width: w, height: 1.5, background: INK, opacity: fade }} />}
     </>
   );
 }
 
 // The contact sheet's frame numbers, and the grease-pencil ring around the chosen frame.
 function SheetMarks() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f < 169) return null;
   const ring = legato(clamp((f - 199) / 14));
-  const t = TILE(SHEET_MARK);
+  const t = L.TILE(L.mark);
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2;
   const pts = [];
   for (let i = 0; i <= 120; i++) {
     const a = -0.35 + (i / 120) * (Math.PI * 2 + 0.75);
     const r = 1 + 0.03 * Math.sin(3 * a + 1.1) + 0.018 * Math.sin(7 * a + 0.4) + 0.05 * (i / 120);
-    pts.push(`${(cx + Math.cos(a) * 222 * r).toFixed(1)},${(cy + Math.sin(a) * 140 * r).toFixed(1)}`);
+    pts.push(`${(cx + Math.cos(a) * L.ring.rx * r).toFixed(1)},${(cy + Math.sin(a) * L.ring.ry * r).toFixed(1)}`);
   }
   return (
     <>
       {Array.from({ length: 15 }).map((_, i) => {
-        const tile = TILE(i);
-        const at = i % 2 === 0 && i <= 4 ? 181 : sheetAppear(i);
+        const tile = L.TILE(i);
+        const at = L.moving.includes(i) ? 181 : sheetAppearIn(L, i);
         return (
-          <div key={i} style={{ position: 'absolute', left: tile.x, top: tile.y + tile.h + 10, ...font, fontSize: 18, letterSpacing: '0.16em', color: i === SHEET_MARK && f >= 205 ? INK : FELT, opacity: clamp((f - at) / 6) }}>
+          <div key={i} style={{ position: 'absolute', left: tile.x, top: tile.y + tile.h + 10, ...font, fontSize: 18, letterSpacing: '0.16em', color: i === L.mark && f >= 205 ? INK : FELT, opacity: clamp((f - at) / 6) }}>
             {String(i + 1).padStart(2, '0')}
           </div>
         );
       })}
       {f >= 199 && (
-        <svg width={W} height={H} style={{ position: 'absolute', inset: 0, transform: `rotate(-5deg)`, transformOrigin: `${cx}px ${cy}px` }}>
+        <svg width={L.W} height={L.H} style={{ position: 'absolute', inset: 0, transform: `rotate(-5deg)`, transformOrigin: `${cx}px ${cy}px` }}>
           <path d={`M${pts.join(' L')}`} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - ring} stroke={INK} strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" fill="none" />
         </svg>
       )}
@@ -244,15 +251,16 @@ function SheetMarks() {
 }
 
 function SheetTile({ i }) {
+  const L = useL();
   const f = useCurrentFrame();
-  const at = sheetAppear(i);
+  const at = sheetAppearIn(L, i);
   if (f < at) return null;
   const e = legato(clamp((f - at) / 9));
-  const t = TILE(i);
+  const t = L.TILE(i);
   return (
     <div style={{ position: 'absolute', left: t.x, top: t.y + (1 - e) * 14, width: t.w, height: t.h, overflow: 'hidden', opacity: e, background: INK }}>
       <Sequence from={at} layout="none">
-        <Clip {...SHEET[i]} w={t.w} h={t.h} />
+        <Clip {...L.sheet[i]} w={t.w} h={t.h} />
       </Sequence>
     </div>
   );
@@ -260,23 +268,25 @@ function SheetTile({ i }) {
 
 // Pages 1–3 on ivory: the window, the spread, the triptych, the contact sheet; then the camera enters frame 08.
 function Paper() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f > 225) return null;
-  const t = TILE(SHEET_MARK);
+  const { W, H, SLOT, BIG, SMALL, TRI } = L;
+  const t = L.TILE(L.mark);
   const cx = t.x + t.w / 2, cy = t.y + t.h / 2;
-  const S = W / t.w;
+  const S = Math.max(W / t.w, H / t.h);
   const e = easeInOut(clamp((f - BREATH) / (225 - BREATH)));
   const s = 1 + (S - 1) * e;
   const tx = cx + (W / 2 - cx) * e - cx * s;
   const ty = cy + (H / 2 - cy) * e - cy * s;
-  const tri = [TRI(0), TRI(1), TRI(2)];
+  const [mA, mC, mB] = L.moving;
   return (
     <AbsoluteFill style={{ background: IVORY }}>
       <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: H, transformOrigin: '0 0', transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
         <OpeningLine />
-        {/* A: the window → the large frame → triptych left → sheet 01 */}
+        {/* A: the window → the large frame → triptych first → sheet 01 */}
         <Frame
-          rects={[{ f: 9, ...SLOT, y: 540, h: 0 }, { f: 29, ...SLOT }, { f: 58, ...SLOT }, { f: 65, ...SLOT, w: BIG_LEFT.w }, { f: 74, ...BIG_LEFT }, { f: 115, ...BIG_LEFT }, { f: 127, ...tri[0] }, { f: 169, ...tri[0] }, { f: 181, ...TILE(0) }]}
+          rects={[{ f: 9, ...SLOT, y: SLOT.y + SLOT.h / 2, h: 0 }, { f: 29, ...SLOT }, { f: 58, ...SLOT }, { f: 65, ...SLOT, w: BIG.w }, { f: 74, ...BIG }, { f: 115, ...BIG }, { f: 127, ...TRI[0] }, { f: 169, ...TRI[0] }, { f: 181, ...L.TILE(mA) }]}
           shots={[
             { f: 0, p: 'H3', src: sync(0), views: [{ f: 0, ...V.homeBand }, { f: 58, ...V.homeBand }, { f: 72, ...V.homeWide }] },
             { f: 86, p: 'M', src: 10.5, view: V.hallWide },
@@ -284,37 +294,37 @@ function Paper() {
             { f: 142, p: 'M', src: 15.5, view: V.hallFace }
           ]}
         />
-        {/* B: the small frame in the right column → triptych right → sheet 05 */}
+        {/* B: the small frame → triptych last → the sheet */}
         <Frame
           rise
-          rects={[{ f: 67, ...RIGHT_SMALL }, { f: 115, ...RIGHT_SMALL }, { f: 127, ...tri[2] }, { f: 169, ...tri[2] }, { f: 181, ...TILE(4) }]}
+          rects={[{ f: 67, ...SMALL }, { f: 115, ...SMALL }, { f: 127, ...TRI[2] }, { f: 169, ...TRI[2] }, { f: 181, ...L.TILE(mB) }]}
           shots={[
             { f: 67, p: 'H3', src: sync(67), view: V.homeFace },
             { f: 115, p: 'A', src: 18.0, view: V.andFace },
             { f: 148, p: 'D', src: 36.0, view: V.dogFace }
           ]}
         />
-        {/* C: rises into the middle of the triptych on the second beat → sheet 03 */}
+        {/* C: rises into the middle of the triptych on the second beat → the sheet */}
         <Frame
           rise
-          rects={[{ f: 124, ...tri[1] }, { f: 169, ...tri[1] }, { f: 181, ...TILE(2) }]}
+          rects={[{ f: 124, ...TRI[1] }, { f: 169, ...TRI[1] }, { f: 181, ...L.TILE(mC) }]}
           shots={[
             { f: 124, p: 'S', src: 22.0, view: V.twiFace },
             { f: 145, p: 'G', src: 15.0, view: V.g1Her }
           ]}
         />
         <NameBlock />
-        <Rule x={RIGHT_SMALL.x} y={300} w={RIGHT_SMALL.w} at={72} until={110} />
+        <Rule x={L.nameRule.x} y={L.nameRule.y} w={L.nameRule.w} at={72} until={110} />
         {/* captions: the spread, then one under each panel of the triptych */}
-        <Rise text="At home, the grand" size={24} at={72} until={84} style={{ position: 'absolute', left: M, top: 984 }} />
-        <Rise text="Austrian Master Classes, in concert" size={24} at={90} until={110} gap={0.6} style={{ position: 'absolute', left: M, top: 984 }} />
+        <Rise text="At home, the grand" size={24} at={72} until={84} style={{ position: 'absolute', ...L.spreadCaption }} />
+        <Rise text="Austrian Master Classes, in concert" size={24} at={90} until={110} gap={0.6} style={{ position: 'absolute', ...L.spreadCaption }} />
         {[['On stage', 'In concert'], ['Song of Twilight', 'Grade 1'], ['Andante', 'Dog Hungry']].map(([a, b], i) => (
           <div key={i}>
-            <Rise text={a} size={24} at={128 + i * 3} until={140} style={{ position: 'absolute', left: tri[i].x, top: 962 }} />
-            <Rise text={b} size={24} at={146 + i * 3} until={164} style={{ position: 'absolute', left: tri[i].x, top: 962 }} />
+            <Rise text={a} size={24} at={128 + i * 3} until={140} style={{ position: 'absolute', ...L.triCaption(i) }} />
+            <Rise text={b} size={24} at={146 + i * 3} until={164} style={{ position: 'absolute', ...L.triCaption(i) }} />
           </div>
         ))}
-        {SHEET.map((s, i) => (s ? <SheetTile key={i} i={i} /> : null))}
+        {L.sheet.map((x, i) => (x ? <SheetTile key={i} i={i} /> : null))}
         <SheetMarks />
       </div>
     </AbsoluteFill>
@@ -323,25 +333,29 @@ function Paper() {
 
 // Pages 4–5 on ink: the stage, then two cinemascope strips gliding in from either side.
 function Stage() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f < 225 || f >= 352) return null;
-  const tileStart = sheetAppear(SHEET_MARK);
+  const { W, H, PORTRAIT, STRIP_TOP, STRIP_BOTTOM, CW } = L;
+  const tileStart = sheetAppearIn(L, L.mark);
+  const exit = { ...PORTRAIT, y: L.portraitExitY };
   // the brass frame follows the portrait frame while it rests, then leaves with it
-  const frameRect = keyAt([{ f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...PORTRAIT, y: -930 }], f);
+  const frameRect = keyAt([{ f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...exit }], f);
   const border = legato(clamp((f - 266) / 14));
+  const [v0, v1, v2] = L.stageViews;
   return (
     <AbsoluteFill style={{ background: INK }}>
       <Frame
         until={294}
-        rects={[{ f: 225, x: 0, y: 0, w: W, h: H }, { f: 254, x: 0, y: 0, w: W, h: H }, { f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...PORTRAIT, y: -930 }]}
-        shots={[{ f: 225, p: 'O1', src: SHEET[SHEET_MARK].src + (225 - tileStart) / REEL_FPS, views: [{ f: 225, ...V.stageWide }, { f: 254, ...V.stageWide }, { f: 266, ...V.stagePortrait }] }]}
+        rects={[{ f: 225, x: 0, y: 0, w: W, h: H }, { f: 254, x: 0, y: 0, w: W, h: H }, { f: 266, ...PORTRAIT }, { f: 281, ...PORTRAIT }, { f: 293, ...exit }]}
+        shots={[{ f: 225, p: 'O1', src: L.sheet[L.mark].src + (225 - tileStart) / REEL_FPS, views: [{ f: 225, ...v0 }, { f: 254, ...v1 }, { f: 266, ...v2 }] }]}
       />
       {f >= 266 && f < 294 && (
         <svg width={W} height={H} style={{ position: 'absolute', inset: 0 }}>
           <rect x={frameRect.x - 16} y={frameRect.y - 16} width={frameRect.w + 32} height={frameRect.h + 32} pathLength={1} strokeDasharray={1} strokeDashoffset={1 - border} stroke={BRASS} strokeWidth={1.2} fill="none" />
         </svg>
       )}
-      <Rise text="On stage" size={26} at={268} until={280} color={BRASS} style={{ position: 'absolute', left: 0, right: 0, top: 958, justifyContent: 'center' }} />
+      <Rise text="On stage" size={26} at={268} until={280} color={BRASS} style={{ position: 'absolute', left: 0, right: 0, top: L.onStageTop, justifyContent: 'center' }} />
       <Frame
         until={352}
         rects={[{ f: 281, ...STRIP_TOP, x: W }, { f: 295, ...STRIP_TOP }]}
@@ -358,44 +372,49 @@ function Stage() {
           { f: 313, p: 'S', src: 23.0, view: V.twiWide }
         ]}
       />
-      <Rise text="In concert" size={22} at={297} until={309} color={BRASS} style={{ position: 'absolute', left: M, top: 526 }} />
-      <Rise text="On stage" size={22} at={314} until={334} color={BRASS} style={{ position: 'absolute', left: M, top: 526 }} />
-      <Rise text="At home" size={22} at={301} until={312} color={BRASS} style={{ position: 'absolute', left: M, top: 946 }} />
-      <Rise text="Song of Twilight" size={22} at={317} until={334} color={BRASS} style={{ position: 'absolute', left: M, top: 946 }} />
+      <Rise text="In concert" size={22} at={297} until={309} color={BRASS} style={{ position: 'absolute', ...L.stripCaptions.top }} />
+      <Rise text="On stage" size={22} at={314} until={334} color={BRASS} style={{ position: 'absolute', ...L.stripCaptions.top }} />
+      <Rise text="At home" size={22} at={301} until={312} color={BRASS} style={{ position: 'absolute', ...L.stripCaptions.bottom }} />
+      <Rise text="Song of Twilight" size={22} at={317} until={334} color={BRASS} style={{ position: 'absolute', ...L.stripCaptions.bottom }} />
     </AbsoluteFill>
   );
 }
 
 // Page 6: an ivory page rises over the stage, carrying her last phrase at the grand and her name, edge to edge.
 function Finale() {
+  const L = useL();
   const f = useCurrentFrame();
   if (f < 337) return null;
   const up = legato(clamp((f - 337) / 14));
-  const top = lerp(H, 0, up);
+  const top = lerp(L.H, 0, up);
   return (
-    <div style={{ position: 'absolute', left: 0, top, width: W, height: H, background: IVORY }}>
-      {up < 1 && <div style={{ position: 'absolute', left: 0, top: 0, width: W, height: 1, background: INK }} />}
+    <div style={{ position: 'absolute', left: 0, top, width: L.W, height: L.H, background: IVORY }}>
+      {up < 1 && <div style={{ position: 'absolute', left: 0, top: 0, width: L.W, height: 1, background: INK }} />}
       <Frame
-        rects={[{ f: 337, ...FINAL }]}
+        rects={[{ f: 337, ...L.FINAL }]}
         shots={[{ f: 337, p: 'H2', src: sync(337), views: [{ f: 337, ...V.homeWide, z: 1.12 }, { f: 441, ...V.homeWide, z: 1.0 }], ease: easeInOut }]}
       />
-      <Rise text="Selin Incekara" size={366} at={347} gap={2} tracking="0" style={{ position: 'absolute', left: M - 4, top: 742, lineHeight: 0.8 }} />
-      <Rule x={M} y={1046} w={CW} at={CHORD} frames={16} />
-      <Rise text="Pianist" size={26} at={CHORD} gap={1.2} color={FELT} tracking="0.5em" style={{ position: 'absolute', left: 0, right: 0, top: 54, justifyContent: 'center' }} />
+      {L.finaleName.map((line, i) => (
+        <Rise key={i} text={line.text} size={L.finaleSize} at={347 + i * 10} gap={2} tracking="0" style={{ position: 'absolute', left: L.M - 4, top: line.top, lineHeight: 0.8 }} />
+      ))}
+      <Rule x={L.M} y={L.finaleRuleY} w={L.CW} at={CHORD} frames={16} />
+      <Rise text="Pianist" size={26} at={CHORD} gap={1.2} color={FELT} tracking="0.5em" style={{ position: 'absolute', left: 0, right: 0, top: L.finalePianistTop, justifyContent: 'center' }} />
     </div>
   );
 }
 
-export function Reel() {
+export function Reel({ phone = false }) {
   return (
-    <AbsoluteFill style={{ background: IVORY }}>
-      <Audio src={staticFile('audio/reel.wav')} />
-      <Paper />
-      <Stage />
-      <Header />
-      <BarLine />
-      <Finale />
-      <Grain />
-    </AbsoluteFill>
+    <LayoutContext.Provider value={phone ? LAYOUTS.phone : LAYOUTS.landscape}>
+      <AbsoluteFill style={{ background: IVORY }}>
+        <Audio src={staticFile('audio/reel.wav')} />
+        <Paper />
+        <Stage />
+        <Header />
+        <BarLine />
+        <Finale />
+        <Grain />
+      </AbsoluteFill>
+    </LayoutContext.Provider>
   );
 }
