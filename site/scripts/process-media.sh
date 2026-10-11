@@ -4,7 +4,7 @@
 #     30 fps max, light brand grade (about 20% desaturated, slightly warm)
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
 #   - stills: warm-monochrome WebP posters, a 4:5 portrait and a 1200x630 share image
-#   - site sound: the at-home grand performance as audio only (Opus WebM + AAC M4A), played after "Enter with sound"
+#   - site sound: the hero reel's soundtrack (Opus WebM + AAC M4A), played after "Enter with sound"
 # Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
@@ -97,15 +97,26 @@ if (( ! STILLS_ONLY )) && [[ -f "$REEL" ]]; then
   ffmpeg -v error -y -i "$REEL" -an -vf "scale=1280:720:flags=lanczos,format=yuv420p" \
     -c:v libvpx-vp9 -crf 33 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 "$OUT/video/hero-reel.webm"
   ffmpeg -v error -y -i "$REEL" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -c:v libwebp -quality 82 "$OUT/posters/hero-reel.webp"
+  ffmpeg -v error -y -ss 6.6 -i "$REEL" -frames:v 1 -vf "scale=1280:720:flags=lanczos" -c:v libwebp -quality 82 "$OUT/posters/hero-reel-still.webp"
+fi
+# The same reel laid out for phones (9:16, 1080x1920), for portrait screens.
+PHONE="$(cd "$(dirname "$0")/../../montage" && pwd)/selin-incekara-reel-phone.mov"
+if (( ! STILLS_ONLY )) && [[ -f "$PHONE" ]]; then
+  ffmpeg -v error -y -i "$PHONE" -an -vf "format=yuv420p" -c:v libx264 -preset slow -crf 24 -profile:v high -movflags +faststart "$OUT/video/hero-reel-phone.mp4"
+  ffmpeg -v error -y -i "$PHONE" -an -vf "format=yuv420p" -c:v libvpx-vp9 -crf 35 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 "$OUT/video/hero-reel-phone.webm"
+  ffmpeg -v error -y -i "$PHONE" -frames:v 1 -c:v libwebp -quality 82 "$OUT/posters/hero-reel-phone.webp"
+  ffmpeg -v error -y -ss 6.6 -i "$PHONE" -frames:v 1 -c:v libwebp -quality 82 "$OUT/posters/hero-reel-phone-still.webp"
 fi
 
-# Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
-# applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.
+# Site sound: the hero reel's soundtrack, the closing phrases of the at-home grand recording (noise floor about
+# -78 dB, no speech or applause), cut exactly as in the reel (76.96 s to 91.70 s, fades as in
+# ../montage/scripts/reel-audio.sh), trimmed to the reel's exact length (442 frames) so the two loop together.
+# Normalised to -20 LUFS for the site.
 GRAND="$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4"
-SOUND="atrim=5.2:92.6,asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st=86.4:d=1,loudnorm=I=-20:TP=-1.5:LRA=11"
+SOUND="afade=t=in:d=0.03,afade=t=out:st=14.03:d=0.7,loudnorm=I=-20:TP=-1.5:LRA=11,atrim=0:14.7333"
 if (( ! STILLS_ONLY )); then
-  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/at-home-grand.webm"
-  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/at-home-grand.m4a"
+  ffmpeg -v error -y -ss 76.96 -i "$GRAND" -t 14.7333 -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/reel.webm"
+  ffmpeg -v error -y -ss 76.96 -i "$GRAND" -t 14.7333 -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/reel.m4a"
 fi
 
 ls -la "$OUT"/*

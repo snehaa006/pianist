@@ -1,16 +1,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-// Site sound: her at-home grand performance (the cleanest of the eight recordings), as audio only.
+// Site sound: the hero reel's own soundtrack, the closing phrases of her at-home grand recording (the cleanest
+// of the eight). It loops with the reel, and the reel follows its clock, so what you see is what you hear.
 // Nothing plays until the visitor picks "Enter with sound" on the gate; the nav keeps a visible stop control.
 export const SOUND = {
   sources: [
-    { src: '/media/audio/at-home-grand.webm', type: 'audio/webm; codecs=opus' },
-    { src: '/media/audio/at-home-grand.m4a', type: 'audio/mp4' }
+    { src: '/media/audio/reel.webm', type: 'audio/webm; codecs=opus' },
+    { src: '/media/audio/reel.m4a', type: 'audio/mp4' }
   ],
   volume: 0.6,
   fadeIn: 1.4, // Largo
-  fadeOut: 0.6, // Andante
-  rest: 2.4 // the pause before the piece starts again
+  fadeOut: 0.6 // Andante
 };
 
 const KEY = 'sound-choice';
@@ -38,7 +38,8 @@ const SoundContext = createContext({
   playing: false,
   enter: () => {},
   toggle: () => {},
-  hold: () => () => {}
+  hold: () => () => {},
+  clock: () => null
 });
 export const useSound = () => useContext(SoundContext);
 
@@ -50,13 +51,14 @@ export function SoundProvider({ children }) {
   const [held, setHeld] = useState(0); // films open (their own sound takes over)
   const [playing, setPlaying] = useState(false);
   const engine = useRef(null);
-  const restTimer = useRef(0);
+  const restTimer = useRef(0); // the pause after a fade-out
 
   // Built inside the click that asks for sound, so browsers let it start.
   const build = useCallback(() => {
     if (engine.current) return engine.current;
     const audio = new Audio();
     audio.preload = 'auto';
+    audio.loop = true;
     const source = SOUND.sources.find(s => audio.canPlayType(s.type)) || SOUND.sources[1];
     audio.src = source.src;
     let ctx = null;
@@ -149,7 +151,7 @@ export function SoundProvider({ children }) {
     else start();
   }, [held]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Keep `playing` honest (the nav shows it), and rest a moment before the piece starts again.
+  // Keep `playing` honest (the nav shows it).
   useEffect(() => {
     if (!wanted) return undefined;
     const e = engine.current;
@@ -157,23 +159,20 @@ export function SoundProvider({ children }) {
     const a = e.audio;
     const on = () => setPlaying(true);
     const off = () => setPlaying(false);
-    const ended = () => {
-      setPlaying(false);
-      restTimer.current = setTimeout(() => {
-        a.currentTime = 0;
-        a.play().catch(off);
-      }, SOUND.rest * 1000);
-    };
     setPlaying(!a.paused);
     a.addEventListener('playing', on);
     a.addEventListener('pause', off);
-    a.addEventListener('ended', ended);
     return () => {
       a.removeEventListener('playing', on);
       a.removeEventListener('pause', off);
-      a.removeEventListener('ended', ended);
     };
   }, [wanted]);
+
+  // The music's position, for the reel to follow (null while it isn't playing).
+  const clock = useCallback(() => {
+    const a = engine.current?.audio;
+    return a && !a.paused ? a.currentTime : null;
+  }, []);
 
   // Hidden tab: the piano waits.
   useEffect(() => {
@@ -192,13 +191,14 @@ export function SoundProvider({ children }) {
     document.documentElement.classList.toggle('is-gated', gate);
   }, [gate]);
 
-  const value = useMemo(() => ({ gate, playing: wanted && playing, wanted, enter, toggle, hold }), [
+  const value = useMemo(() => ({ gate, playing: wanted && playing, wanted, enter, toggle, hold, clock }), [
     gate,
     wanted,
     playing,
     enter,
     toggle,
-    hold
+    hold,
+    clock
   ]);
   return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
 }

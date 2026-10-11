@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <>
-      <Hero item={concert} />
+      <Hero />
 
       <Concerts view={view} setView={setView} />
 

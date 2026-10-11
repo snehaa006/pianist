@@ -39,13 +39,20 @@ npm run preview      # serve dist/ on :4173
 
 Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages, S3). Set the project root to `site/`, build command `npm run build`, output `dist`.
 
-## Sound
+## Sound and the hero reel
 
-Every visit opens on a sound gate (`src/components/SoundGate.jsx`): *Enter with sound* starts her at-home grand
-recording (`public/media/audio/at-home-grand.webm|.m4a`, the cleanest of the eight recordings) inside that click,
-fading in over Largo; *Enter quietly* keeps the site silent for the session. The nav's sound pill is the visible stop
-control. The piano fades out while a film is open in the lightbox, rests 2.4 s between plays and pauses in hidden tabs.
-Logic lives in `src/lib/sound.jsx`.
+The landing page opens on her reel, whole and uncovered under the nav (`src/components/Hero.jsx`): the
+black-and-white programme reel from `../montage` on wide screens, its 9:16 phone cut on portrait screens
+(`max-aspect-ratio: 4/5`), each on its own sampled paper colour so the margins read as the same sheet. The H1
+is for screen readers (the reel carries her name); the one control is pause / play. With reduced motion the reel
+waits on its contact-sheet page until asked.
+
+Every visit opens on a sound gate (`src/components/SoundGate.jsx`): *Enter with sound* starts the reel's own
+soundtrack (`public/media/audio/reel.webm|.m4a`, the closing phrases of her home grand recording, cut to the
+reel's exact length) inside that click, fading in over Largo, and the reel restarts with it and follows its
+clock, so the picture is the music you hear. *Enter quietly* keeps the site silent for the session. The nav's
+sound pill is the visible stop control. The music loops with the reel, fades out while a film is open in the
+lightbox and pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
 
 ## Media
 
