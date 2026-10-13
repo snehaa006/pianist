@@ -9,18 +9,16 @@ Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 **Photograph** (`../photos/selin-incekara-austrian-master-classes.jpg`, 1200×1600, colour): Selin seated on the bench of
 a grand piano, smiling, a man standing behind her. It is the Austrian Master Classes hall (same columns, stucco and
 doors as the concert film) and the same polka-dot dress, so it was taken around that concert. It replaces the video
-still as the 4:5 portrait on Home (About) and Biography, cropped to 4:5 and given the site's warm-monochrome grade
-(`npm run media` rebuilds it). The original colour file is kept unchanged.
+still as the 4:5 portrait on Home (About) and Biography, cropped to 4:5 and shown in its original colour, with no
+grade (`npm run media` rebuilds it). The original file is kept unchanged.
 
-**Bio**, as supplied, in her words: 11 years old, lives in Istanbul, Türkiye, has played the piano for six years and has
-taken part in several piano competitions. Where it went:
-- The facts are in the third-person biography (`site.age`, `site.city`, `site.beginnings`, `site.competitions`).
-- The first two sentences of her second paragraph are "A note from Selin Incekara" (`site.note`), word for word.
-- Her last sentence ("…as I follow my passion for the piano!") is not quoted: "passion" and "!" are on the copy rules'
-  banned list. What it says (more learning, more competitions) is in the biography as "hopes to enter more".
+**Bio**, in her own words: two paragraphs, kept exactly as she wrote them in `src/data/bio.js` (first person, her
+spelling "İncekara", her punctuation). Never edit or rewrite them; `scripts/check-copy.mjs` skips that file because it
+is her text, not site copy. Where it appears:
+- Biography: both paragraphs, under the heading.
+- Home: the first paragraph on the About screen, the second as "A note from Selin Incekara".
 
-Still to confirm: who is standing behind her in the photo (the alt text reads `[Name]`), and which competitions she
-has entered (names, years, results would make the bio more specific than "several").
+Still to confirm: who is standing behind her in the photo (the alt text reads `[Name]`).
 
 ## What each video contains
 
@@ -65,9 +63,7 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 ### Site-wide (`src/data/site.js`)
 | Field | Appears on |
 |---|---|
-| `[Teacher]`, `[School]` | Biography |
 | `[Name]` in `portraitAlt` (the man in the photograph) | alt text of the portrait, Home and Biography |
-| `age` (11, as supplied in October 2026; update on her birthday) | Home About screen, Biography |
 | `from [earliest composer] to [latest composer]` | Home repertoire screen |
 | Management `[Name], [Agency]` + `[email]` | Home Contact screen, Contact page |
 | Press `[Name]` + `[email]` | same |

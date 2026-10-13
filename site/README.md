@@ -42,7 +42,7 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 ## Sound and the hero reel
 
 The landing page opens on her reel, whole and uncovered under the nav (`src/components/Hero.jsx`): the
-black-and-white programme reel from `../montage` on wide screens, its 9:16 phone cut on portrait screens
+programme reel from `../montage`, in its original colour (no grade), on wide screens, its 9:16 phone cut on portrait screens
 (`max-aspect-ratio: 4/5`), each on its own sampled paper colour so the margins read as the same sheet. The H1
 is for screen readers (the reel carries her name); the one control is pause / play. With reduced motion the reel
 waits on its contact-sheet page until asked.
@@ -68,7 +68,7 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | `public/media/video/<slug>.mp4/.webm` | Each performance, H.264 + VP9, native size (all under 1080p), 30 fps max, lightly graded (−20% saturation, warm) |
 | `public/media/video/hero-loop.*` | 7.5 s muted loop for the name in the hero, seamless crossfade, no audio track |
 | `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata |
-| `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, same warm-monochrome grade (1200 and 600 wide) |
+| `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, in its original colour (1200 and 600 wide) |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image |
 
 Videos load only when the lightbox opens (`preload="metadata"` on click). Images below the first screen are lazy.

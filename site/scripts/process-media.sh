@@ -3,7 +3,7 @@
 #   - full performance: H.264 MP4 + VP9 WebM, native size (all sources are under 1080p),
 #     30 fps max, light brand grade (about 20% desaturated, slightly warm)
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
-#   - stills: warm-monochrome WebP posters, a 4:5 portrait and a 1200x630 share image
+#   - stills: warm-monochrome WebP posters, the 4:5 portrait (the supplied photo, in colour) and a 1200x630 share image
 #   - site sound: the hero reel's soundtrack (Opus WebM + AAC M4A), played after "Enter with sound"
 # Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
@@ -77,13 +77,14 @@ ffmpeg -v error -y -ss 49 -i "$HERO" -frames:v 1 -vf "$LIFT,format=yuv420p" -c:v
 ffmpeg -v error -y -ss 12 -i "$HERO" -frames:v 1 \
   -vf "$MONO,format=yuv420p" -c:v libwebp -quality 82 "$OUT/posters/fermata.webp"
 
-# About portrait, 4:5: the supplied photograph at the piano in the Austrian Master Classes hall (source is 1200x1600;
-# the crop drops the ceiling frieze). Full size for 2x screens, half size for the rest.
+# About portrait, 4:5: the supplied photograph at the piano in the Austrian Master Classes hall (source is 1200x1600,
+# sRGB; the crop drops the ceiling frieze). In its original colour, no grade. Full size for 2x screens, half size
+# for the rest.
 PHOTO="$SRC/../photos/selin-incekara-austrian-master-classes.jpg"
 ffmpeg -v error -y -i "$PHOTO" -frames:v 1 \
-  -vf "crop=1200:1500:0:100,$MONO,format=yuv420p" -c:v libwebp -quality 80 "$OUT/posters/portrait.webp"
+  -vf "crop=1200:1500:0:100,format=yuv420p" -c:v libwebp -quality 82 "$OUT/posters/portrait.webp"
 ffmpeg -v error -y -i "$PHOTO" -frames:v 1 \
-  -vf "crop=1200:1500:0:100,$MONO,scale=600:750:flags=lanczos,format=yuv420p" -c:v libwebp -quality 82 \
+  -vf "crop=1200:1500:0:100,scale=600:750:flags=lanczos,format=yuv420p" -c:v libwebp -quality 84 \
   "$OUT/posters/portrait-600.webp"
 
 # Social share image, 1200x630: dark stage still under the --scrim gradient (ink, 0% at 40% → 72% at the bottom),
@@ -93,9 +94,9 @@ ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
   -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
   -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
 
-# Hero reels (public/media/video/hero-reel{,-phone}.*, posters hero-reel*): built from the full-resolution
-# renders in ../montage by ../montage/scripts/grade-reels.sh, in the Silvertone black-and-white grade matched from
-# the exported reels. (The exports themselves are 848x480 and come out soft at hero size, so they are not used.)
+# Hero reels (public/media/video/hero-reel{,-phone}.*, posters hero-reel*): built from the full-resolution colour
+# originals in ../montage by ../montage/scripts/grade-reels.sh, in their original colour with no grade
+# (GRADE=silvertone gives the earlier black-and-white look). The 848x480 export is too soft at hero size.
 
 # Site sound: the hero reel's soundtrack, the closing phrases of the at-home grand recording (noise floor about
 # -78 dB, no speech or applause), cut exactly as in the reel (76.96 s to 91.70 s, fades as in
