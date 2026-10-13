@@ -9,8 +9,8 @@ Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 **Photograph** (`../photos/selin-incekara-austrian-master-classes.jpg`, 1200×1600, colour): Selin seated on the bench of
 a grand piano, smiling, a man standing behind her. It is the Austrian Master Classes hall (same columns, stucco and
 doors as the concert film) and the same polka-dot dress, so it was taken around that concert. It replaces the video
-still as the 4:5 portrait on Home (About) and Biography, cropped to 4:5 and given the site's warm-monochrome grade
-(`npm run media` rebuilds it). The original colour file is kept unchanged.
+still as the 4:5 portrait on Home (About) and Biography, cropped to 4:5 and shown in its original colour, with no
+grade (`npm run media` rebuilds it). The original file is kept unchanged.
 
 **Bio**, in her own words: two paragraphs, kept exactly as she wrote them in `src/data/bio.js` (first person, her
 spelling "İncekara", her punctuation). Never edit or rewrite them; `scripts/check-copy.mjs` skips that file because it
