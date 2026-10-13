@@ -42,7 +42,7 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 ## Sound and the hero reel
 
 The landing page opens on her reel, whole and uncovered under the nav (`src/components/Hero.jsx`): the
-black-and-white programme reel from `../montage` on wide screens, its 9:16 phone cut on portrait screens
+programme reel from `../montage`, in its original colour (no grade), on wide screens, its 9:16 phone cut on portrait screens
 (`max-aspect-ratio: 4/5`), each on its own sampled paper colour so the margins read as the same sheet. The H1
 is for screen readers (the reel carries her name); the one control is pause / play. With reduced motion the reel
 waits on its contact-sheet page until asked.

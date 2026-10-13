@@ -415,8 +415,8 @@ button.concert__action { padding-inline: 0; }
 /* ---- Hero reel: her film, whole and uncovered, edge to edge directly under the nav -------------------------
    Always the full width at its own shape (16:9, or 9:16 on portrait screens), never cropped: on screens wider
    than 16:9 its foot runs just below the fold. The section is the reel's own paper (sampled from the encoded
-   reel: rgb 236 230 221). A hairline closes the plate at the foot. */
-.hero--reel { min-height: 0; display: block; padding: var(--nav-height) 0 0; background: #ECE6DD;
+   colour reel, both cuts: rgb 243 238 231). A hairline closes the plate at the foot. */
+.hero--reel { min-height: 0; display: block; padding: var(--nav-height) 0 0; background: #F3EEE7;
   border-bottom: 1px solid var(--color-hairline); }
 .hero__film { position: relative; width: 100%; aspect-ratio: 16 / 9; }
 .hero__film video { display: block; width: 100%; height: 100%; object-fit: cover; }
@@ -433,8 +433,7 @@ button.concert__action { padding-inline: 0; }
 .hero__pause span { width: 10px; height: 12px; border-left: 3px solid currentColor; border-right: 3px solid currentColor; box-sizing: border-box; }
 .hero__pause.is-paused span { width: 0; height: 0; border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent currentColor; margin-left: 3px; }
 @media (max-width: 639px) { .hero__pause { right: var(--space-3); top: calc(100% - var(--control-md) - var(--space-3)); } }
-/* portrait screens: the phone cut (9:16) on its own paper (sampled: rgb 239 235 229) */
+/* portrait screens: the phone cut (9:16), on the same paper */
 @media (max-aspect-ratio: 4/5) {
-  .hero--reel { background: #EFEBE5; }
   .hero__film { aspect-ratio: 9 / 16; }
 }
