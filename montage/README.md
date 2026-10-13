@@ -19,8 +19,10 @@ Three edits from the eight performance videos in `../videos/` (the originals are
 
 ### The site's hero reels
 
-`scripts/grade-reels.sh` builds the landing page's hero videos from the full-resolution renders
-(`out/reel-master.mp4`, `out/reel-phone-master.mp4`) in the black-and-white grade made on the exported reels with
+The colour originals of the reel, before any grade, are kept here at full quality with their music:
+`selin-incekara-reel-colour-web-1920x1080.mp4` and `selin-incekara-reel-colour-phone-1080x1920.mp4`.
+
+`scripts/grade-reels.sh` builds the landing page's hero videos from those originals in the black-and-white grade made on the exported reels with
 iPhone's Silvertone filter. That grade is matched from the exports into `grade/wide.cube` and `grade/phone.cube`
 (brightness → tone, within about 3/255), so the hero keeps the look at full sharpness; the 848×480 export itself
 is too small for a hero.
