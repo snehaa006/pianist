@@ -14,6 +14,7 @@ import { presets } from '../components/fx/presets';
 import { useLightbox } from '../components/Lightbox.jsx';
 import { byId, examFilms, inWords, performances, pieces } from '../data/performances';
 import { site } from '../data/site';
+import { bio } from '../data/bio';
 import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
 
 const Arrow = () => (
@@ -103,9 +104,7 @@ export default function Home() {
             <Headline id="about-h" hinge="right">
               The pianist
             </Headline>
-            <p className="lead reveal reveal--rise">
-              Selin Incekara is an {site.age}-year-old pianist based in {site.city}.
-            </p>
+            <p className="body reveal reveal--rise">{bio[0]}</p>
             <p className="body muted reveal" style={{ '--i': 2 }}>
               On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
               College of Music exams at Grades 1 and 3.
@@ -124,7 +123,7 @@ export default function Home() {
           <h2 className="label note__label reveal reveal--track" id="note-h">
             A note from Selin Incekara
           </h2>
-          <p className="h3 note__body reveal reveal--wipe">{site.note}</p>
+          <p className="h3 note__body reveal reveal--wipe">{bio[1]}</p>
           <p className="label muted note__sign reveal" style={{ '--i': 3 }}>
             — S.
           </p>

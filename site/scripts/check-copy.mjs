@@ -20,7 +20,7 @@ const walk = dir => {
     const p = join(dir, f);
     if (statSync(p).isDirectory()) {
       if (f !== 'fx') walk(p); // fx/ = client components, copied verbatim; they hold no site copy
-    } else if (/\.(jsx?|html)$/.test(f)) files.push(p);
+    } else if (/\.(jsx?|html)$/.test(f) && !p.endsWith('data/bio.js')) files.push(p); // bio.js: her own words, quoted as written
   }
 };
 walk(new URL('../src', import.meta.url).pathname);
