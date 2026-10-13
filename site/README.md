@@ -42,10 +42,12 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 ## Sound and the hero reel
 
 The landing page opens on her reel, whole and uncovered under the nav (`src/components/Hero.jsx`): the
-programme reel from `../montage`, in its original colour (no grade), on wide screens, its 9:16 phone cut on portrait screens
-(`max-aspect-ratio: 4/5`), each on its own sampled paper colour so the margins read as the same sheet. The H1
-is for screen readers (the reel carries her name); the one control is pause / play. With reduced motion the reel
-waits on its contact-sheet page until asked.
+programme reel from `../montage`, in its original colour (no grade), on wide screens, its phone cut on portrait
+screens (`max-aspect-ratio: 4/5`). Both encodes drop the reel's running header strip (her name, which repeated the
+nav wordmark), so they are 1920×996 and 1080×1820. The reel always fits the first screen whole: full width where
+that fits, otherwise as tall as the screen, centred on the reel's own paper colour so the margins read as the same
+sheet. The H1 is for screen readers (the reel carries her name); the one control is pause / play. With reduced
+motion the reel waits on its contact-sheet page until asked.
 
 Every visit opens on a sound gate (`src/components/SoundGate.jsx`): *Enter with sound* starts the reel's own
 soundtrack (`public/media/audio/reel.webm|.m4a`, the closing phrases of her home grand recording, cut to the

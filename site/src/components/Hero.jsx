@@ -6,7 +6,8 @@ import { useSound } from '../lib/sound.jsx';
 // (it opens and closes on it), so the H1 is for screen readers. With sound on, the site's music is the reel's
 // own soundtrack and the picture follows its clock. One control: pause / play (autoplaying motion must be
 // stoppable). With reduced motion the reel waits on its contact-sheet page until asked to play.
-// Portrait screens get the reel's phone cut (9:16); the two are the same edit, in sync with the same music.
+// Portrait screens get the reel's phone cut; the two are the same edit, in sync with the same music. Both encodes
+// drop the reel's running header (her name repeated under the nav), and the film always fits the first screen.
 export const PORTRAIT_QUERY = '(max-aspect-ratio: 4/5)';
 const CUTS = {
   wide: { video: '/media/video/hero-reel', poster: '/media/posters/hero-reel.webp', still: '/media/posters/hero-reel-still.webp' },

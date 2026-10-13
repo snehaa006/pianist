@@ -412,19 +412,22 @@ button.concert__action { padding-inline: 0; }
 /* Phones: the bars alone (the button keeps its spoken label) */
 @media (max-width: 639px) { .sound-toggle__text { display: none; } .sound-toggle__pill { padding: 0 12px; } }
 
-/* ---- Hero reel: her film, whole and uncovered, edge to edge directly under the nav -------------------------
-   Always the full width at its own shape (16:9, or 9:16 on portrait screens), never cropped: on screens wider
-   than 16:9 its foot runs just below the fold. The section is the reel's own paper (sampled from the encoded
-   colour reel, both cuts: rgb 243 238 231). A hairline closes the plate at the foot. */
-.hero--reel { min-height: 0; display: block; padding: var(--nav-height) 0 0; background: #F3EEE7;
+/* ---- Hero reel: her film, whole, directly under the nav ----------------------------------------------------
+   The encodes drop the reel's running header (her name, which repeated the nav wordmark just above it), so the
+   cuts are 1920x996, and 1080x1820 on portrait screens. The film always fits the first screen whole: the full
+   width wherever that fits, otherwise as tall as the screen under the nav, centred on the section, which is the
+   reel's own paper (sampled from the encoded colour reel, both cuts: rgb 243 238 231). A hairline closes the plate. */
+.hero--reel { --hero-top: var(--nav-height); --film-w: 1920; --film-h: 996;
+  min-height: 0; display: block; padding: var(--hero-top) 0 0; background: #F3EEE7;
   border-bottom: 1px solid var(--color-hairline); }
-.hero__film { position: relative; width: 100%; aspect-ratio: 16 / 9; }
+@media (max-width: 899px) { .hero--reel { --hero-top: 64px; } } /* the nav is 64px tall here */
+@media (max-aspect-ratio: 4/5) { .hero--reel { --film-w: 1080; --film-h: 1820; } } /* the phone cut */
+.hero__film { position: relative; margin-inline: auto; aspect-ratio: var(--film-w) / var(--film-h);
+  width: min(100%, calc((100vh - var(--hero-top)) * var(--film-w) / var(--film-h)));
+  width: min(100%, calc((100svh - var(--hero-top)) * var(--film-w) / var(--film-h))); }
 .hero__film video { display: block; width: 100%; height: 100%; object-fit: cover; }
-@media (max-width: 899px) { .hero--reel { padding-top: 64px; } } /* the nav is 64px tall here */
 /* pause / play: a small paper disc in the corner, ink glyph (two bars, or a triangle when paused) */
-/* kept inside the first screen even when the film runs below the fold */
-.hero__pause { position: absolute; right: var(--page-margin);
-  top: min(calc(100% - var(--control-md) - var(--space-5)), calc(100svh - var(--nav-height) - var(--control-md) - var(--space-5)));
+.hero__pause { position: absolute; right: var(--page-margin); bottom: var(--space-5);
   width: var(--control-md); height: var(--control-md);
   display: grid; place-items: center; padding: 0; border: 1px solid rgba(11, 11, 12, 0.28); border-radius: var(--radius-round);
   background: rgba(244, 239, 230, 0.86); color: var(--color-ink); cursor: pointer; opacity: 0.8;
@@ -432,8 +435,4 @@ button.concert__action { padding-inline: 0; }
 .hero__pause:hover { opacity: 1; border-color: var(--color-ink); }
 .hero__pause span { width: 10px; height: 12px; border-left: 3px solid currentColor; border-right: 3px solid currentColor; box-sizing: border-box; }
 .hero__pause.is-paused span { width: 0; height: 0; border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent currentColor; margin-left: 3px; }
-@media (max-width: 639px) { .hero__pause { right: var(--space-3); top: calc(100% - var(--control-md) - var(--space-3)); } }
-/* portrait screens: the phone cut (9:16), on the same paper */
-@media (max-aspect-ratio: 4/5) {
-  .hero__film { aspect-ratio: 9 / 16; }
-}
+@media (max-width: 639px) { .hero__pause { right: var(--space-3); bottom: var(--space-3); } }
