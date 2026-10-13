@@ -56,7 +56,8 @@ lightbox and pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
 
 ## Media
 
-All images come from the performance videos in `../videos/`:
+All images come from the performance videos in `../videos/`, except the portrait, which is built from the supplied
+photograph in `../photos/`:
 
 ```bash
 npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
@@ -66,7 +67,8 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 |---|---|
 | `public/media/video/<slug>.mp4/.webm` | Each performance, H.264 + VP9, native size (all under 1080p), 30 fps max, lightly graded (−20% saturation, warm) |
 | `public/media/video/hero-loop.*` | 7.5 s muted loop for the name in the hero, seamless crossfade, no audio track |
-| `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata, 4:5 portrait |
+| `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata |
+| `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, same warm-monochrome grade (1200 and 600 wide) |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image |
 
 Videos load only when the lightbox opens (`preload="metadata"` on click). Images below the first screen are lazy.

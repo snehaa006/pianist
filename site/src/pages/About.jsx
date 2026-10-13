@@ -24,9 +24,12 @@ export default function About() {
           <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
             <img
               src="/media/posters/portrait.webp"
-              alt="Selin Incekara in profile at the grand piano at home, hands on the keys, window light behind her."
-              width="371"
-              height="464"
+              srcSet="/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w"
+              sizes="(max-width: 899px) min(100vw, 520px), min(44vw, 640px)"
+              alt={site.portraitAlt}
+              width="1200"
+              height="1500"
+              fetchPriority="high"
               decoding="async"
             />
           </figure>
@@ -35,9 +38,11 @@ export default function About() {
             <Headline as="h1" className="display" id="bio-h" hinge="right">
               Biography
             </Headline>
-            <p className="lead reveal reveal--rise">Selin Incekara is a pianist based in {site.city}.</p>
+            <p className="lead reveal reveal--rise">
+              Selin Incekara is an {site.age}-year-old pianist based in {site.city}.
+            </p>
             <p className="body reveal" style={{ '--i': 2 }}>
-              She studies with {site.teacher} at {site.school}. {site.beginnings}
+              {site.beginnings} and studies with {site.teacher} at {site.school}. {site.competitions}
             </p>
             <p className="body muted reveal" style={{ '--i': 3 }}>
               On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London

@@ -77,9 +77,14 @@ ffmpeg -v error -y -ss 49 -i "$HERO" -frames:v 1 -vf "$LIFT,format=yuv420p" -c:v
 ffmpeg -v error -y -ss 12 -i "$HERO" -frames:v 1 \
   -vf "$MONO,format=yuv420p" -c:v libwebp -quality 82 "$OUT/posters/fermata.webp"
 
-# About portrait, 4:5: profile at the grand piano at home (source is 832x464).
-ffmpeg -v error -y -ss 70 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4" -frames:v 1 \
-  -vf "crop=371:464:96:0,$MONO,format=yuv420p" -c:v libwebp -quality 85 "$OUT/posters/portrait.webp"
+# About portrait, 4:5: the supplied photograph at the piano in the Austrian Master Classes hall (source is 1200x1600;
+# the crop drops the ceiling frieze). Full size for 2x screens, half size for the rest.
+PHOTO="$SRC/../photos/selin-incekara-austrian-master-classes.jpg"
+ffmpeg -v error -y -i "$PHOTO" -frames:v 1 \
+  -vf "crop=1200:1500:0:100,$MONO,format=yuv420p" -c:v libwebp -quality 80 "$OUT/posters/portrait.webp"
+ffmpeg -v error -y -i "$PHOTO" -frames:v 1 \
+  -vf "crop=1200:1500:0:100,$MONO,scale=600:750:flags=lanczos,format=yuv420p" -c:v libwebp -quality 82 \
+  "$OUT/posters/portrait-600.webp"
 
 # Social share image, 1200x630: dark stage still under the --scrim gradient (ink, 0% at 40% → 72% at the bottom),
 # wordmark bottom-left in ivory.

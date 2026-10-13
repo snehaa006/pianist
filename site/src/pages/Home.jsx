@@ -89,9 +89,11 @@ export default function Home() {
           <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
             <img
               src="/media/posters/portrait.webp"
-              alt="Selin Incekara in profile at the grand piano at home, hands on the keys, window light behind her."
-              width="371"
-              height="464"
+              srcSet="/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w"
+              sizes="(max-width: 899px) min(100vw, 520px), min(44vw, 640px)"
+              alt={site.portraitAlt}
+              width="1200"
+              height="1500"
               loading="lazy"
               decoding="async"
             />
@@ -101,7 +103,9 @@ export default function Home() {
             <Headline id="about-h" hinge="right">
               The pianist
             </Headline>
-            <p className="lead reveal reveal--rise">Selin Incekara is a pianist based in {site.city}.</p>
+            <p className="lead reveal reveal--rise">
+              Selin Incekara is an {site.age}-year-old pianist based in {site.city}.
+            </p>
             <p className="body muted reveal" style={{ '--i': 2 }}>
               On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
               College of Music exams at Grades 1 and 3.
