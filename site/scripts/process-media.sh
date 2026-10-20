@@ -4,7 +4,7 @@
 #     30 fps max, light brand grade (about 20% desaturated, slightly warm)
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
 #   - stills: warm-monochrome WebP posters, the 4:5 portrait (the supplied photo, in colour) and a 1200x630 share image
-#   - site sound: the hero reel's soundtrack (Opus WebM + AAC M4A), played after "Enter with sound"
+#   - site sound: the at-home grand performance as audio only (Opus WebM + AAC M4A), played on "Hear me play"
 # Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
@@ -98,15 +98,13 @@ ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
 # originals in ../montage by ../montage/scripts/grade-reels.sh, in their original colour with no grade
 # (GRADE=silvertone gives the earlier black-and-white look). The 848x480 export is too soft at hero size.
 
-# Site sound: the hero reel's soundtrack, the closing phrases of the at-home grand recording (noise floor about
-# -78 dB, no speech or applause), cut exactly as in the reel (76.96 s to 91.70 s, fades as in
-# ../montage/scripts/reel-audio.sh), trimmed to the reel's exact length (442 frames) so the two loop together.
-# Normalised to -20 LUFS for the site.
+# Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
+# applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.
 GRAND="$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4"
-SOUND="afade=t=in:d=0.03,afade=t=out:st=14.03:d=0.7,loudnorm=I=-20:TP=-1.5:LRA=11,atrim=0:14.7333"
+SOUND="atrim=5.2:92.6,asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st=86.4:d=1,loudnorm=I=-20:TP=-1.5:LRA=11"
 if (( ! STILLS_ONLY )); then
-  ffmpeg -v error -y -ss 76.96 -i "$GRAND" -t 14.7333 -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/reel.webm"
-  ffmpeg -v error -y -ss 76.96 -i "$GRAND" -t 14.7333 -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/reel.m4a"
+  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/at-home-grand.webm"
+  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/at-home-grand.m4a"
 fi
 
 ls -la "$OUT"/*

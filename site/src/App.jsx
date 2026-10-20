@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
 import Nav from './components/Nav.jsx';
 import Footer from './components/Footer.jsx';
 import { LightboxProvider } from './components/Lightbox.jsx';
-import SoundGate from './components/SoundGate.jsx';
 import { Keys } from './components/Motifs.jsx';
 import { FxStageProvider } from './lib/fxStage.jsx';
 import { SoundProvider } from './lib/sound.jsx';
@@ -63,7 +62,6 @@ export default function App() {
       <SoundProvider>
       <FxStageProvider>
       <LightboxProvider>
-        <SoundGate />
         <ScrollManager />
         <Curtain />
         <Nav />

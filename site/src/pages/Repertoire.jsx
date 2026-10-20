@@ -41,7 +41,7 @@ export default function Repertoire() {
     <>
       <section className="screen page-top" aria-labelledby="rep-page-h">
         <div className="container">
-          <Opus>(Op. 03: Repertoire)</Opus>
+          <Opus>(Op. 02: Repertoire)</Opus>
           <Headline as="h1" className="display" id="rep-page-h" hinge="top">
             Repertoire
           </Headline>

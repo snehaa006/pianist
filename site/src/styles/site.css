@@ -64,16 +64,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .hero__wordmark .wm-line { display: block; }
 }
 
-/* ---- Concerts: empty state ------------------------------------------- */
-.concert-empty { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-5) var(--gutter); align-items: end;
-  padding-block: var(--space-7); border-bottom: 1px solid var(--rule); }
-.concert-empty__text .lead { margin: 0; }
-.concert-empty__text .body { margin-top: var(--space-3); }
-@media (max-width: 639px) {
-  .concert-empty { grid-template-columns: 1fr; }
-  .concert-empty__action { width: 100%; }
-}
-
 /* ---- Featured film (full-bleed 16:9) --------------------------------- */
 .feature { position: relative; }
 .feature__frame { aspect-ratio: 16 / 9; max-height: 100svh; width: 100%; }
@@ -93,6 +83,11 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .films--watch .film--lg { grid-column: 1 / -1; }
 @media (max-width: 899px) { .films, .films--watch { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .films, .films--watch { grid-template-columns: 1fr; gap: var(--space-7); } }
+/* Films flying in (lib/flyIn.js): GSAP owns each film's transform and opacity, so the reveal steps aside.
+   The films start beyond the screen's sides; the zone clips them so the page never scrolls sideways. */
+.fly-zone { overflow-x: clip; }
+.films--fly { position: relative; row-gap: var(--space-6); } /* fits a 1440x900 screen under the nav */
+.films--fly .film { transition: none; will-change: transform, opacity; }
 .film { margin: 0; }
 .film__button { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
 .film__frame { display: block; }
@@ -181,6 +176,9 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .footer__links a { display: inline-flex; align-items: center; min-height: var(--control-md); min-width: var(--control-md); }
 .footer__row { align-items: center; }
 .footer .micro { color: var(--fg-muted); }
+/* The wordmark stands whole above the bottom edge, not cropped by it. */
+.footer { padding-bottom: var(--space-8); }
+.footer__mark { margin-bottom: 0; }
 
 /* Robustness: the masked name reads as dust-coloured letters until the loop or its poster arrives,
    and a missing image never prints its alt text across a frame. */
@@ -213,7 +211,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   transition: opacity var(--dur-andante) var(--ease-legato), letter-spacing var(--dur-largo) var(--ease-legato); }
 .reveal--track.is-in { letter-spacing: var(--tracking-label); }
 
-/* Lift: the footer wordmark rises into its crop (Largo). */
+/* Lift: the footer wordmark rises into place (Largo). */
 .reveal--lift { opacity: 1; transform: translateY(35%); transition: transform var(--dur-largo) var(--ease-legato); }
 .reveal--lift.is-in { transform: none; }
 
@@ -258,11 +256,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    ====================================================================== */
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
 .chip { min-height: var(--control-md); }
-
-.concert--past .concert__day { color: var(--fg-muted); }
-.concert .concert__action { justify-self: end; }
-button.concert__action { padding-inline: 0; }
-@media (max-width: 899px) { .concert .concert__action { justify-self: start; } }
 
 /* CircularText badge turning slowly around the play button */
 .badge { position: relative; width: 168px; height: 168px; flex: none; display: grid; place-items: center; }
@@ -327,75 +320,14 @@ button.concert__action { padding-inline: 0; }
 @keyframes hero-in { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hero-in { opacity: 1; transform: none; animation: none; } }
 
-/* ---- Sound gate --------------------------------------------------------
-   First screen of a visit: the Watch ribbon of shards closed into a ring, the name, one question, two answers.
-   Above the curtain (95) and the lightbox (80); the page underneath waits until a choice is made. */
-.gate:focus { outline: none; }
-.gate { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; overflow: hidden;
-  background: var(--color-ink); color: var(--color-ivory); --focus: var(--color-brass); }
-.gate__ring { position: absolute; inset: 0; pointer-events: none;
-  transition: transform var(--dur-adagio) var(--ease-legato), opacity var(--dur-adagio) var(--ease-legato); }
-.gate__ring > *, .dust-ring { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.gate__ring > * { animation: from-ink var(--dur-largo) var(--ease-legato) both; }
-/* Arriving: mark, question, line and answers rise in turn (arpeggio) */
-.gate__content > * { opacity: 0; transform: translateY(16px);
-  animation: arpeggio var(--dur-andante) var(--ease-legato) forwards; animation-delay: calc(300ms + var(--i, 0) * var(--stagger-arpeggio) * 2); }
-.gate__content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; text-align: center;
-  max-width: 34ch; padding: var(--space-7) var(--page-margin);
-  transition: opacity var(--dur-andante) var(--ease-staccato), transform var(--dur-andante) var(--ease-staccato); }
-.gate__mark { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); }
-.gate__mark .keys { gap: 14px; } .gate__mark .keys__group { gap: 6px; } .gate__mark .keys__key { width: 9px; height: 48px; background: var(--color-ivory); }
-.gate__name { font-size: var(--text-h4); letter-spacing: 0.06em; text-transform: uppercase; }
-/* The one accent on the screen: the question, in brass, wide-tracked like a programme heading */
-.gate__title { margin: var(--space-8) 0 0; font-size: var(--text-h3); line-height: 1.08; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--color-brass); }
-.gate__lead { margin: var(--space-3) auto 0; max-width: 34ch; font-size: var(--text-body); line-height: var(--leading-body);
-  letter-spacing: var(--tracking-body); color: var(--color-ivory); }
-.gate__actions { display: flex; flex-direction: column; align-items: center; gap: var(--space-5); margin-top: var(--space-7); }
-/* Enter with sound: a dashed ring around a round icon and a dark pill; on hover the pill inverts to ivory */
-.gate__sound { display: inline-flex; align-items: center; gap: 6px; padding: 5px; border: 1px dashed var(--color-stone);
-  border-radius: var(--radius-pill); background: none; color: var(--color-ivory); font: inherit; cursor: pointer;
-  transition: border-color var(--dur-allegro) var(--ease-legato); }
-.gate__sound-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: var(--radius-round);
-  background: var(--color-lacquer); border: 1px solid var(--color-graphite); }
-.gate__sound-label { display: inline-flex; align-items: center; height: 44px; padding: 0 24px; border-radius: var(--radius-pill);
-  background: var(--color-lacquer); border: 1px solid var(--color-graphite); font-size: 1rem; letter-spacing: 0.14em;
-  text-transform: uppercase; padding-top: 2px;
-  transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato); }
-.gate__sound:hover { border-color: var(--color-ivory); }
-.gate__sound:hover .gate__sound-label { background: var(--color-ivory); color: var(--color-ink); }
-.gate__sound:active { transform: scale(0.98); }
-.gate__quiet { min-height: var(--control-md); background: none; border: 0; padding: 0 var(--space-3); color: var(--color-ivory);
-  cursor: pointer; font: inherit; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase;
-  transition: color var(--dur-presto); }
-.gate__quiet:hover { color: var(--color-dust); }
-/* Film grain over the ink, as on a lit stage */
-.gate::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.07; mix-blend-mode: screen;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.96 0 0 0 0 0.94 0 0 0 0 0.9 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
-.gate--closing::before { opacity: 0; transition: opacity var(--dur-adagio) var(--ease-legato); }
-/* Three bars inside the button, rising and falling in turn: the sound waiting to start */
-.gate__wave, .sound-toggle__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; }
-.gate__wave span, .sound-toggle__bars span { width: 2px; height: 100%; background: currentColor; transform-origin: bottom;
-  transform: scaleY(0.35); }
-.gate__wave span { animation: bar 1.2s var(--ease-rubato) infinite alternate; }
-.gate__wave span:nth-child(2), .sound-toggle__bars span:nth-child(2) { animation-delay: 200ms; }
-.gate__wave span:nth-child(3), .sound-toggle__bars span:nth-child(3) { animation-delay: 400ms; }
+/* Three bars in the nav's sound pill, rising and falling in turn while the piano plays */
+.sound-toggle__bars { display: inline-flex; align-items: flex-end; gap: 3px; height: 14px; }
+.sound-toggle__bars span { width: 2px; height: 100%; background: currentColor; transform-origin: bottom; transform: scaleY(0.35); }
+.sound-toggle__bars span:nth-child(2) { animation-delay: 200ms; }
+.sound-toggle__bars span:nth-child(3) { animation-delay: 400ms; }
 @keyframes bar { from { transform: scaleY(0.3); } to { transform: scaleY(1); } }
-/* Leaving: the words step back, the ring opens outwards and fades, the page shows through */
-.gate--closing { pointer-events: none; background: transparent; transition: background-color var(--dur-adagio) var(--ease-legato); }
-.gate--closing .gate__content { opacity: 0; transform: translateY(-12px); }
-.gate--closing .gate__ring { opacity: 0; transform: scale(1.35); }
-@media (prefers-reduced-motion: reduce) {
-  .gate, .gate__ring, .gate__content, .gate__ring > * { animation: none; transition: none; }
-  .gate__content > * { opacity: 1; transform: none; animation: none; }
-  .gate__wave span { animation: none; transform: scaleY(0.6); }
-}
-@media (max-width: 639px) { .gate__title { margin-top: var(--space-7); } .gate__actions { margin-top: var(--space-6); } }
 
-/* While the gate is up, the hero name and lead wait to rise until the visitor is in */
-.is-gated .wm-letter, .is-gated .hero-in { animation-play-state: paused; }
-
-/* ---- Sound toggle (nav): the visible stop control -------------------- */
+/* ---- Sound toggle (nav): "Hear me play", and its stop control --------- */
 .nav__name { margin-right: auto; }
 .sound-toggle { display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0; background: none; border: 0;
   color: inherit; font: inherit; cursor: pointer; }

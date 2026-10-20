@@ -1,10 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useFx } from './hooks';
-import { useSound } from './sound.jsx';
 
 // Budget: one WebGL/canvas effect per viewport. Every section that owns an effect registers here;
 // only the section that fills most of the viewport may run its effect. The others show their still.
-// While the sound gate is up, its ring is the viewport's one effect, so no section runs.
 const FxStageContext = createContext({ active: null, report: () => {}, release: () => {} });
 
 export function FxStageProvider({ children }) {
@@ -44,7 +42,6 @@ export function useFxSlot(ref) {
   const id = useId();
   const fx = useFx();
   const { active, report, release } = useContext(FxStageContext);
-  const { gate } = useSound();
 
   useEffect(() => {
     const el = ref.current;
@@ -60,5 +57,5 @@ export function useFxSlot(ref) {
     };
   }, [fx, id, ref, report, release]);
 
-  return fx && !gate && active === id;
+  return fx && active === id;
 }

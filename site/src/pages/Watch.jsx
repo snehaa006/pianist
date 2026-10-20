@@ -38,7 +38,7 @@ export default function Watch() {
       <section ref={zone} className={`stage screen page-top watch-head${shards ? ' watch-head--tall' : ''}`} aria-labelledby="watch-h">
         <ShardsLayer zoneRef={zone} onFail={() => setShardsFailed(true)} />
         <div className="container band__content">
-          <Opus>(Op. 02: Watch)</Opus>
+          <Opus>(Op. 01: Watch)</Opus>
           <Headline as="h1" className="display" id="watch-h" hinge="left">
             Performances
           </Headline>

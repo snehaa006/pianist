@@ -27,7 +27,9 @@ export function useFx() {
 // Arpeggio reveals: anything with .reveal fades up once it is 20% into the viewport.
 // Masked variants (wipe, rise) start fully clipped, and IntersectionObserver honours clip-path,
 // so for those we watch the parent and reveal the child when the parent arrives.
+// The footer wordmark (lift) ends the page, so it can never pass the lower fifth: it arrives with its footer.
 const MASKED = '.reveal--wipe, .reveal--rise';
+const LIFT = '.reveal--lift';
 
 export function useReveals(deps = []) {
   useEffect(() => {
@@ -38,7 +40,9 @@ export function useReveals(deps = []) {
     }
     const byTarget = new Map();
     els.forEach(el => {
-      const target = el.matches(MASKED) ? el.parentElement : el;
+      let target = el;
+      if (el.matches(MASKED)) target = el.parentElement;
+      else if (el.matches(LIFT)) target = el.closest('footer') || el;
       byTarget.set(target, [...(byTarget.get(target) || []), el]);
     });
     const io = new IntersectionObserver(
