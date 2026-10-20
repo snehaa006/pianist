@@ -39,23 +39,20 @@ for (const [name, opts] of Object.entries(devices)) {
   page.on('console', m => m.type() === 'error' && problems.push(`[${name}] console: ${m.text()}`));
   page.on('pageerror', e => problems.push(`[${name}] pageerror: ${e.message}`));
 
-  // The sound gate opens first on every visit: capture it, check "Enter with sound" starts the piano,
-  // then answer "Enter quietly" for this session so the pages below are shot without it.
+  // Nothing plays on arrival: check the nav's "Hear me play" starts the piano.
   await page.goto(BASE + '/', { waitUntil: 'networkidle' });
   await page.waitForTimeout(name === 'desktop' ? 4000 : 2000);
-  const gateOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
-  if (gateOverflow > 0) problems.push(`[${name}] gate: horizontal overflow ${gateOverflow}px`);
-  if (name !== 'narrow') await page.screenshot({ path: `${OUT}/${name}-gate.png` });
-  await page.getByRole('button', { name: 'Enter with sound' }).click();
+  const silent = await page.evaluate(() => !document.querySelector('.sound-toggle.is-playing'));
+  if (!silent) problems.push(`[${name}] sound: the piano started without being asked`);
+  await page.getByRole('button', { name: 'Hear me play' }).click();
   await page.waitForTimeout(1500);
   const sound = await page.evaluate(() => {
     const t = document.querySelector('.sound-toggle');
-    return { pressed: t?.getAttribute('aria-pressed'), playing: t?.classList.contains('is-playing'), gate: !!document.querySelector('.gate') };
+    return { label: t?.getAttribute('aria-label'), playing: t?.classList.contains('is-playing') };
   });
-  console.log(`[${name}] after "Enter with sound":`, JSON.stringify(sound));
-  if (sound.pressed !== 'true' || sound.gate) problems.push(`[${name}] gate: sound did not start or gate stayed open`);
-  if (name !== 'narrow') await page.screenshot({ path: `${OUT}/${name}-after-gate.png` });
-  await page.evaluate(() => sessionStorage.setItem('sound-choice', 'quiet'));
+  console.log(`[${name}] after "Hear me play":`, JSON.stringify(sound));
+  if (sound.label !== 'Pause the piano' || !sound.playing) problems.push(`[${name}] sound: "Hear me play" did not start the piano`);
+  if (name !== 'narrow') await page.screenshot({ path: `${OUT}/${name}-playing.png` });
 
   for (const path of PAGES) {
     await page.goto(BASE + path, { waitUntil: 'networkidle' });

@@ -31,7 +31,7 @@ Still to confirm: who is standing behind her in the photo (the alt text reads `[
 | `at-home-grand` | `WhatsApp Video 2026-10-06 at 14.22.50.mp4` (1:34) | Performance at home on a black grand piano, by a window. | Visible on screen. | Piece unknown |
 | `dog-hungry` | `WhatsApp Video 2026-10-06 at 14.23.06.mp4` (1:11) | **Sonny Chua: Dog Hungry**. LCM recorded exam, **Grade 3, Performance List C**. Same room and dress as *Song of Twilight*. | Spoken introduction (heard as "Dog Hug by Sonny…"); "Dog Hungry" by Sonny Chua is on the LCM 2021–2024 Grade 3 List C. Note analysis: C minor. | High (confirm spelling) |
 | `andante` | `WhatsApp Video 2026-10-06 at 14.23.23.mp4` (1:04) | **Charles Henry Wilton: Andante**. LCM recorded exam, **Grade 1, Performance List A**. Same session as the Grade 1 List B piece. | Spoken introduction (heard as "Andante by … Wilton"); an Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook. Note analysis: G major. | Likely, confirm |
-| `grade-1-technical` | `WhatsApp Video 2026-10-06 at 14.23.15.mp4` (2:17) | LCM recorded exam, **Grade 1 technical work**: scales, broken chords and arpeggios, each named on camera (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios). | Spoken throughout. Shown on Watch and in Past concerts; left out of Repertoire (not a piece). | High |
+| `grade-1-technical` | `WhatsApp Video 2026-10-06 at 14.23.15.mp4` (2:17) | LCM recorded exam, **Grade 1 technical work**: scales, broken chords and arpeggios, each named on camera (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios). | Spoken throughout. Shown on Watch; left out of Repertoire (not a piece). | High |
 
 ### Musical analysis of the three unnamed pieces (never shown on the site)
 Notes were transcribed from the audio and analysed for key and texture. These are leads for you to confirm, not identifications:
@@ -65,7 +65,7 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 |---|---|
 | `[Name]` in `portraitAlt` (the man in the photograph) | alt text of the portrait, Home and Biography |
 | `from [earliest composer] to [latest composer]` | Home repertoire screen |
-| Management `[Name], [Agency]` + `[email]` | Home Contact screen, Contact page |
+| Management `[Name], [Agency]` + `[email]` | Contact page |
 | Press `[Name]` + `[email]` | same |
 | Direct `[email]` | same |
 | `newsletterAction` (mailing-list form endpoint) | both sign-up forms; until set, sign-ups are not stored |
@@ -76,10 +76,10 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 - `[Site URL]`: once the domain is known, make `og:image` in `index.html` an absolute URL (some platforms ignore relative share images).
 
 ## Things deliberately left out
-- **Concert rows**: there are no dates, so the Concerts screen shows the approved empty state ("No public dates right now…" → Join the list).
-- **Next season screen**: no project or date exists; it would duplicate the empty state.
+- **Concerts screen** (Upcoming / Past concerts) and the Home **Book a concert** screen: removed from Home at the client's
+  request. Contact details stay on the Contact page; the mailing list stays on Home.
+- **Next season screen**: no project or date exists.
 - **Press quote**: none exists, so the fermata is a photograph only.
 - **Repertoire filter chips** (Solo · Concertos · Chamber): every filmed piece is solo, so the filter would have nothing to sort. The OptionWheel dial lists the five pieces instead.
-- **Past concert dates**: the "Past concerts" rows show `[DD]` / `[Month] [Year]` until the real dates are filled in (add a `date` to each film).
 - **GhostCursor, GlowCursor and SwarmCursor**: no cursor effect; the hero glow was removed at the client's request.
 - **Nav Tickets pill**: nothing is on sale; omitting it keeps one velvet action per viewport.

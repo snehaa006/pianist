@@ -35,7 +35,7 @@ export default function About() {
             />
           </figure>
           <div className="split__text">
-            <Opus>(Op. 04: About)</Opus>
+            <Opus>(Op. 03: About)</Opus>
             <Headline as="h1" className="display" id="bio-h" hinge="right">
               Biography
             </Headline>

@@ -1,10 +1,9 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Hero from '../components/Hero.jsx';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import MailingList from '../components/MailingList.jsx';
-import ContactRows from '../components/ContactRows.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
@@ -16,6 +15,7 @@ import { byId, examFilms, inWords, performances, pieces } from '../data/performa
 import { site } from '../data/site';
 import { bio } from '../data/bio';
 import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
+import { useFlyIn } from '../lib/flyIn';
 
 const Arrow = () => (
   <span className="arrow" aria-hidden="true">
@@ -24,26 +24,25 @@ const Arrow = () => (
 );
 
 export default function Home() {
-  const [view, setView] = useState('upcoming');
   usePageTitle(null);
-  useReveals([view]);
+  useReveals();
   const concert = byId('austrian-master-classes');
   const stage = byId('on-stage');
   const atHome = performances.filter(p => p.tags.includes('home'));
   const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
+  const films = useRef(null);
+  const fly = useFlyIn(films);
 
   return (
     <>
       <Hero />
 
-      <Concerts view={view} setView={setView} />
-
       <FeaturedFilm item={stage} />
 
-      {/* Three films from home, two of them exam recordings */}
-      <section className="screen" aria-labelledby="home-h">
+      {/* The films from home; on wide screens they fly in one by one as you scroll (lib/flyIn.js) */}
+      <section className={`screen${fly ? ' fly-zone' : ''}`} aria-labelledby="home-h">
         <div className="container">
-          <Opus>(Op. 02: Watch)</Opus>
+          <Opus>(Op. 01: Watch)</Opus>
           <Headline id="home-h" hinge="left" accent="piano">
             At home, at the piano
           </Headline>
@@ -51,9 +50,9 @@ export default function Home() {
             {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of Music
             exams.
           </p>
-          <div className="films">
+          <div ref={films} className={`films${fly ? ' films--fly' : ''}`}>
             {atHome.map((p, i) => (
-              <PerformanceCard key={p.id} item={p} index={i} />
+              <PerformanceCard key={p.id} item={p} index={i} eager={fly} />
             ))}
           </div>
           <div className="actions">
@@ -100,7 +99,7 @@ export default function Home() {
             />
           </figure>
           <div className="split__text">
-            <Opus>(Op. 04: About)</Opus>
+            <Opus>(Op. 03: About)</Opus>
             <Headline id="about-h" hinge="right">
               The pianist
             </Headline>
@@ -130,81 +129,8 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="screen" id="contact" aria-labelledby="contact-h">
-        <div className="container">
-          <Opus>(Op. 05: Contact)</Opus>
-          <Headline id="contact-h" hinge="top">
-            Book a concert
-          </Headline>
-          <p className="lead muted reveal reveal--rise">Management, press and direct enquiries.</p>
-          <ContactRows />
-        </div>
-      </section>
-
       <MailingList />
     </>
-  );
-}
-
-// Op. 01: Upcoming (empty state, never invented rows) or the archive of filmed performances as programme rows.
-function Concerts({ view, setView }) {
-  const { open } = useLightbox();
-  return (
-    <section className="screen" id="concerts" aria-labelledby="concerts-h">
-      <div className="container">
-        <Opus>(Op. 01: Concerts)</Opus>
-        <Headline id="concerts-h">Hear her live</Headline>
-        <div className="chips" role="group" aria-label="Which concerts">
-          <button type="button" className="chip" aria-pressed={view === 'upcoming'} onClick={() => setView('upcoming')}>
-            Upcoming
-          </button>
-          <button type="button" className="chip" aria-pressed={view === 'past'} onClick={() => setView('past')}>
-            Past concerts
-          </button>
-        </div>
-
-        {view === 'upcoming' ? (
-          <div className="concerts concert-empty" key="upcoming">
-            <div className="concert-empty__text">
-              <p className="lead reveal reveal--rise">No public dates right now.</p>
-              <p className="body muted reveal" style={{ '--i': 2 }}>
-                New concerts reach the mailing list first.
-              </p>
-            </div>
-            <a className="btn btn--primary concert-empty__action" href="#list">
-              Join the list <Arrow />
-            </a>
-          </div>
-        ) : (
-          <ul className="concerts" key="past">
-            {performances.map((p, i) => (
-              <li className="concert concert--past reveal" style={{ '--i': i }} key={p.id}>
-                <span className="concert__date">
-                  <span className="concert__day">[DD]</span>
-                  <span className="concert__month">[Month] {p.year}</span>
-                </span>
-                <div>
-                  <div className="concert__city">{p.tags.includes('home') ? 'At home' : p.short}</div>
-                  <div className="concert__venue">{p.tags.includes('home') ? p.occasion : p.venue}</div>
-                </div>
-                <div className="concert__programme body-sm">
-                  {p.composer}: {p.work}
-                  {p.syllabus && (
-                    <>
-                      <br />
-                      <span className="muted">Performance {p.syllabus}</span>
-                    </>
-                  )}
-                </div>
-                <button type="button" className="link concert__action" onClick={e => open(p, e.currentTarget)}>
-                  Watch <Arrow />
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </section>
   );
 }
 
@@ -245,7 +171,7 @@ function FeaturedFilm({ item }) {
   );
 }
 
-// Op. 03: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
+// Op. 02: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
 function RepertoireBand() {
   const zone = useRef(null);
   const facts = [
@@ -258,7 +184,7 @@ function RepertoireBand() {
       <SlatsLayer zoneRef={zone} />
       <div className="container band__content">
         <Staff />
-        <Opus>(Op. 03: Repertoire)</Opus>
+        <Opus>(Op. 02: Repertoire)</Opus>
         <Headline id="rep-h" hinge="top" accent="plays">
           What she plays
         </Headline>

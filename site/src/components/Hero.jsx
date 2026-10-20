@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useMedia, useReducedMotion } from '../lib/hooks';
-import { useSound } from '../lib/sound.jsx';
 
 // Screen 1: her reel, whole and uncovered, on the page directly under the nav. The reel carries her name
-// (it opens and closes on it), so the H1 is for screen readers. With sound on, the site's music is the reel's
-// own soundtrack and the picture follows its clock. One control: pause / play (autoplaying motion must be
-// stoppable). With reduced motion the reel waits on its contact-sheet page until asked to play.
-// Portrait screens get the reel's phone cut; the two are the same edit, in sync with the same music. Both encodes
+// (it opens and closes on it), so the H1 is for screen readers. The reel is silent; her piano plays only when
+// the visitor asks for it in the nav. One control: pause / play (autoplaying motion must be stoppable). With
+// reduced motion the reel waits on its contact-sheet page until asked to play.
+// Portrait screens get the reel's phone cut; the two are the same edit. Both encodes
 // drop the reel's running header (her name repeated under the nav), and the film always fits the first screen.
 export const PORTRAIT_QUERY = '(max-aspect-ratio: 4/5)';
 const CUTS = {
@@ -18,7 +17,6 @@ export default function Hero() {
   const reduced = useReducedMotion();
   const portrait = useMedia(PORTRAIT_QUERY);
   const cut = CUTS[portrait ? 'phone' : 'wide'];
-  const { gate, playing, clock } = useSound();
   const [choice, setChoice] = useState(null); // 'play' | 'pause', once the visitor chooses
   const paused = choice ? choice === 'pause' : reduced;
   const section = useRef(null);
@@ -33,36 +31,13 @@ export default function Hero() {
     return () => io.disconnect();
   }, []);
 
-  // Plays once the sound gate has closed, while on screen, unless paused.
+  // Plays while on screen, unless paused.
   useEffect(() => {
     const v = video.current;
     if (!v) return;
-    if (!paused && !gate && onScreen) v.play().catch(() => setChoice('pause'));
+    if (!paused && onScreen) v.play().catch(() => setChoice('pause'));
     else v.pause();
-  }, [paused, gate, onScreen, portrait]);
-
-  // Coming in through the gate, the reel starts from its first page (the music starts there too).
-  const wasGated = useRef(gate);
-  useEffect(() => {
-    if (wasGated.current && !gate && video.current) video.current.currentTime = 0;
-    wasGated.current = gate;
-  }, [gate]);
-
-  // With the music on, the picture follows its clock (both loop at 14.73 s).
-  useEffect(() => {
-    if (!playing || paused) return undefined;
-    const id = setInterval(() => {
-      const v = video.current;
-      const t = clock();
-      if (!v || v.paused || t === null || !v.duration) return;
-      const L = v.duration;
-      let d = (v.currentTime - t) % L;
-      if (d > L / 2) d -= L;
-      if (d < -L / 2) d += L;
-      if (Math.abs(d) > 0.12) v.currentTime = t % L;
-    }, 250);
-    return () => clearInterval(id);
-  }, [playing, paused, clock]);
+  }, [paused, onScreen, portrait]);
 
   return (
     <section ref={section} className="hero hero--reel" aria-labelledby="name" aria-describedby="hero-d">

@@ -12,7 +12,7 @@ export default function Contact() {
     <>
       <section className="screen page-top" aria-labelledby="contact-page-h">
         <div className="container">
-          <Opus>(Op. 05: Contact)</Opus>
+          <Opus>(Op. 04: Contact)</Opus>
           <Headline as="h1" className="display" id="contact-page-h" hinge="top" accent="concert">
             Book a concert
           </Headline>

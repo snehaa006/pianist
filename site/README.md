@@ -15,7 +15,6 @@ added prop on MaskedHeading (`maxFontSize`) so the name can fill the full width 
 | RippleDistortion | Not used (removed from the fermata photo and the portrait at the client's request) |
 | MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
 | AeroShards | Watch header (WebGPU only; closes up without it) |
-| AeroShards (`ring` flow) | Sound gate: the Watch ribbon closed into a circle (WebGPU desktop); `DustRing.jsx` draws the same path in 2D canvas everywhere else |
 | GooeyNav | Watch filter: All · On stage · At home · Exams (chips on phones) |
 | BorderGlow | Brass edge-light on the lead film of the Watch grid |
 | OptionWheel | Repertoire dial with a detail panel (desktop) |
@@ -25,8 +24,13 @@ Budget: `src/lib/fxStage.jsx` lets only the section filling most of the viewport
 effects are code-split and never load on phones, touch devices or with reduced motion.
 
 Text motion: FoldText headlines, mask *rise* for lead lines, *wipe* for captions, notes and portraits, *track* for opus
-tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark, counted display numerals, an ink curtain
-between pages and the keyboard-rhythm loader while a page loads.
+tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark (shown whole, not cropped), counted
+display numerals, an ink curtain between pages and the keyboard-rhythm loader while a page loads.
+
+Films flying in (`src/lib/flyIn.js`, Home's "At home, at the piano" grid): the grid pins under the nav while the six
+films arrive one at a time as you scroll, each from its own side (top left from the top left, bottom middle straight
+up, and so on), swinging and flexing like a sheet of paper before they settle. GSAP ScrollTrigger, scrubbed, so
+scrolling back sends them out again. Wide screens (≥900px) with motion allowed; phones keep the plain reveal.
 
 ## Run
 
@@ -46,15 +50,14 @@ programme reel from `../montage`, in its original colour (no grade), on wide scr
 screens (`max-aspect-ratio: 4/5`). Both encodes drop the reel's running header strip (her name, which repeated the
 nav wordmark), so they are 1920×996 and 1080×1820. The reel always fits the first screen whole: full width where
 that fits, otherwise as tall as the screen, centred on the reel's own paper colour so the margins read as the same
-sheet. The H1 is for screen readers (the reel carries her name); the one control is pause / play. With reduced
-motion the reel waits on its contact-sheet page until asked.
+sheet. The reel is silent. The H1 is for screen readers (the reel carries her name); the one control is pause / play.
+With reduced motion the reel waits on its contact-sheet page until asked.
 
-Every visit opens on a sound gate (`src/components/SoundGate.jsx`): *Enter with sound* starts the reel's own
-soundtrack (`public/media/audio/reel.webm|.m4a`, the closing phrases of her home grand recording, cut to the
-reel's exact length) inside that click, fading in over Largo, and the reel restarts with it and follows its
-clock, so the picture is the music you hear. *Enter quietly* keeps the site silent for the session. The nav's
-sound pill is the visible stop control. The music loops with the reel, fades out while a film is open in the
-lightbox and pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
+Nothing plays on arrival. The nav's *Hear me play* pill (`src/components/SoundToggle.jsx`) starts her at-home grand
+recording (`public/media/audio/at-home-grand.webm|.m4a`, the cleanest of the eight recordings) inside that click,
+fading in over Largo; pressed again (*Pause*) it fades out. On phones the pill shows its three bars only. The piano
+keeps playing from page to page, fades out while a film is open in the lightbox, rests 2.4 s between plays and
+pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
 
 ## Media
 
