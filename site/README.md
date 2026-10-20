@@ -43,15 +43,19 @@ npm run preview      # serve dist/ on :4173
 
 Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pages, S3). Set the project root to `site/`, build command `npm run build`, output `dist`.
 
-## Sound and the hero reel
+## Sound and the hero film
 
-The landing page opens on her reel, whole and uncovered under the nav (`src/components/Hero.jsx`): the
-programme reel from `../montage`, in its original colour (no grade), on wide screens, its phone cut on portrait
-screens (`max-aspect-ratio: 4/5`). Both encodes drop the reel's running header strip (her name, which repeated the
-nav wordmark), so they are 1920×996 and 1080×1820. The reel always fits the first screen whole: full width where
-that fits, otherwise as tall as the screen, centred on the reel's own paper colour so the margins read as the same
-sheet. The reel is silent. The H1 is for screen readers (the reel carries her name); the one control is pause / play.
-With reduced motion the reel waits on its contact-sheet page until asked.
+The landing page opens on her film, whole and uncovered under the nav (`src/components/Hero.jsx`): ten slow
+seconds of her and the piano, looping without a seam, made by `../montage/scripts/hero-film.py`. Five moments from
+the performance videos (at home by the window, her hands at the keys, the Austrian Master Classes hall, her hands
+rising off the keys on stage, and at home again as she lifts her hands and sits back), all in slow motion, joined
+by long dissolves, each with a slow camera drift. The look is warm monochrome in the site's own tones; only
+velvet (her concert dress, the wreath at home) and brass (where light blooms) keep any colour, under a soft
+halation, a vignette and fine grain. The wide cut is 1920×996, the phone cut (portrait screens,
+`max-aspect-ratio: 4/5`) 1080×1820, reframed on her. The film always fits the first screen whole: full width where
+that fits, otherwise as tall as the screen, centred on ink, which its vignette fades into. The film is silent. The
+H1 is for screen readers (her name is in the nav); the one control is pause / play. With reduced motion the film
+waits on a still of her hands rising off the keys until asked.
 
 Nothing plays on arrival. The nav's *Hear me play* pill (`src/components/SoundToggle.jsx`) starts her at-home grand
 recording (`public/media/audio/at-home-grand.webm|.m4a`, the cleanest of the eight recordings) inside that click,
@@ -71,6 +75,7 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | Output | What |
 |---|---|
 | `public/media/video/<slug>.mp4/.webm` | Each performance, H.264 + VP9, native size (all under 1080p), 30 fps max, lightly graded (−20% saturation, warm) |
+| `public/media/video/hero-film{,-phone}.*` | The hero film (built in `../montage`, see above), silent, H.264 + VP9 |
 | `public/media/video/hero-loop.*` | 7.5 s muted loop for the name in the hero, seamless crossfade, no audio track |
 | `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata |
 | `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, in its original colour (1200 and 600 wide) |

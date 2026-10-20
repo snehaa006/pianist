@@ -94,9 +94,8 @@ ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
   -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
   -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
 
-# Hero reels (public/media/video/hero-reel{,-phone}.*, posters hero-reel*): built from the full-resolution colour
-# originals in ../montage by ../montage/scripts/grade-reels.sh, in their original colour with no grade
-# (GRADE=silvertone gives the earlier black-and-white look). The 848x480 export is too soft at hero size.
+# Hero film (public/media/video/hero-film{,-phone}.*, posters hero-film*): ten slow seconds cut from these videos
+# by ../montage/scripts/hero-film.py, encoded by ../montage/scripts/encode-hero-film.sh.
 
 # Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
 # applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.

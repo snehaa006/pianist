@@ -344,16 +344,14 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* Phones: the bars alone (the button keeps its spoken label) */
 @media (max-width: 639px) { .sound-toggle__text { display: none; } .sound-toggle__pill { padding: 0 12px; } }
 
-/* ---- Hero reel: her film, whole, directly under the nav ----------------------------------------------------
-   The encodes drop the reel's running header (her name, which repeated the nav wordmark just above it), so the
-   cuts are 1920x996, and 1080x1820 on portrait screens. The film always fits the first screen whole: the full
-   width wherever that fits, otherwise as tall as the screen under the nav, centred on the section, which is the
-   reel's own paper (sampled from the encoded colour reel, both cuts: rgb 243 238 231). A hairline closes the plate. */
-.hero--reel { --hero-top: var(--nav-height); --film-w: 1920; --film-h: 996;
-  min-height: 0; display: block; padding: var(--hero-top) 0 0; background: #F3EEE7;
-  border-bottom: 1px solid var(--color-hairline); }
-@media (max-width: 899px) { .hero--reel { --hero-top: 64px; } } /* the nav is 64px tall here */
-@media (max-aspect-ratio: 4/5) { .hero--reel { --film-w: 1080; --film-h: 1820; } } /* the phone cut */
+/* ---- Hero film: her film, whole, directly under the nav ----------------------------------------------------
+   Ten slow seconds in warm monochrome (hero-film.py in ../montage), 1920x996, and 1080x1820 on portrait screens.
+   The film always fits the first screen whole: the full width wherever that fits, otherwise as tall as the screen
+   under the nav, centred on ink, which its vignette fades into, so any margin reads as the dark around a stage. */
+.hero--film { --hero-top: var(--nav-height); --film-w: 1920; --film-h: 996;
+  min-height: 0; display: block; padding: var(--hero-top) 0 0; background: var(--color-ink); }
+@media (max-width: 899px) { .hero--film { --hero-top: 64px; } } /* the nav is 64px tall here */
+@media (max-aspect-ratio: 4/5) { .hero--film { --film-w: 1080; --film-h: 1820; } } /* the phone cut */
 .hero__film { position: relative; margin-inline: auto; aspect-ratio: var(--film-w) / var(--film-h);
   width: min(100%, calc((100vh - var(--hero-top)) * var(--film-w) / var(--film-h)));
   width: min(100%, calc((100svh - var(--hero-top)) * var(--film-w) / var(--film-h))); }

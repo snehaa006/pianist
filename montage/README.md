@@ -1,6 +1,6 @@
 # Selin Incekara: films
 
-Three edits from the eight performance videos in `../videos/` (the originals are never modified):
+Four edits from the eight performance videos in `../videos/` (the originals are never modified):
 
 - **Reel** (`src/reel/`): 14.7 s on the closing two phrases of her at-home grand recording. A concert
   programme in motion: ivory and ink pages with an opus number and a bar line that fills as the music plays.
@@ -16,17 +16,46 @@ Three edits from the eight performance videos in `../videos/` (the originals are
   a chord and divides into 4 × 4 before one frame opens onto the stage, and an end card. Film grain, gate
   weave, projector flicker, the odd speck of dust.
 - **Film** (`src/edl.js`): 87 s, the long landing-page cut described below.
+- **Hero film** (`scripts/hero-film.py`): 10 s, slow and silent, the site's opening screen (below).
 
-### The site's hero reels
+### The site's hero film
 
-The colour originals of the reel, before any grade, are kept here at full quality with their music:
+`scripts/hero-film.py` makes the landing page's opening film: 10 s, silent, looping without a seam. Five moments,
+each in slow motion (the 60 fps takes at half speed frame for frame; the 30 fps hall take motion-interpolated),
+joined by one-second dissolves, each with a slow camera drift:
+
+| Time | Shot | Source | What happens |
+|---|---|---|---|
+| 0:00 | window | at home, the grand (14.22.50, 5.5 s) | Her at the keys by the window |
+| 0:01 | keys | the same take (40 s), closer | Her hands, the keyboard, the lid's reflection |
+| 0:03 | hall | Austrian Master Classes (14.23.41, 84.6 s) | The polka-dot dress at the concert grand |
+| 0:05 | stage | the theatre (14.22.40, 64.9 s) | The last chord; her hands rise off the keys in the dark |
+| 0:07 | release | at home, the grand (90.4 s) | Her hands lift, she sits back; it dissolves into the first frame |
+
+The grade maps brightness onto the site's palette (ink shadows, felt and stone mids, highlights held below ivory);
+only velvet (where the source is pink or red) and brass (where light blooms) keep colour. A brass halation swells
+through each dissolve, over a soft diffusion, a vignette into ink and fine grain. The shot list, framings and
+grade are at the top of the script.
+
+```bash
+python3 scripts/hero-film.py                  # out/hero-film/wide.mp4 (1920x996) and phone.mp4 (1080x1820), ~10 min
+python3 scripts/hero-film.py --cut wide --stills 0 4.5 6.6   # review stills → out/hero-film/stills/
+bash scripts/encode-hero-film.sh              # → ../site/public/media/video/hero-film* and the posters
+```
+
+Needs Python 3 with NumPy and Pillow, and ffmpeg with libx264, libvpx-vp9 and libwebp.
+
+### The earlier hero reels
+
+The colour originals of the programme reel, before any grade, are kept here at full quality with their music:
 `selin-incekara-reel-colour-web-1920x1080.mp4` and `selin-incekara-reel-colour-phone-1080x1920.mp4`.
 
-`scripts/grade-reels.sh` builds the landing page's hero videos from those originals in their original colour,
-with no grade (only re-encoded for the web: silent, H.264 CRF 24 and VP9 CRF 35). `GRADE=silvertone` brings back
-the earlier black-and-white look, made on the exported reels with iPhone's Silvertone filter and matched from the
-exports into `grade/wide.cube` and `grade/phone.cube` (brightness → tone, within about 3/255). The 848×480 export
-itself is too small for a hero.
+`scripts/grade-reels.sh` builds hero videos from those originals (`hero-reel{,-phone}.*`), in their original colour
+with no grade (only re-encoded for the web: silent, H.264 CRF 24 and VP9 CRF 35). The site no longer uses them; to
+bring the reel back, run it and point `CUTS` in `../site/src/components/Hero.jsx` at `hero-reel`. `GRADE=silvertone`
+brings back the earlier black-and-white look, made on the exported reels with iPhone's Silvertone filter and matched
+from the exports into `grade/wide.cube` and `grade/phone.cube` (brightness → tone, within about 3/255). The 848×480
+export itself is too small for a hero.
 
 ### Reels: rebuild
 

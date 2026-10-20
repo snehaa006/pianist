@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
-# The site's hero reels at full resolution, in the reel's original colour: no grade, only re-encoded for the web.
+# The earlier hero reels at full resolution, in the reel's original colour: no grade, only re-encoded for the web.
+# The site now opens on the hero film (scripts/hero-film.py); to bring the reel back, run this and point CUTS in
+# ../site/src/components/Hero.jsx at hero-reel.
 #   in:  the colour originals kept in this folder (selin-incekara-reel-colour-{web-1920x1080,phone-1080x1920}.mp4,
 #        the Remotion renders, also at out/reel-master.mp4 and out/reel-phone-master.mp4 after a render)
 #   out: ../site/public/media/video/hero-reel{,-phone}.{mp4,webm} (silent, header strip cropped) and the posters
 # GRADE=silvertone bash scripts/grade-reels.sh brings back the earlier black-and-white-on-paper look, matched from the
 # iPhone Silvertone exports into grade/*.cube (brightness → tone, within ~3/255 of the export). If you switch, re-sample
-# the paper colours for .hero--reel in ../site/src/styles/site.css.
+# the background of .hero--film in ../site/src/styles/site.css.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 SITE=../site/public/media
