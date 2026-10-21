@@ -10,6 +10,8 @@
 //   every: [0.9, 2.2]       seconds between launches; burst: how many leave together at the start
 //   life: [3.4, 5.6]        seconds a flight lasts, from lifting off to leaving
 //   reach(x, y, w, h, r)    where a bird leaves the canvas (default: up and to the right, past the top)
+//   play: () => { t, notes } | null   keyboard only: music to play along to, `notes` as [start s, end s, MIDI note,
+//                           velocity] in order of start and `t` the seconds into it; each key dips while its note sounds
 // It returns { start, stop, still, resize, poke(x, y), destroy }. still() draws one fixed frame (reduced motion).
 
 const TAU = Math.PI * 2;
@@ -31,6 +33,15 @@ const KEY = [
 ];
 // Black keys sit after these white keys, counting from A (A0 is the lowest key of a piano): A, C, D, F, G.
 const BLACK_AFTER = [true, false, true, true, false, true, true];
+// The white keys' notes in each octave from A, in semitones above it; A0 is MIDI note 21.
+const WHITE_STEPS = [0, 2, 3, 5, 7, 8, 10];
+const whiteNote = j => 21 + 12 * Math.floor(j / 7) + WHITE_STEPS[j % 7];
+// A played key: how far it dips (share of its height) and the colour it darkens toward (the deep poster red over the
+// cream, the stage graphite over the ink), at full press; how long it takes to go down and to come back up (s).
+const PRESS = { dip: 0.07, white: [154, 38, 44], whiteMix: 0.3, black: [58, 42, 43], blackMix: 0.9, down: 0.035, up: 0.14 };
+const CREAM_RGB = [244, 233, 216];
+const INK_RGB = [14, 10, 10];
+const mix = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
 
 const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
 const smooth = (a, b, v) => {
@@ -85,6 +96,9 @@ export function createFlight(canvas, options = {}) {
   let last = 0;
   let lastPoke = 0;
   let size = 14; // a bird's half-span in px
+  let byNote = new Map(); // MIDI note → key
+  let low = 21; // the keyboard's lowest and highest notes
+  let high = 108;
 
   function resize() {
     const box = canvas.getBoundingClientRect();
@@ -96,9 +110,11 @@ export function createFlight(canvas, options = {}) {
     build();
   }
 
-  // The keyboard fills the keybed's box: about one white key per 28px, up to the 52 of a full piano.
+  // The keyboard fills the keybed's box: about one white key per 28px, up to the 52 of a full piano. A shorter one is
+  // the middle of the piano, so the notes most music is played in are on it.
   function build() {
     keys = [];
+    byNote = new Map();
     fliers.forEach(f => (f.key = null)); // birds already up fly on; their keys are rebuilt whole
     if (!o.keybed) {
       size = Math.max(10, Math.min(20, W / 36));
@@ -110,15 +126,43 @@ export function createFlight(canvas, options = {}) {
     const top = bed.top - box.top;
     const left = bed.left - box.left;
     const n = Math.max(14, Math.min(52, Math.round(bed.width / 28)));
+    const first = Math.round((52 - n) / 2); // white keys of the full piano left off below this keyboard
     const ww = bed.width / n;
     const gap = Math.max(1, ww * 0.07);
-    for (let i = 0; i < n; i++) keys.push({ black: false, x: left + i * ww + gap / 2, y: top, w: ww - gap, h: bed.height, state: 'rest', at: 0 });
+    const key = (black, note, x, y, w, h) => {
+      const k = { black, note, x, y, w, h, state: 'rest', at: 0, press: 0 };
+      keys.push(k);
+      byNote.set(note, k);
+    };
+    for (let i = 0; i < n; i++) key(false, whiteNote(first + i), left + i * ww + gap / 2, top, ww - gap, bed.height);
     for (let i = 0; i < n - 1; i++) {
-      if (!BLACK_AFTER[i % 7]) continue;
+      if (!BLACK_AFTER[(first + i) % 7]) continue;
       const bw = ww * 0.56;
-      keys.push({ black: true, x: left + (i + 1) * ww - bw / 2, y: top - 1, w: bw, h: bed.height * 0.62, state: 'rest', at: 0 });
+      key(true, whiteNote(first + i) + 1, left + (i + 1) * ww - bw / 2, top - 1, bw, bed.height * 0.62);
     }
+    low = whiteNote(first);
+    high = whiteNote(first + n - 1);
     size = Math.max(9, Math.min(24, ww * 0.85));
+  }
+
+  // Play along: each key's press (0..1) from the notes sounding now. A note beyond the keyboard is played an octave
+  // or more in, on a key it has; a key that has flown is skipped.
+  function listen() {
+    keys.forEach(k => (k.press = 0));
+    const p = o.play?.();
+    if (!p) return;
+    const { t, notes } = p;
+    for (const [start, end, note, velocity] of notes) {
+      if (start - PRESS.down > t) break;
+      if (end + PRESS.up < t) continue;
+      let m = note;
+      while (m < low) m += 12;
+      while (m > high) m -= 12;
+      const k = byNote.get(m);
+      if (!k || k.state !== 'rest') continue;
+      const down = smooth(start - PRESS.down, start, t) * (1 - smooth(end, end + PRESS.up, t));
+      k.press = Math.max(k.press, down * (0.6 + 0.4 * velocity));
+    }
   }
 
   // A flier leaves from a key's box: (x, y) its centre, (w, h) its size.
@@ -153,7 +197,7 @@ export function createFlight(canvas, options = {}) {
   // A resting key on the right side, the rightmost ones most often.
   function pickKey() {
     const span = keys.length ? keys[keys.length - 1].x + keys[keys.length - 1].w : W;
-    const free = keys.filter(k => k.state === 'rest' && k.x + k.w / 2 > span * o.from);
+    const free = keys.filter(k => k.state === 'rest' && !k.press && k.x + k.w / 2 > span * o.from);
     if (!free.length) return null;
     const weights = free.map(k => 0.15 + ((k.x + k.w / 2) / span - o.from) ** 1.5);
     let pick = r() * weights.reduce((a, b) => a + b, 0);
@@ -223,7 +267,10 @@ export function createFlight(canvas, options = {}) {
       alpha = e;
     }
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = k.black ? INK : CREAM;
+    if (k.press) {
+      dy += k.press * k.h * PRESS.dip;
+      ctx.fillStyle = k.black ? mix(INK_RGB, PRESS.black, k.press * PRESS.blackMix) : mix(CREAM_RGB, PRESS.white, k.press * PRESS.whiteMix);
+    } else ctx.fillStyle = k.black ? INK : CREAM;
     ctx.fillRect(k.x, k.y + dy, k.w, k.h);
   }
 
@@ -278,6 +325,7 @@ export function createFlight(canvas, options = {}) {
   }
 
   function draw() {
+    listen();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     keys.forEach(k => !k.black && drawKey(k));

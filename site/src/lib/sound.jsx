@@ -2,11 +2,13 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 // Site sound: her at-home grand performance (the cleanest of the eight recordings), as audio only.
 // Nothing plays on its own: the nav's "Hear me play" starts it inside the visitor's click, and stops it again.
+// `notes` are the notes she plays in it (scripts/notes.py), for the hero keyboard to play along.
 export const SOUND = {
   sources: [
     { src: '/media/audio/at-home-grand.webm', type: 'audio/webm; codecs=opus' },
     { src: '/media/audio/at-home-grand.m4a', type: 'audio/mp4' }
   ],
+  notes: '/media/audio/at-home-grand.notes.json',
   volume: 0.6,
   fadeIn: 1.4, // Largo
   fadeOut: 0.6, // Andante
@@ -17,7 +19,8 @@ const SoundContext = createContext({
   playing: false,
   wanted: false,
   toggle: () => {},
-  hold: () => () => {}
+  hold: () => () => {},
+  playhead: () => null
 });
 export const useSound = () => useContext(SoundContext);
 
@@ -53,7 +56,13 @@ export function SoundProvider({ children }) {
       }
     }
     if (!gain) audio.volume = 0;
-    engine.current = { audio, ctx, gain };
+    engine.current = { audio, ctx, gain, notes: null };
+    fetch(SOUND.notes)
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (d) engine.current.notes = d.notes;
+      })
+      .catch(() => {});
     return engine.current;
   }, []);
 
@@ -154,6 +163,14 @@ export function SoundProvider({ children }) {
     return () => document.removeEventListener('visibilitychange', onVis);
   }, [wanted, held, start]);
 
-  const value = useMemo(() => ({ playing: wanted && playing, wanted, toggle, hold }), [wanted, playing, toggle, hold]);
+  // Where the piece has got to, for whatever plays along (the hero keys): seconds into it, less the time the sound
+  // takes to reach the speakers, and its notes. Null while the piano isn't playing. Stable, so it can be read every frame.
+  const playhead = useCallback(() => {
+    const e = engine.current;
+    if (!e?.notes || !wantedRef.current || heldRef.current > 0 || e.audio.paused) return null;
+    return { t: e.audio.currentTime - (e.ctx?.outputLatency || 0), notes: e.notes };
+  }, []);
+
+  const value = useMemo(() => ({ playing: wanted && playing, wanted, toggle, hold, playhead }), [wanted, playing, toggle, hold, playhead]);
   return <SoundContext.Provider value={value}>{children}</SoundContext.Provider>;
 }

@@ -3,11 +3,13 @@ import Flight from './Flight.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { byId } from '../data/performances';
 import { site } from '../data/site';
+import { useSound } from '../lib/sound.jsx';
 
 // Screen 1, a poster on the red: her photograph at the piano in the Austrian Master Classes hall, standing on a full
 // keyboard that runs the width of the screen, and her name in ink beside it. Keys on the right lift out of the
-// keyboard and fly off as birds (Flight); moving the mouse along the keys sends them up too. One fact, one action:
-// the concert the photograph was taken at, and its film.
+// keyboard and fly off as birds (Flight); moving the mouse along the keys sends them up too. While "Hear me play" is on,
+// the keys play along: each one goes down with the note she plays on it. One fact, one action: the concert the
+// photograph was taken at, and its film.
 const letters = (word, from) =>
   [...word].map((c, i) => (
     <span key={i} className="wm-letter" style={{ '--i': from + i }}>
@@ -20,6 +22,7 @@ export default function Hero() {
   const concert = byId('austrian-master-classes');
   const section = useRef(null);
   const keybed = useRef(null);
+  const { playhead } = useSound();
 
   return (
     <section ref={section} className="hero hero--poster" aria-labelledby="name">
@@ -55,7 +58,7 @@ export default function Hero() {
         </div>
       </div>
       <div ref={keybed} className="hero__keys" aria-hidden="true" />
-      <Flight className="hero__flight" keybed={keybed} pokeRef={section} />
+      <Flight className="hero__flight" keybed={keybed} pokeRef={section} play={playhead} />
     </section>
   );
 }

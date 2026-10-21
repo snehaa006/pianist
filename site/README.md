@@ -102,6 +102,13 @@ fading in over Largo; pressed again (*Pause*) it fades out. On phones the pill s
 keeps playing from page to page, fades out while a film is open in the lightbox, rests 2.4 s between plays and
 pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
 
+While it plays, the hero keyboard plays along: each key dips and darkens (rose on the cream keys, graphite on the
+black) for as long as she holds its note, lighter for softer notes. The notes come from the recording itself
+(`public/media/audio/at-home-grand.notes.json`, 743 notes, transcribed by Spotify's Basic Pitch with
+`scripts/notes.py`; rerun it if the audio changes), read against the audio's own clock (`useSound().playhead`). A
+keyboard shorter than the piano's 52 white keys is its middle, and notes beyond it are played an octave or more in.
+Keys that are sounding never fly off as birds; with reduced motion the keys stay still.
+
 ## Media
 
 All images come from the performance videos in `../videos/`, except the portrait, which is built from the supplied
