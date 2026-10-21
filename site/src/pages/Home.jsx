@@ -4,7 +4,6 @@ import Hero from '../components/Hero.jsx';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import FilmLoop from '../components/FilmLoop.jsx';
-import Flight from '../components/Flight.jsx';
 import Compare from '../components/Compare.jsx';
 import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
@@ -190,17 +189,10 @@ function RepertoireBand() {
 }
 
 // Op. 03: her at the grand piano at home, an ink silhouette on the red (the cut-out from the films ring, as a mask),
-// with birds rising out of the open lid, where the photograph's frame fades it away. Hovering wipes the silhouette
-// away to the photograph it was cut from (Compare): a line follows the pointer, the photograph left of it.
+// its open lid fading where the photograph's frame cut it. Moving the mouse wipes it to the photograph it was cut from
+// (Compare): a line glides after the pointer across the page, the silhouette left of it and the photograph right.
 function About() {
   const stage = byId('on-stage');
-  const shape = useRef(null);
-  // The lid's open top, in the canvas's px: from 56% to 78% across the silhouette, a tenth of the way down.
-  const lid = canvas => {
-    const s = shape.current.getBoundingClientRect();
-    const c = canvas.getBoundingClientRect();
-    return { x0: s.left - c.left + s.width * 0.56, x1: s.left - c.left + s.width * 0.78, y: s.top - c.top + s.height * 0.1 };
-  };
   return (
     <section className="screen about" id="about" aria-labelledby="about-h">
       <div className="container grid split">
@@ -220,13 +212,11 @@ function About() {
             }
           >
             <div
-              ref={shape}
               className="about__shape reveal reveal--wipe"
               role="img"
-              aria-label="Selin Incekara at the grand piano at home, in silhouette, with birds rising out of the open lid."
+              aria-label="Selin Incekara at the grand piano at home, in silhouette."
             />
           </Compare>
-          <Flight className="about__flight" source={lid} burst={9} every={[0.35, 0.9]} life={[4.8, 7.2]} seed={11} />
         </div>
         <div className="split__text">
           <Opus>(Op. 03: About)</Opus>

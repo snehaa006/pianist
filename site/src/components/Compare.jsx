@@ -1,14 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '../lib/hooks';
 
-// How quickly the line catches the pointer: it closes this share of the gap per second, exponentially, so a fast
-// move sweeps across and settles about a quarter of a second behind.
-const LAG = 9;
+// How quickly the line catches the pointer: it closes this share of the gap per second, exponentially, so it glides
+// after the pointer and settles about a third of a second behind.
+const LAG = 7;
 
-// Two pictures in one box, split by a line that follows the pointer, as in a before-and-after slider: `over` shows
-// left of the line, `children` right of it. At rest the line waits at the left edge, unseen, so only `children`
-// shows; hovering brings the line to the pointer and leaving sends it back. Touch: tap or drag. Keyboard: a range
-// input (arrow keys). With reduced motion the line jumps to the pointer instead of trailing it.
+// Two pictures in one box, split by a line, as in a before-and-after slider: `children` shows left of the line,
+// `over` right of it. With a mouse the line follows the pointer's position across the page, not only over the box
+// (held at the box's edges), so moving anywhere on the screen moves it, and leaving the box leaves it where it is. It
+// starts at the right edge, so only `children` shows, and is hidden at either edge. Touch: tap or drag on the box.
+// Keyboard: a range input (arrow keys). With reduced motion the line jumps to the pointer instead of gliding.
 export default function Compare({ className = '', label, over, children }) {
   const root = useRef(null);
   const range = useRef(null);
@@ -17,15 +18,17 @@ export default function Compare({ className = '', label, over, children }) {
   useEffect(() => {
     const el = root.current;
     const input = range.current;
-    let at = 0;
-    let target = 0;
+    let at = 1;
+    let target = 1;
     let raf = 0;
     let last = 0;
     let dragging = false;
+    let near = false; // the box is on (or about to come on) screen
+    let pointerX = null; // the mouse's last clientX, wherever it is
 
     const draw = () => {
       el.style.setProperty('--at', at.toFixed(4));
-      el.classList.toggle('is-open', target > 0 || at > 0.002);
+      el.classList.toggle('is-open', at > 0.005 && at < 0.995);
     };
     const frame = now => {
       const dt = last ? Math.min((now - last) / 1000, 0.05) : 1 / 60;
@@ -38,6 +41,7 @@ export default function Compare({ className = '', label, over, children }) {
     const go = to => {
       target = Math.min(1, Math.max(0, to));
       input.value = String(Math.round(target * 100));
+      input.setAttribute('aria-valuetext', `${Math.round((1 - target) * 100)}% photograph`);
       if (reduced) {
         at = target;
         draw();
@@ -46,42 +50,53 @@ export default function Compare({ className = '', label, over, children }) {
         raf = requestAnimationFrame(frame);
       }
     };
-    const across = e => {
+    const across = x => {
       const box = el.getBoundingClientRect();
-      return (e.clientX - box.left) / box.width;
+      return (x - box.left) / box.width;
     };
 
-    const onMove = e => {
-      if (e.pointerType === 'mouse' || dragging) go(across(e));
+    // Mouse: anywhere on the page, while the box is near the screen.
+    const onPageMove = e => {
+      if (e.pointerType !== 'mouse') return;
+      pointerX = e.clientX;
+      if (near) go(across(pointerX));
     };
+    const io = new IntersectionObserver(([e]) => {
+      near = e.isIntersecting;
+      if (near && pointerX !== null) go(across(pointerX));
+    }, { rootMargin: '25% 0px' });
+    io.observe(el);
+
+    // Touch and pen: tap or drag on the box.
     const onDown = e => {
       if (e.pointerType === 'mouse') return;
       dragging = true;
       el.setPointerCapture?.(e.pointerId);
-      go(across(e));
+      go(across(e.clientX));
+    };
+    const onMove = e => {
+      if (dragging) go(across(e.clientX));
     };
     const onUp = () => {
       dragging = false;
     };
-    const onLeave = e => {
-      if (e.pointerType === 'mouse') go(0);
-    };
     const onInput = () => go(Number(input.value) / 100);
 
-    el.addEventListener('pointermove', onMove);
+    window.addEventListener('pointermove', onPageMove, { passive: true });
     el.addEventListener('pointerdown', onDown);
+    el.addEventListener('pointermove', onMove);
     el.addEventListener('pointerup', onUp);
     el.addEventListener('pointercancel', onUp);
-    el.addEventListener('pointerleave', onLeave);
     input.addEventListener('input', onInput);
-    draw();
+    go(1);
     return () => {
       cancelAnimationFrame(raf);
-      el.removeEventListener('pointermove', onMove);
+      io.disconnect();
+      window.removeEventListener('pointermove', onPageMove);
       el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('pointercancel', onUp);
-      el.removeEventListener('pointerleave', onLeave);
       input.removeEventListener('input', onInput);
     };
   }, [reduced]);
@@ -97,7 +112,7 @@ export default function Compare({ className = '', label, over, children }) {
           </svg>
         </span>
       </span>
-      <input ref={range} className="sr-only compare__range" type="range" min="0" max="100" defaultValue="0" aria-label={label} />
+      <input ref={range} className="sr-only compare__range" type="range" min="0" max="100" defaultValue="100" aria-label={label} />
     </div>
   );
 }

@@ -64,15 +64,15 @@ headline and a plain grid of stills.
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of
 a keyboard, tumbles, and opens into a bird (a swift) that flies off up the page; each key and each bird are the same
 16-point outline, so one morphs into the other and the key's long sides become the wings. White keys make cream
-birds, black keys ink ones, and a key grows back from below once its bird has gone. Two places: the hero's full
-88-key keyboard (keys leave from its right side; moving the mouse along it sends keys up too), and Home's About
-screen, where birds rise out of the open lid of her silhouette. Canvas, running only on screen and in a visible tab;
-with reduced motion it draws one still frame of birds already in flight.
+birds, black keys ink ones, and a key grows back from below once its bird has gone. On the hero's full 88-key
+keyboard (keys leave from its right side; moving the mouse along it sends keys up too). Canvas, running only on
+screen and in a visible tab; with reduced motion it draws one still frame of birds already in flight.
 
 The About screen's silhouette turns into her photograph under the pointer (`src/components/Compare.jsx`, after a
-before-and-after slider): a cream line follows the mouse a quarter of a second behind, the photograph it was cut from
-(`public/media/cutouts/selin-grand-photo.webp`, same crop) to its left and the silhouette to its right. Coming in from
-the text sweeps the photograph across; leaving sends the line back and the silhouette returns. Phones tap or drag;
+before-and-after slider): a cream line glides after the mouse, the silhouette to its left and the photograph it was
+cut from (`public/media/cutouts/selin-grand-photo.webp`, same crop) to its right. It follows the mouse's position
+across the whole page, held at the picture's edges, so the mouse need not be over the picture: with it on the text
+the silhouette shows whole, and moving left across the screen wipes it to the photograph. Phones tap or drag;
 keyboards use the slider (arrow keys).
 
 ## Run

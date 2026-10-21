@@ -169,10 +169,9 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .split__media { max-width: 520px; }
 }
 
-/* ---- About on Home: her silhouette at the grand, birds rising out of the open lid --------------
+/* ---- About on Home: her silhouette at the grand -------------------------------------------------
    The cut-out is a mask over ink, so the silhouette is the token colour. Its top fades where the film's frame cut
-   the lid; the birds rise from there, and fade out on their way up (the canvas's own mask). Hovering wipes it away
-   to the photograph it was cut from, in the same crop (Compare, below). */
+   the lid. Moving the mouse wipes it to the photograph it was cut from, in the same crop (Compare, below). */
 .about { overflow: hidden; }
 .about__figure { position: relative; }
 .about__shape { aspect-ratio: 606 / 464; background: var(--color-ink);
@@ -181,10 +180,10 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .about__photo { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ---- Compare: two pictures split by a line that follows the pointer (components/Compare.jsx) ----------
-   --at (0..1) is where the line stands across the box; the top picture shows left of it. At rest the line waits,
-   unseen, at the left edge. Vertical swipes still scroll the page on touch. */
-.compare { --at: 0; position: relative; touch-action: pan-y; }
-.compare__over { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--at) * 100%) 0 0); }
+   --at (0..1) is where the line stands across the box; the top picture shows right of it. It starts, unseen, at
+   the right edge. Vertical swipes still scroll the page on touch. */
+.compare { --at: 1; position: relative; touch-action: pan-y; }
+.compare__over { position: absolute; inset: 0; clip-path: inset(0 0 0 calc(var(--at) * 100%)); }
 .compare__line { position: absolute; top: 0; bottom: 0; left: calc(var(--at) * 100%); width: 1px; margin-left: -0.5px;
   background: var(--color-ivory); pointer-events: none; opacity: 0; transition: opacity var(--dur-allegro) var(--ease-legato); }
 .compare.is-open .compare__line { opacity: 1; }
@@ -194,8 +193,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .compare__handle svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
 .compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; }
 .compare:has(.compare__range:focus-visible) .compare__handle { outline: 2px solid var(--focus); outline-offset: 3px; }
-.about__flight { position: absolute; left: -8%; bottom: 0; width: 116%; height: 230%; pointer-events: none;
-  -webkit-mask-image: linear-gradient(to top, #000 68%, transparent 98%); mask-image: linear-gradient(to top, #000 68%, transparent 98%); }
 
 /* ---- A note from the artist ------------------------------------------- */
 .note__label { margin: 0 0 var(--space-6); }
