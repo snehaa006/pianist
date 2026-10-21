@@ -247,7 +247,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .contact-rows { list-style: none; padding: 0; margin: var(--space-7) 0; border-top: 1px solid var(--rule); max-width: 720px; }
 .contact-rows li { display: flex; justify-content: space-between; align-items: center; gap: var(--space-4); flex-wrap: wrap;
   min-height: 72px; padding-block: var(--space-3); box-sizing: border-box; border-bottom: 1px solid var(--rule); }
-.list-anchor { max-width: 560px; margin-top: var(--space-8); scroll-margin-top: calc(var(--nav-height) + var(--space-6)); }
+.list-anchor { max-width: 560px; margin-top: var(--space-9); scroll-margin-top: calc(var(--nav-height) + var(--space-6)); }
+.list-anchor__lead { margin: var(--space-3) 0 var(--space-6); }
 .newsletter__done { max-width: 34ch; }
 /* components.css stacks the row on phones; flex: 1 would collapse the field's height there */
 @media (max-width: 639px) { .input-row .input { flex: none; } }
@@ -296,9 +297,12 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .footer__links a { display: inline-flex; align-items: center; min-height: var(--control-md); min-width: var(--control-md); }
 .footer__row { align-items: center; }
 .footer .micro { color: var(--fg-muted); }
-/* Her name on strings (Marionette.jsx): keys along the top, threads, the name under them, filling the column's width.
-   The box is as tall as the scene needs for that width (lib/marionette.js fits itself to it either way). */
-.footer__strings { display: block; width: 100%; aspect-ratio: 9 / 4; margin-top: var(--space-8); }
+/* Her name on strings (Marionette.jsx): the footer itself. The keys hang from its top edge, the threads and the name
+   fill the column's width under them (the box is as tall as the scene needs for that width; lib/marionette.js fits
+   itself to it either way), and the links and © run along its foot over a hairline. */
+.footer--strings { padding-top: var(--space-3); }
+.footer__strings { display: block; width: 100%; aspect-ratio: 9 / 4; }
+.footer__foot { margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--rule); }
 /* The wordmark stands whole above the bottom edge, not cropped by it. */
 .footer { padding-bottom: var(--space-8); }
 .footer__mark { margin-bottom: 0; }
@@ -372,8 +376,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .band__content { position: relative; z-index: 1; }
 .fx-layer { position: absolute; inset: 0; z-index: 0; }
 .fx-layer > * { position: absolute; inset: 0; }
-/* MoltenMetal never sits behind text without a 72% ink scrim */
-.fx-layer--scrim::after { content: ''; position: absolute; inset: 0; background: rgba(11, 11, 12, 0.72); pointer-events: none; }
 .ripple-distortion { background: var(--color-ink); }
 
 .ripple-frame { position: relative; width: 100%; height: 100%; }

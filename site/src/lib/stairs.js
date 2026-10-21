@@ -1,15 +1,14 @@
 // The stairs: a keyboard turned on its side and built into a flight of steps, after the "Howling Black Soul" linocut
 // poster. Seen in perspective, the steps climb from the floor, tall near it and smaller as they go up, out of a black
-// wall on the left whose edge is cut rough, as in the print; their noses wind out and back as they climb, so the
-// stair's outer line is an S, like a spiral stair seen from the side (after the Beethoven poster). Each step is a white
-// key, the low notes at the bottom and the high ones at the top: a cream slab with the ink shadow of the step above
-// along its top, running on past its nose in a thin wedge; the black keys come out of the wall between their two white
-// keys.
+// wall on the left whose edge is cut rough, as in the print; their fronts all end on one smooth S, so the stair's outer
+// line winds out and back as it climbs, like a spiral stair seen from the side (after the Beethoven poster). Each step
+// is a white key, the low notes at the bottom and the high ones at the top: a cream slab with the ink shadow of the
+// step above along its top; the black keys come out of the wall between their two white keys.
 //
 // Each piece gets its own flight: the white keys from its low notes to its high ones (nearly all its notes; the few
 // beyond are played an octave in), so a piece with a wide range has more, shallower steps. The stairs build up from the
 // floor a step at a time; when another piece is chosen they fold back into the wall from the top and the new flight
-// builds. While a piece plays, each key goes in (back toward the wall, darkening) for as long as its note sounds,
+// builds. While a piece plays, each key goes in (back into the wall, darkening) for as long as its note sounds,
 // further for louder notes.
 //
 // createStairs(canvas, options) draws on a 2D canvas the size of its CSS box:
@@ -28,15 +27,14 @@ const INK_RGB = [14, 10, 10];
 // poster red over the cream, the stage graphite over the ink), and how long it takes to go in and come back (s).
 const PRESS = { travel: 0.5, white: [154, 38, 44], whiteMix: 0.35, black: [58, 42, 43], blackMix: 0.9, down: 0.035, up: 0.14 };
 // The flight: at least and at most this many steps; the bottom step at most `tallest` px high and the top one `recede`
-// times its height (perspective); where the wall ends (the steps' back ends) and how far the noses reach, at the
-// bottom and at the top (shares of the canvas width), the noses winding out and back by `wind` (share of the width) so
-// their line climbs as an S, as a spiral stair does seen from the side, no step shorter than `least`; the shadow line under each step above (share of a step's
-// height), how far a nose slants back at its foot and how far the shadow runs past it, tapering (shares of a step's
-// height); the black keys' length (share of the tread they lie over) and thickness (share of a step's height); and how
-// rough the wall's edge is (share of a step's height).
+// times its height (perspective); where the wall ends (the steps' back ends) and where the fronts' S runs, at the
+// bottom and at the top (shares of the canvas width), winding out and back by `wind` (share of the width), no step
+// shorter than `least`; the shadow line under each step above (share of a step's height); the black keys' length
+// (share of the tread they lie over) and thickness (share of a step's height); and how rough the wall's edge is (share
+// of a step's height).
 const FLIGHT = {
   min: 14, max: 26, tallest: 96, recede: 0.32, wall: [0.06, 0.2], nose: [0.74, 0.52], wind: 0.26, least: 0.1,
-  line: 0.16, undercut: 0.2, wedge: 0.8, black: [0.5, 0.5], rough: 0.16
+  line: 0.16, black: [0.5, 0.5], rough: 0.16
 };
 // Building and folding: each key takes `span` of the run, the bottom one first; a run takes `build` or `fold` s.
 const MOTION = { span: 0.3, build: 1.6, fold: 0.6 };
@@ -108,7 +106,7 @@ export function createStairs(canvas, options = {}) {
   let last = 0;
   let drawn = ''; // what the last frame showed, so an unchanged frame is not drawn again
   let laid = ''; // the canvas size and piece the flight below was laid out for
-  let flight = { steps: [], specks: [] }; // each step's shape, and the specks of the print
+  let flight = { steps: [], specks: [], outline: () => 0 }; // each step's shape, the S, the specks of the print
 
   function resize() {
     const box = canvas.getBoundingClientRect();
@@ -181,13 +179,15 @@ export function createStairs(canvas, options = {}) {
       });
       y -= h;
     }
-    // The S, measured up the flight's height (not by step, which perspective crowds at the top): out to the right over
-    // the lower half, back in to the left over the upper half.
-    steps.forEach(st => {
-      const u = (H - (st.bottom - st.h / 2)) / (H - y);
+    // The S every front ends on, as a function of height (not of step, which perspective crowds at the top): out to the
+    // right over the lower half, back in to the left over the upper half, smooth all the way up.
+    const top = y;
+    const outline = yy => {
+      const u = clamp01((H - yy) / (H - top));
       const wall = lerp(FLIGHT.wall[0], FLIGHT.wall[1], u ** 1.4);
-      st.front = W * Math.max(wall + FLIGHT.least, lerp(FLIGHT.nose[0], FLIGHT.nose[1], u) + FLIGHT.wind * Math.sin(2 * Math.PI * u));
-    });
+      return W * Math.max(wall + FLIGHT.least, lerp(FLIGHT.nose[0], FLIGHT.nose[1], u) + FLIGHT.wind * Math.sin(2 * Math.PI * u));
+    };
+    steps.forEach(st => (st.front = outline(st.bottom - st.h / 2)));
     // Cream specks in the wall, thickest near its edge; ink specks on the steps by the wall.
     const specks = [];
     const area = W * (H - y);
@@ -206,7 +206,7 @@ export function createStairs(canvas, options = {}) {
         specks.push({ row, x: st.back + st.rough[0] + r() * r() * (st.front - st.back) * 0.35, y: st.top + line + r() * (st.h - line), s: 0.6 + r() * 1.5, ink: true });
       }
     });
-    flight = { steps, specks };
+    flight = { steps, specks, outline };
     laid = `${W}x${H} ${piece.id}`;
   }
 
@@ -221,42 +221,39 @@ export function createStairs(canvas, options = {}) {
     const { n, lo } = piece;
     if (!W || !H || built <= 0 || own <= 0) return;
     if (laid !== `${W}x${H} ${piece.id}`) lay();
-    const { steps, specks } = flight;
+    const { steps, specks, outline } = flight;
 
     // How far out of the wall each step is (0 inside .. 1 in place), and how far it has gone in with its note (px).
     const shown = i => Math.min(out(i, n, built), out(i, n, own));
-    const nose = (i, key = lo + i) => {
+    // A step's front at height yy: on the S once it is out, short of it on the way, back from it while its note sounds.
+    const front = (i, yy) => {
       const st = steps[i];
-      return st.back + (st.front - st.back) * shown(i) - (press.get(key) || 0) * st.h * PRESS.travel;
+      return st.back + (outline(yy) - st.back) * shown(i) - (press.get(lo + i) || 0) * st.h * PRESS.travel;
     };
 
-    // The steps, bottom up: a cream slab whose nose slants back at its foot, and above it the shadow of the step above,
-    // running on past the nose in a wedge.
+    // The steps, bottom up: each a cream slab under the shadow of the step above, both ending on the S.
     let reached = -1; // the highest step out of the wall at all
     for (let i = 0; i < n; i++) {
-      const e = shown(i);
-      if (e <= 0) break;
+      if (shown(i) <= 0) break;
       reached = i;
       const st = steps[i];
-      const x = nose(i);
       const line = Math.max(2, st.h * FLIGHT.line);
       const k = press.get(lo + i) || 0;
+      const band = (from, to) => {
+        ctx.beginPath();
+        ctx.moveTo(st.back - 8, from);
+        for (let j = 0; j <= 6; j++) {
+          const yy = lerp(from, to, j / 6);
+          ctx.lineTo(front(i, yy), yy);
+        }
+        ctx.lineTo(st.back - 8, to);
+        ctx.closePath();
+        ctx.fill();
+      };
       ctx.fillStyle = k ? mix(CREAM_RGB, PRESS.white, k * PRESS.whiteMix) : CREAM;
-      ctx.beginPath();
-      ctx.moveTo(st.back - 8, st.top + line);
-      ctx.lineTo(x, st.top + line);
-      ctx.lineTo(x - st.h * FLIGHT.undercut * e, st.bottom);
-      ctx.lineTo(st.back - 8, st.bottom);
-      ctx.closePath();
-      ctx.fill();
+      band(st.top + line, st.bottom);
       ctx.fillStyle = INK;
-      ctx.beginPath();
-      ctx.moveTo(st.back - 8, st.top);
-      ctx.lineTo(x + st.h * FLIGHT.wedge * e, st.top);
-      ctx.lineTo(x, st.top + line);
-      ctx.lineTo(st.back - 8, st.top + line);
-      ctx.closePath();
-      ctx.fill();
+      band(st.top, st.top + line);
     }
     if (reached < 0) return;
 
@@ -292,7 +289,7 @@ export function createStairs(canvas, options = {}) {
       const below = steps[i];
       const above = steps[i + 1];
       const th = FLIGHT.black[1] * (below.h + above.h) / 2;
-      const len = (above.front - above.back) * FLIGHT.black[0];
+      const len = (outline(below.top) - above.back) * FLIGHT.black[0];
       const x = above.back + len * e - (press.get(key) || 0) * above.h * PRESS.travel;
       const k = press.get(key) || 0;
       ctx.fillStyle = k ? mix(INK_RGB, PRESS.black, k * PRESS.blackMix) : INK;

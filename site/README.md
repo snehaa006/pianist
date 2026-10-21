@@ -23,7 +23,7 @@ After a red poster of a pianist (black shapes on red, cream keys). Tokens in `sr
 | `--color-scarlet` | `#E8524A` | the accent on ink only (5.38:1): accent words, numerals, rings, focus; it replaces brass |
 
 Red screens get a fine grain and a deeper red toward the edges (`--grain`, `--vignette`). Ink stages stay for the
-films, the repertoire band on Home, the mailing list, Watch and the footer; their primary button is a crimson pill.
+films, the repertoire band on Home, Watch and the footer; their primary button is a crimson pill.
 
 ## Where each client component lives
 
@@ -34,7 +34,7 @@ films, the repertoire band on Home, the mailing list, Watch and the footer; thei
 | FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |
 | CircularText | Not used (the featured film after the hero, and its "WATCH • THE • FILM •" badge, were removed at the client's request) |
 | RippleDistortion | Not used (removed from the fermata photo and the portrait at the client's request) |
-| MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
+| MoltenMetal | Not used (the mailing-list band it lay under was removed at the client's request; the sign-up form now sits on Contact) |
 | AeroShards | Watch header (WebGPU only; closes up without it) |
 | GooeyNav | Watch filter: All · On stage · At home · Exams (chips on phones) |
 | BorderGlow | Brass edge-light on the lead film of the Watch grid |
@@ -68,10 +68,10 @@ screen of their own.
 The stairs (`src/components/Stairs.jsx`, `src/lib/stairs.js`; Home, after the films), after the "Howling Black Soul"
 linocut poster and a keyboard turned on its side: seen in perspective, the steps climb from the floor, tall near it
 and smaller as they go up, out of a black wall on the left whose edge is cut rough and flecked with cream, as in the
-print. Their noses wind out and back as they climb, so the stair's outer line is an S, like a spiral stair seen from
-the side (after the Beethoven poster). Each step is a white key, low notes at the bottom and high ones at the top: a
-cream slab with the ink shadow of the step above along its top, running on past its nose in a thin wedge; the black
-keys come out of the wall between their two white keys. In the films reel they build with
+print. Their fronts all end on one smooth S, so the stair's outer line winds out and back as it climbs, like a spiral
+stair seen from the side (after the Beethoven poster). Each step is a white key, low notes at the bottom and high ones
+at the top: a cream slab with the ink shadow of the step above along its top; the black keys come out of the wall
+between their two white keys. In the films reel they build with
 the scroll as the blinds close, the bottom step coming out as the lowest band shuts, then her pieces arrive on the
 right: a dial of every piece she has on film (OptionWheel, as on Repertoire; a plain list on phones and touch), the
 piece's composer and where it was filmed, *Play the piece* / *Pause* and *Watch the film*. Choosing a piece plays it
@@ -91,14 +91,15 @@ SVG from a fixed seed, sized by that height and drawn a screen's width further e
 keys and narrow ones the middle. The towers grow up out of the keys as it arrives, from the middle outward (none of
 that with reduced motion). Only on /about; the other pages end on her name on strings (below).
 
-Every other page ends on her name hanging on strings (`src/components/Marionette.jsx`, `src/lib/marionette.js`; the
-footer), after the "Play music, be free" poster: a row of cream piano keys, cut ragged as if torn from paper, the gaps
-where the black keys would be cut out of them, hangs along the top; thin threads run down from each to the letters of
+On every other page the footer is her name hanging on strings (`src/components/Marionette.jsx`,
+`src/lib/marionette.js`), after the "Play music, be free" poster, all one piece: a row of cream piano keys, cut ragged as
+if torn from paper, the gaps where the black keys would be cut out of them, hangs from the footer's top edge; thin threads run down from each to the letters of
 SELIN INCEKARA, which hang and sway on them, a letter on one thread or two. The first time the footer comes into view
 the letters are lowered into place on their strings, one after another; the mouse moving through them sets them
 swinging; and while a piece plays the keys play along, each going down with its note, and the letters hanging from
-it dip and swing. Canvas, sized to fill the column (about 9:4), drawn once Bebas Neue has arrived; running only on
-screen and in a visible tab; with reduced motion the name hangs still.
+it dip and swing. The links and © run along the footer's foot, over a hairline. Canvas, sized to fill the column
+(about 9:4), drawn once Bebas Neue has arrived; running only on screen and in a visible tab; with reduced motion the
+name hangs still.
 
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of
 a keyboard, tumbles, and opens into a bird (a swift) that flies off up the page; each key and each bird are the same
