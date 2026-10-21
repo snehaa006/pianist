@@ -1,15 +1,18 @@
 import { useEffect, useRef } from 'react';
 import { useReducedMotion } from '../lib/hooks';
 
-// How quickly the line catches the pointer: it closes this share of the gap per second, exponentially, so it glides
-// after the pointer and settles about a third of a second behind.
-const LAG = 7;
+// How much of the gap to the pointer the line closes each 60th of a second: low enough that it trails the pointer
+// rather than snapping to it (after the products page wipe on the MCIL site).
+const EASE = 0.14;
+// Where the line waits before the pointer has said otherwise: dead centre, half of each picture.
+const REST = 0.5;
 
-// Two pictures in one box, split by a line, as in a before-and-after slider: `children` shows left of the line,
-// `over` right of it. With a mouse the line follows the pointer's position across the page, not only over the box
-// (held at the box's edges), so moving anywhere on the screen moves it, and leaving the box leaves it where it is. It
-// starts at the right edge, so only `children` shows, and is hidden at either edge. Touch: tap or drag on the box.
-// Keyboard: a range input (arrow keys). With reduced motion the line jumps to the pointer instead of gliding.
+// Two pictures in one box, split by a line, as in a before-and-after slider: `over` shows left of the line,
+// `children` right of it. With a mouse the line takes the pointer's x across the page, measured across the box and
+// held at its edges, so it still runs end to end when the pointer passes above or below the box rather than through
+// it; it starts in the middle. Its chevron points at whichever side still has the most to give. Without a mouse
+// (touch) only `children` shows until a tap or drag on the box brings the line in. Keyboard: a range input (arrow
+// keys). With reduced motion the line jumps to the pointer instead of trailing it.
 export default function Compare({ className = '', label, over, children }) {
   const root = useRef(null);
   const range = useRef(null);
@@ -18,30 +21,31 @@ export default function Compare({ className = '', label, over, children }) {
   useEffect(() => {
     const el = root.current;
     const input = range.current;
-    let at = 1;
-    let target = 1;
+    const mouse = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let at = mouse ? REST : 0;
+    let target = at;
     let raf = 0;
     let last = 0;
     let dragging = false;
     let near = false; // the box is on (or about to come on) screen
-    let pointerX = null; // the mouse's last clientX, wherever it is
 
     const draw = () => {
       el.style.setProperty('--at', at.toFixed(4));
-      el.classList.toggle('is-open', at > 0.005 && at < 0.995);
+      el.classList.toggle('is-right', at > 0.5);
     };
     const frame = now => {
       const dt = last ? Math.min((now - last) / 1000, 0.05) : 1 / 60;
       last = now;
-      at += (target - at) * (1 - Math.exp(-dt * LAG));
+      at += (target - at) * (1 - (1 - EASE) ** (dt * 60));
       if (Math.abs(target - at) < 0.0005) at = target;
       draw();
       raf = at === target ? 0 : requestAnimationFrame(frame);
     };
     const go = to => {
       target = Math.min(1, Math.max(0, to));
+      el.classList.add('is-open');
       input.value = String(Math.round(target * 100));
-      input.setAttribute('aria-valuetext', `${Math.round((1 - target) * 100)}% photograph`);
+      input.setAttribute('aria-valuetext', `${Math.round(target * 100)}% photograph`);
       if (reduced) {
         at = target;
         draw();
@@ -55,15 +59,12 @@ export default function Compare({ className = '', label, over, children }) {
       return (x - box.left) / box.width;
     };
 
-    // Mouse: anywhere on the page, while the box is near the screen.
+    // Mouse: anywhere on the page, while the box is near the screen. The line waits where it is until the mouse moves.
     const onPageMove = e => {
-      if (e.pointerType !== 'mouse') return;
-      pointerX = e.clientX;
-      if (near) go(across(pointerX));
+      if (e.pointerType === 'mouse' && near) go(across(e.clientX));
     };
     const io = new IntersectionObserver(([e]) => {
       near = e.isIntersecting;
-      if (near && pointerX !== null) go(across(pointerX));
     }, { rootMargin: '25% 0px' });
     io.observe(el);
 
@@ -88,7 +89,9 @@ export default function Compare({ className = '', label, over, children }) {
     el.addEventListener('pointerup', onUp);
     el.addEventListener('pointercancel', onUp);
     input.addEventListener('input', onInput);
-    go(1);
+    input.value = String(Math.round(at * 100));
+    el.classList.toggle('is-open', mouse);
+    draw();
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
@@ -106,13 +109,11 @@ export default function Compare({ className = '', label, over, children }) {
       {children}
       <div className="compare__over">{over}</div>
       <span className="compare__line" aria-hidden="true">
-        <span className="compare__handle">
-          <svg viewBox="0 0 20 10" width="20" height="10">
-            <path d="M5 1 1 5l4 4M15 1l4 4-4 4" />
-          </svg>
-        </span>
+        <svg className="compare__chevron" viewBox="0 0 24 24" width="20" height="20">
+          <path d="m9 5 7 7-7 7" />
+        </svg>
       </span>
-      <input ref={range} className="sr-only compare__range" type="range" min="0" max="100" defaultValue="100" aria-label={label} />
+      <input ref={range} className="sr-only compare__range" type="range" min="0" max="100" defaultValue="0" aria-label={label} />
     </div>
   );
 }

@@ -190,7 +190,8 @@ function RepertoireBand() {
 
 // Op. 03: her at the grand piano at home, an ink silhouette on the red (the cut-out from the films ring, as a mask),
 // its open lid fading where the photograph's frame cut it. Moving the mouse wipes it to the photograph it was cut from
-// (Compare): a line glides after the pointer across the page, the silhouette left of it and the photograph right.
+// (Compare, after the MCIL products page): a line trails the pointer across the page, the photograph left of it and
+// the silhouette right, starting halfway.
 function About() {
   const stage = byId('on-stage');
   return (

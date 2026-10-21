@@ -180,19 +180,19 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .about__photo { display: block; width: 100%; height: 100%; object-fit: cover; }
 
 /* ---- Compare: two pictures split by a line that follows the pointer (components/Compare.jsx) ----------
-   --at (0..1) is where the line stands across the box; the top picture shows right of it. It starts, unseen, at
-   the right edge. Vertical swipes still scroll the page on touch. */
-.compare { --at: 1; position: relative; touch-action: pan-y; }
-.compare__over { position: absolute; inset: 0; clip-path: inset(0 0 0 calc(var(--at) * 100%)); }
-.compare__line { position: absolute; top: 0; bottom: 0; left: calc(var(--at) * 100%); width: 1px; margin-left: -0.5px;
+   After the MCIL products page wipe: --at (0..1) is where a 2px line stands across the box, the top picture shows
+   left of it, and a lone chevron on the line points at whichever side has more to give. The line shows once there
+   is a pointer to follow (straight away with a mouse, after a tap on touch). Vertical swipes still scroll on touch. */
+.compare { --at: 0; position: relative; touch-action: pan-y; }
+.compare__over { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--at) * 100%) 0 0); }
+.compare__line { position: absolute; top: 0; bottom: 0; left: calc(var(--at) * 100%); width: 2px; translate: -50% 0;
   background: var(--color-ivory); pointer-events: none; opacity: 0; transition: opacity var(--dur-allegro) var(--ease-legato); }
 .compare.is-open .compare__line { opacity: 1; }
-.compare__handle { position: absolute; top: 50%; left: 50%; translate: -50% -50%; display: grid; place-items: center;
-  width: 44px; height: 28px; border: 1px solid var(--color-ivory); border-radius: var(--radius-pill);
-  background: var(--color-ink); color: var(--color-ivory); }
-.compare__handle svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
-.compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; }
-.compare:has(.compare__range:focus-visible) .compare__handle { outline: 2px solid var(--focus); outline-offset: 3px; }
+.compare__chevron { position: absolute; top: 50%; left: 50%; translate: -50% -50%; overflow: visible; fill: none;
+  stroke: var(--color-ivory); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(14, 10, 10, 0.45)); }
+.compare.is-right .compare__chevron { transform: scaleX(-1); }
+.compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; outline: 2px solid var(--focus); outline-offset: 3px; }
 
 /* ---- A note from the artist ------------------------------------------- */
 .note__label { margin: 0 0 var(--space-6); }

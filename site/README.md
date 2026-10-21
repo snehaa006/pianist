@@ -68,11 +68,11 @@ birds, black keys ink ones, and a key grows back from below once its bird has go
 keyboard (keys leave from its right side; moving the mouse along it sends keys up too). Canvas, running only on
 screen and in a visible tab; with reduced motion it draws one still frame of birds already in flight.
 
-The About screen's silhouette turns into her photograph under the pointer (`src/components/Compare.jsx`, after a
-before-and-after slider): a cream line glides after the mouse, the silhouette to its left and the photograph it was
-cut from (`public/media/cutouts/selin-grand-photo.webp`, same crop) to its right. It follows the mouse's position
-across the whole page, held at the picture's edges, so the mouse need not be over the picture: with it on the text
-the silhouette shows whole, and moving left across the screen wipes it to the photograph. Phones tap or drag;
+The About screen's silhouette turns into her photograph under the pointer (`src/components/Compare.jsx`, after the
+products page wipe on the MCIL site): a 2px cream line with a lone chevron trails the mouse, the photograph it was cut
+from (`public/media/cutouts/selin-grand-photo.webp`, same crop) to its left and the silhouette to its right. It starts
+halfway and follows the mouse's position across the whole page, held at the picture's edges, so the mouse need not be
+over the picture; the chevron points at the side with more to give. Phones show the silhouette until a tap or drag;
 keyboards use the slider (arrow keys).
 
 ## Run
