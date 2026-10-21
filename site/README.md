@@ -27,10 +27,12 @@ Text motion: FoldText headlines, mask *rise* for lead lines, *wipe* for captions
 tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark (shown whole, not cropped), counted
 display numerals, an ink curtain between pages and the keyboard-rhythm loader while a page loads.
 
-Films flying in (`src/lib/flyIn.js`, Home's "At home, at the piano" grid): the grid pins under the nav while the six
-films arrive one at a time as you scroll, each from its own side (top left from the top left, bottom middle straight
-up, and so on), swinging and flexing like a sheet of paper before they settle. GSAP ScrollTrigger, scrubbed, so
-scrolling back sends them out again. Wide screens (≥900px) with motion allowed; phones keep the plain reveal.
+Films flying in (`src/lib/flyIn.js`, Home's "At home, at the piano"): the section is one pinned screen. It opens on a
+tilted ring of the six films turning in the air under two big drifting words ("At home," / "at the piano"); as you
+scroll the ring sweeps off to the top right, the words slide away, and the films arrive one at a time in a compact 3×2
+grid (stills only, the work named on each), each from its own side, swinging and flexing like a sheet of paper before
+they settle. GSAP ScrollTrigger, scrubbed, so scrolling back plays it in reverse. Wide screens (≥900px) with motion
+allowed; phones and reduced motion keep the headline and the plain grid.
 
 ## Run
 

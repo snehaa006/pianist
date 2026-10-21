@@ -83,11 +83,34 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .films--watch .film--lg { grid-column: 1 / -1; }
 @media (max-width: 899px) { .films, .films--watch { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .films, .films--watch { grid-template-columns: 1fr; gap: var(--space-7); } }
-/* Films flying in (lib/flyIn.js): GSAP owns each film's transform and opacity, so the reveal steps aside.
-   The films start beyond the screen's sides; the zone clips them so the page never scrolls sideways. */
-.fly-zone { overflow-x: clip; }
-.films--fly { position: relative; row-gap: var(--space-6); } /* fits a 1440x900 screen under the nav */
+/* ---- Films flying in (lib/flyIn.js, wide screens with motion) ---------- */
+/* One pinned screen: a ring of the films turns under two drifting words, sweeps away, and the films fly into a
+   compact grid. GSAP owns the transforms and opacity, so the reveal steps aside. The screen clips what flies. */
+.reel { position: relative; height: 100svh; min-height: 640px; box-sizing: border-box; overflow: hidden;
+  --tile-w: clamp(110px, 10.5vw, 170px); --ring-r: calc(var(--tile-w) * 3.15); }
+.reel__sky { position: absolute; inset: 0; perspective: 1400px; perspective-origin: 50% 30%; pointer-events: none; }
+.reel__orbit { position: absolute; left: 50%; top: 21%; transform-style: preserve-3d; }
+.reel__ring { position: absolute; transform-style: preserve-3d; }
+.reel__tile { position: absolute; width: var(--tile-w); max-width: none; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+  left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); backface-visibility: hidden;
+  transform: rotateY(calc(var(--n) * 20deg)) translateZ(var(--ring-r)); }
+.reel__title { position: absolute; inset: 0; margin: 0; pointer-events: none; white-space: nowrap; }
+.reel__word { position: absolute; }
+.reel__word--a { left: 56%; top: 40%; }
+.reel__word--b { right: 50%; top: 58%; }
+.reel__intro { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); }
+.reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center; }
+.films--fly { width: min(100%, 1120px, calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 8 / 3));
+  margin: 0; gap: var(--space-4); }
 .films--fly .film { transition: none; will-change: transform, opacity; }
+.films--fly .film__play { width: 48px; height: 48px; font-size: 14px; left: var(--space-4); bottom: var(--space-4); }
+.films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 15px); }
+/* The work, on the scrim beside the play circle, level with the duration */
+.film__tag { position: absolute; left: calc(var(--space-4) + 48px + var(--space-3)); right: calc(var(--space-4) + 4em);
+  bottom: calc(var(--space-4) + 15px); z-index: 2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ivory); }
+.reel__foot { position: absolute; left: 0; right: 0; bottom: var(--space-5); display: flex; align-items: flex-end;
+  justify-content: space-between; gap: var(--space-6); }
+.reel__lead { max-width: 30ch; }
 .film { margin: 0; }
 .film__button { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
 .film__frame { display: block; }

@@ -2,7 +2,8 @@ import { useLightbox } from './Lightbox.jsx';
 import { metaOf } from '../data/performances';
 
 // A filmed performance: 16:9 warm-monochrome still, play circle, composer / work / where.
-export default function PerformanceCard({ item, index = 0, size = 'md', eager = false }) {
+// `compact`: the still alone, the work named on it; the words below are kept for screen readers only.
+export default function PerformanceCard({ item, index = 0, size = 'md', eager = false, compact = false }) {
   const { open } = useLightbox();
   return (
     <article className={`film film--${size} reveal`} style={{ '--i': index }}>
@@ -27,9 +28,14 @@ export default function PerformanceCard({ item, index = 0, size = 'md', eager = 
           <span className="film__duration label" aria-hidden="true">
             {item.duration}
           </span>
+          {compact && (
+            <span className="film__tag label" aria-hidden="true">
+              {item.work}
+            </span>
+          )}
         </span>
       </button>
-      <div className="film__text">
+      <div className={compact ? 'sr-only' : 'film__text'}>
         <span className="label muted">{item.composer}</span>
         <h3 className="h3 film__title">{item.work}</h3>
         <p className="body-sm muted film__meta">{metaOf(item)}</p>
