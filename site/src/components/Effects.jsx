@@ -30,7 +30,7 @@ function Slot({ zoneRef, children }) {
   );
 }
 
-// Hammers rising and falling behind the repertoire band (oxblood on the red).
+// Hammers rising and falling behind the repertoire band (graphite on the ink stage, lit scarlet by the swell).
 export function SlatsLayer({ zoneRef }) {
   return (
     <div className="fx-layer" aria-hidden="true">

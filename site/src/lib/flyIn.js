@@ -21,7 +21,7 @@ gsap.registerPlugin(ScrollTrigger);
 //   7. Red blinds close over the grid, lowest band first.
 //   8. On the red, the piano-key stairs build (components/Stairs.jsx, lib/stairs.js): the keys come out of the left
 //      wall a step at a time, from the floor up; then her pieces arrive beside them, to choose one and hear it. The
-//      screen then lets go with the stairs on it, and the red band after follows on.
+//      screen then lets go with the stairs on it, and the repertoire band after follows on.
 // Scroll drives all of it, so scrolling back plays it in reverse; while the screen is pinned the ring also turns
 // slowly by itself. Wide screens with motion allowed only; elsewhere the section is a headline and a plain grid, and
 // the stairs a screen of their own.
