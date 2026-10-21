@@ -11,7 +11,7 @@ a grand piano, smiling, a man standing behind her. It is the Austrian Master Cla
 doors as the concert film) and the same polka-dot dress, so it was taken around that concert. It is the landing page's
 photograph (Home, first screen) and the portrait on Biography, cropped to 4:5 and shown in its original colour, with no
 grade (`npm run media` rebuilds it). Home's About screen shows her silhouette at the grand piano at home instead (cut
-from the at-home film). The original file is kept unchanged.
+from the at-home film), which turns into that film's frame under the pointer. The original file is kept unchanged.
 
 **Bio**, in her own words: two paragraphs, kept exactly as she wrote them in `src/data/bio.js` (first person, her
 spelling "İncekara", her punctuation). Never edit or rewrite them; `scripts/check-copy.mjs` skips that file because it
@@ -59,7 +59,7 @@ Edit `src/data/performances.js` (per film) and `src/data/site.js` (site-wide). N
 | andante | `[Lifespan]`, `[Year]` |
 | grade-1-technical | `[Year]` |
 
-These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Year]." and the film its button opens), the featured film, the fermata caption, every card, the lightbox and the repertoire page.
+These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Year]." and the film its button opens), the fermata caption, every card, the lightbox and the repertoire page.
 
 ### Site-wide (`src/data/site.js`)
 | Field | Appears on |

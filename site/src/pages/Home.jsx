@@ -5,18 +5,16 @@ import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import FilmLoop from '../components/FilmLoop.jsx';
 import Flight from '../components/Flight.jsx';
+import Compare from '../components/Compare.jsx';
 import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
 import { SlatsLayer } from '../components/Effects.jsx';
-import CircularText from '../components/fx/CircularText/CircularText.jsx';
-import { presets } from '../components/fx/presets';
-import { useLightbox } from '../components/Lightbox.jsx';
 import { byId, examFilms, inWords, performances, pieces } from '../data/performances';
 import { site } from '../data/site';
 import { bio } from '../data/bio';
-import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
+import { usePageTitle, useReveals } from '../lib/hooks';
 import { useFlyIn } from '../lib/flyIn';
 
 const Arrow = () => (
@@ -29,7 +27,6 @@ export default function Home() {
   usePageTitle(null);
   useReveals();
   const concert = byId('austrian-master-classes');
-  const stage = byId('on-stage');
   const onStage = performances.filter(p => p.tags.includes('stage')).length;
   const atHome = performances.filter(p => p.tags.includes('home'));
   const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
@@ -40,8 +37,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-
-      <FeaturedFilm item={stage} />
 
       {/* Every film. Wide screens: one pinned screen on the ink stage where she sits at the grand in the middle, lit
           like a hologram, while the films turn round her on a ring and light circles her; then the films fly into
@@ -155,43 +150,6 @@ export default function Home() {
   );
 }
 
-// Watch: one filmed performance, full-bleed; the play button sits inside a slowly turning badge.
-function FeaturedFilm({ item }) {
-  const { open } = useLightbox();
-  const reduced = useReducedMotion();
-  return (
-    <section className="stage feature" aria-labelledby="feature-h">
-      <div className="feature__frame frame scrim">
-        <img src={item.poster} alt={item.alt} width="832" height="464" loading="lazy" decoding="async" />
-      </div>
-      <div className="container feature__text">
-        <div>
-          <span className="label muted reveal reveal--track">{item.composer}</span>
-          <h2 className="h1 reveal reveal--rise" id="feature-h">
-            {item.work}
-          </h2>
-          <p className="lead muted feature__lead reveal" style={{ '--i': 2 }}>
-            Filmed live on stage at {item.venue}, {item.year}.
-          </p>
-          <Link className="link feature__link" to="/watch">
-            All performances <Arrow />
-          </Link>
-        </div>
-        <div className="badge">
-          {!reduced && (
-            <div className="badge__ring" aria-hidden="true">
-              <CircularText {...presets.CircularText} text="WATCH • THE • FILM • WATCH • THE • FILM • " />
-            </div>
-          )}
-          <button type="button" className="play badge__play" aria-label="Watch the performance" onClick={e => open(item, e.currentTarget)}>
-            <span aria-hidden="true">▶</span>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // Op. 02: what she plays, over a row of rising hammers (MicroSlats, oxblood on the red), with three counted facts.
 function RepertoireBand() {
   const zone = useRef(null);
@@ -232,7 +190,8 @@ function RepertoireBand() {
 }
 
 // Op. 03: her at the grand piano at home, an ink silhouette on the red (the cut-out from the films ring, as a mask),
-// with birds rising out of the open lid, where the photograph's frame fades it away.
+// with birds rising out of the open lid, where the photograph's frame fades it away. Hovering wipes the silhouette
+// away to the photograph it was cut from (Compare): a line follows the pointer, the photograph left of it.
 function About() {
   const stage = byId('on-stage');
   const shape = useRef(null);
@@ -246,12 +205,27 @@ function About() {
     <section className="screen about" id="about" aria-labelledby="about-h">
       <div className="container grid split">
         <div className="split__media about__figure">
-          <div
-            ref={shape}
-            className="about__shape reveal reveal--wipe"
-            role="img"
-            aria-label="Selin Incekara at the grand piano at home, in silhouette, with birds rising out of the open lid."
-          />
+          <Compare
+            label="Wipe to her photograph"
+            over={
+              <img
+                className="about__photo"
+                src="/media/cutouts/selin-grand-photo.webp"
+                alt="The photograph: Selin Incekara playing the grand piano in a bright room at home."
+                width="606"
+                height="464"
+                loading="lazy"
+                decoding="async"
+              />
+            }
+          >
+            <div
+              ref={shape}
+              className="about__shape reveal reveal--wipe"
+              role="img"
+              aria-label="Selin Incekara at the grand piano at home, in silhouette, with birds rising out of the open lid."
+            />
+          </Compare>
           <Flight className="about__flight" source={lid} burst={9} every={[0.35, 0.9]} life={[4.8, 7.2]} seed={11} />
         </div>
         <div className="split__text">

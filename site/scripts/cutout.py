@@ -1,6 +1,7 @@
 # Her at the grand piano at home, cut out of the film (public/media/cutouts/selin-grand.webp, WebP with alpha).
 # The films ring on Home turns around it, lit like a hologram, and the About screen shows it as an ink silhouette
-# (a CSS mask, so the one file serves both).
+# (a CSS mask, so the one file serves both). The same frame, untouched and in the same crop, is written beside it
+# (selin-grand-photo.webp): the About screen wipes from the silhouette to it.
 #
 # The matte comes from the ISNet model that ships inside the @imgly/background-removal-node npm package:
 #   npm pack @imgly/background-removal-node@1.4.5 && tar xzf imgly-background-removal-node-1.4.5.tgz
@@ -93,6 +94,9 @@ def main():
     out = os.path.join(OUT, 'selin-grand.webp')
     Image.fromarray(rgba, 'RGBA').save(out, 'WEBP', quality=90, method=6)
     print(out, rgba.shape[1], 'x', rgba.shape[0])
+    photo = os.path.join(OUT, 'selin-grand-photo.webp')
+    Image.fromarray(rgb[y0:y1, x0:x1]).save(photo, 'WEBP', quality=92, method=6)
+    print(photo)
 
 
 if __name__ == '__main__':

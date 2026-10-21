@@ -81,19 +81,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
     -webkit-mask-image: linear-gradient(to top, #000 55%, transparent); mask-image: linear-gradient(to top, #000 55%, transparent); }
 }
 
-/* ---- Featured film (full-bleed 16:9) --------------------------------- */
-.feature { position: relative; }
-.feature__frame { aspect-ratio: 16 / 9; max-height: 100svh; width: 100%; }
-.feature__text { position: absolute; inset: auto 0 var(--space-8) 0; z-index: 2; display: flex; align-items: flex-end;
-  justify-content: space-between; gap: var(--space-6); }
-.feature__text .h1 { margin-top: var(--space-2); }
-.feature__lead { margin-top: var(--space-4); }
-.feature__link { margin-top: var(--space-4); }
-.feature__play { flex: none; }
-@media (max-width: 899px) {
-  .feature__text { position: relative; inset: auto; padding-block: var(--space-7) var(--space-9); }
-}
-
 /* ---- Film cards -------------------------------------------------------- */
 .films { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-8) var(--gutter); margin-top: var(--space-8); }
 .films--watch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -102,8 +89,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @media (max-width: 639px) { .films, .films--watch { grid-template-columns: 1fr; gap: var(--space-7); } }
 /* ---- The films reel (lib/flyIn.js, wide screens with motion) ----------- */
 /* One pinned screen on the ink stage. She sits at the grand in the middle, lit like a hologram; a ring of the films
-   comes down round her and turns (the near films pass in front of her, the far ones behind: she stands at the
-   ring's centre in the same 3D scene), trails of light circle her on two canvases (behind her, in front of her),
+   comes in from the bottom left as a ribbon, settles round her and turns (the near films pass in front of her, the
+   far ones behind: she stands at the ring's centre in the same 3D scene), then sweeps off to the top right; trails of light circle her on two canvases (behind her, in front of her),
    then the films fly into a 4x2 grid and ink blinds close over it. GSAP owns the transforms and opacity, so the
    reveal steps aside. The screen clips everything that flies. */
 .reel { position: relative; height: 100svh; min-height: 640px; box-sizing: border-box; overflow: hidden;
@@ -184,12 +171,29 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 
 /* ---- About on Home: her silhouette at the grand, birds rising out of the open lid --------------
    The cut-out is a mask over ink, so the silhouette is the token colour. Its top fades where the film's frame cut
-   the lid; the birds rise from there, and fade out on their way up (the canvas's own mask). */
+   the lid; the birds rise from there, and fade out on their way up (the canvas's own mask). Hovering wipes it away
+   to the photograph it was cut from, in the same crop (Compare, below). */
 .about { overflow: hidden; }
 .about__figure { position: relative; }
 .about__shape { aspect-ratio: 606 / 464; background: var(--color-ink);
   -webkit-mask: url('/media/cutouts/selin-grand.webp') center / contain no-repeat;
   mask: url('/media/cutouts/selin-grand.webp') center / contain no-repeat; }
+.about__photo { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- Compare: two pictures split by a line that follows the pointer (components/Compare.jsx) ----------
+   --at (0..1) is where the line stands across the box; the top picture shows left of it. At rest the line waits,
+   unseen, at the left edge. Vertical swipes still scroll the page on touch. */
+.compare { --at: 0; position: relative; touch-action: pan-y; }
+.compare__over { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--at) * 100%) 0 0); }
+.compare__line { position: absolute; top: 0; bottom: 0; left: calc(var(--at) * 100%); width: 1px; margin-left: -0.5px;
+  background: var(--color-ivory); pointer-events: none; opacity: 0; transition: opacity var(--dur-allegro) var(--ease-legato); }
+.compare.is-open .compare__line { opacity: 1; }
+.compare__handle { position: absolute; top: 50%; left: 50%; translate: -50% -50%; display: grid; place-items: center;
+  width: 44px; height: 28px; border: 1px solid var(--color-ivory); border-radius: var(--radius-pill);
+  background: var(--color-ink); color: var(--color-ivory); }
+.compare__handle svg { fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; }
+.compare:has(.compare__range:focus-visible) .compare__handle { outline: 2px solid var(--focus); outline-offset: 3px; }
 .about__flight { position: absolute; left: -8%; bottom: 0; width: 116%; height: 230%; pointer-events: none;
   -webkit-mask-image: linear-gradient(to top, #000 68%, transparent 98%); mask-image: linear-gradient(to top, #000 68%, transparent 98%); }
 
@@ -330,13 +334,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
 .chip { min-height: var(--control-md); }
 
-/* CircularText badge turning slowly around the play button */
-.badge { position: relative; width: 168px; height: 168px; flex: none; display: grid; place-items: center; }
-.badge__ring { position: absolute; inset: 0; }
-.badge__ring .circular-text { width: 168px; height: 168px; color: var(--color-scarlet); }
-.badge__ring .circular-text span { font-size: 14px; }
-.badge__play { position: relative; z-index: 1; }
-@media (max-width: 639px) { .badge { width: 120px; height: 120px; } .badge__ring .circular-text { width: 120px; height: 120px; } .badge__ring .circular-text span { font-size: 12px; } }
 
 /* Counted facts on the repertoire band */
 .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); margin: var(--space-8) 0 0; max-width: 960px; }
@@ -375,9 +372,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .depth-text__layer, .depth-text__face { letter-spacing: -0.01em; }
 .notfound__pressure { height: clamp(64px, 6.4vw, 96px); width: 100%; overflow: hidden; }
 .notfound__pressure .text-pressure-title { margin: 0; font-weight: 400; color: var(--color-ivory); }
-/* CircularText rotates full-size letter boxes; keep their corners inside the round badge */
-.badge__ring { overflow: hidden; border-radius: var(--radius-round); }
-.feature { overflow: hidden; }
 /* BorderGlow's edge light reaches 40px past its card; the stage clips it at the page edge */
 .watch { overflow: hidden; }
 

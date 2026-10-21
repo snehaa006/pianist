@@ -30,7 +30,7 @@ films, the mailing list, Watch and the footer; their primary button is a crimson
 | MicroSlats | Behind the repertoire band on Home (oxblood hammers on the red) |
 | MaskedHeading | Not used since the hero change (the name filled with video was slow to arrive); `hero-loop.*` media is kept if you want it back |
 | FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |
-| CircularText | "WATCH • THE • FILM •" badge around the featured film's play button |
+| CircularText | Not used (the featured film after the hero, and its "WATCH • THE • FILM •" badge, were removed at the client's request) |
 | RippleDistortion | Not used (removed from the fermata photo and the portrait at the client's request) |
 | MoltenMetal | Mailing-list band (Home, Contact), under a 72% ink scrim |
 | AeroShards | Watch header (WebGPU only; closes up without it) |
@@ -50,11 +50,13 @@ The films reel (`src/lib/flyIn.js`, Home's "On stage, and at home"): one pinned 
 eight films, each playing as a 6 s muted loop (`public/media/video/loops/`, made by `npm run media -- --loops`), and
 her at the middle. Two words slide in from opposite sides. She rises out of the dark at the grand piano at home, lit
 like a hologram (her cut-out, `public/media/cutouts/selin-grand.webp`, with a red glow, LED dots and scan lines); a
-ring of the films comes down from above and settles round her at the height of the keys, seen from a little above,
-and turns: she stands at the ring's centre in the same 3D scene, so the near films pass in front of her and the far
-ones behind. Trails of light circle her on tilted orbits (`src/lib/trails.js`, two canvases: behind her and in front
-of her). The ring lifts away, she fades, the light goes out, and the films fly into a 4x2 grid one at a time, each
-from its own side, swinging like a sheet of paper; red blinds close over the grid into the repertoire band. GSAP
+ring of the films comes in from the bottom left, far back and tilted so it reads as a thin ribbon, glides to the
+middle, then swings in and settles round her at the height of the keys, seen from a little above, and turns: she
+stands at the ring's centre in the same 3D scene, so the near films pass in front of her and the far ones behind.
+Trails of light circle her on tilted orbits (`src/lib/trails.js`, two canvases: behind her and in front of her). The
+ring pulls back to a ribbon at the top and sweeps off to the top right (the entrance and exit are the ones from before
+she was added), she fades, the light goes out, and the films fly into a 4x2 grid one at a time, each from its own
+side, swinging like a sheet of paper; red blinds close over the grid into the repertoire band. GSAP
 ScrollTrigger, scrubbed, so scrolling back plays it in reverse; while pinned the ring also turns slowly by itself.
 Only the loops that can be seen play. Wide screens (≥900px) with motion allowed; phones and reduced motion get the
 headline and a plain grid of stills.
@@ -66,6 +68,12 @@ birds, black keys ink ones, and a key grows back from below once its bird has go
 88-key keyboard (keys leave from its right side; moving the mouse along it sends keys up too), and Home's About
 screen, where birds rise out of the open lid of her silhouette. Canvas, running only on screen and in a visible tab;
 with reduced motion it draws one still frame of birds already in flight.
+
+The About screen's silhouette turns into her photograph under the pointer (`src/components/Compare.jsx`, after a
+before-and-after slider): a cream line follows the mouse a quarter of a second behind, the photograph it was cut from
+(`public/media/cutouts/selin-grand-photo.webp`, same crop) to its left and the silhouette to its right. Coming in from
+the text sweeps the photograph across; leaving sends the line back and the silhouette returns. Phones tap or drag;
+keyboards use the slider (arrow keys).
 
 ## Run
 
@@ -111,6 +119,7 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata |
 | `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, in its original colour (1200 and 600 wide): the hero and Biography |
 | `public/media/cutouts/selin-grand.webp` | Her at the grand piano at home, cut out of the film with alpha (606×464): the films ring's hologram, and the About silhouette (as a CSS mask over ink). Made by `python3 -I scripts/cutout.py <dist>`, see the script for the model |
+| `public/media/cutouts/selin-grand-photo.webp` | The same frame, untouched, in the same crop (606×464): the photograph the About silhouette wipes to. Written by the same script |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image: her silhouette on the red, her name in ink |
 
 Full performances load only when the lightbox opens (`preload="metadata"` on click). The reel's loops (about 100 KB

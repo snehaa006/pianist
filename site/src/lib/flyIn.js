@@ -11,23 +11,36 @@ gsap.registerPlugin(ScrollTrigger);
 //      home" from the right).
 //   2. Pinned: she appears in the middle, at the grand piano at home, lit like a hologram (her cut-out from the
 //      film, rising out of the dark from the floor up).
-//   3. A ring of the films comes down from above and settles round her at the height of the keys, seen from a
-//      little above. It turns: the films in front pass before her, the far ones behind her.
+//   3. A ring of the films comes in from the bottom left, far back and tilted so it reads as a ribbon, glides to the
+//      middle, then swings in and settles round her at the height of the keys, seen from a little above. It turns:
+//      the films in front pass before her, the far ones behind her.
 //   4. Trails of light circle her on tilted orbits (lib/trails.js), behind her and in front of her.
-//   5. The ring lifts away and opens out, she fades, the light goes out, and the words slide off.
+//   5. The ring pulls back to a thin ribbon at the top and sweeps off to the top right; she fades, the light goes
+//      out, and the words, which have been crossing all along, slide off the other way.
 //   6. The films fly into a 4x2 grid one at a time, each from its own side, swinging like a sheet of paper.
 //   7. Red blinds close over the grid, lowest band first, and the red band after follows on.
 // Scroll drives all of it, so scrolling back plays it in reverse; while the screen is pinned the ring also turns
 // slowly by itself. Wide screens with motion allowed only; elsewhere the section is a headline and a plain grid.
 export const FLY = {
   scroll: 0.3, // screen heights of scrolling per timeline unit
-  perspective: 1400, // px, the sky's (.reel__sky) perspective
+  perspective: 1400, // px, the sky's (.reel__sky) perspective; the depths below are against it
+  drop: 0.1, // screen heights from the screen's centre down to her scene's origin (.reel__scene, top 60%)
+  scene: [-700, -380], // px, her scene's depth: the view moves in on her until the ring pulls back
+  // The ring's stations away from her: x and y in screen widths and heights from the screen's centre (where the
+  // ring's centre appears), z in px from the screen plane, tilt in degrees (leaning back, rising to the right).
+  // Set back this far the ring reads as a thin ribbon.
+  ring: {
+    start: { x: -0.62, y: 0.85, z: -1100, rotationX: -18, rotationZ: -14 },
+    ribbon: { x: -0.04, y: 0.14, z: -1100, rotationX: -18, rotationZ: -14 },
+    top: { x: 0.04, y: -0.3, z: -1100, rotationX: -16, rotationZ: -13 },
+    gone: { x: 0.6, y: -0.75, z: -1100, rotationX: -16, rotationZ: -13 }
+  },
   tilt: { rotationX: -16, rotationZ: -4 }, // the ring settled round her, seen from a little above
   spread: 22.5, // degrees between films on the ring: 16 tiles (every film twice), as .reel__tile sets in site.css
-  turn: -300, // degrees the ring turns with the scroll (front films travel right to left)
+  turn: -470, // degrees the ring turns from coming in to leaving (front films travel right to left)
   spin: 9, // degrees a second it turns by itself while the screen is pinned
   // Timeline units: when each move starts.
-  at: { ring: 0.25, settled: 1.7, away: 4, films: 5.1 },
+  at: { ribbon: 1.4, settled: 2.4, back: 4.4, leave: 5.4, films: 5.9 },
   step: 0.6, // units between one film setting off and the next
   swing: [1, 0.6, -0.2, 0.06, 0] // the tilt as a film settles: in, still tilted on screen, past flat, back, flat
 };
@@ -40,6 +53,23 @@ const sideOf = (card, grid) => {
   return {
     x: across / (grid.clientWidth / 2),
     y: Math.abs(down) < card.offsetHeight / 2 ? 0 : Math.sign(down)
+  };
+};
+
+// Her scene's depth at timeline time t.
+const sceneZ = t => gsap.utils.interpolate(...FLY.scene, gsap.parseEase('sine.inOut')(gsap.utils.clamp(0, 1, t / FLY.at.back)));
+
+// A station in px for GSAP, read when the timeline (re)measures. The ring hangs in her scene, `deep` px back at that
+// moment, whose origin sits FLY.drop below the centre; set back by z in all, a move looks smaller by
+// perspective / (perspective - z), so x and y are scaled up by the inverse to land where the station says.
+const station = (s, deep) => {
+  const k = (FLY.perspective - s.z) / FLY.perspective;
+  return {
+    x: () => s.x * k * window.innerWidth,
+    y: () => (s.y * k - FLY.drop) * window.innerHeight,
+    z: s.z - deep,
+    rotationX: s.rotationX,
+    rotationZ: s.rotationZ
   };
 };
 
@@ -70,7 +100,7 @@ export function useFlyIn(ref) {
       const tiles = q('.reel__tile');
       const [wordA, wordB] = q('.reel__word');
       const [backLight, frontLight] = q('.reel__light');
-      const { at } = FLY;
+      const { ring: R, at } = FLY;
       const landed = at.films + (cards.length - 1) * FLY.step + 1;
       const blinds = landed + 0.5;
 
@@ -94,9 +124,11 @@ export function useFlyIn(ref) {
       });
 
       // The ring's turn is the scroll's share plus its own slow spin; `show` dims every film together (opacity on
-      // the ring itself would flatten its 3D).
+      // the ring itself would flatten its 3D). As a ribbon only the near side shows; round her the far side shows
+      // too, dimmed, behind her (`far`).
       const turn = { deg: 70, spin: 0 };
-      const show = { v: 0 };
+      const show = { v: 1 };
+      const far = { show: 0 };
       let active = false;
       let tl = null;
       const sync = () => {
@@ -108,7 +140,7 @@ export function useFlyIn(ref) {
         tiles.forEach((tile, n) => {
           const facing = Math.cos(((n * FLY.spread + angle) * Math.PI) / 180);
           const near = gsap.utils.clamp(0, 1, (facing + 0.2) / 0.5);
-          tile.style.opacity = show.v * (0.32 + 0.68 * near);
+          tile.style.opacity = show.v * (near + (1 - near) * 0.32 * far.show);
           run(tile, ringUp && facing > 0.3);
         });
         cards.forEach((card, i) => run(card.querySelector('video'), active && t > at.films + i * FLY.step && t < blinds + 1));
@@ -145,29 +177,32 @@ export function useFlyIn(ref) {
       // 2. Her, rising out of the dark from the floor up (the clip reaches past her sides and feet, so her glow is never
       // cut square); the view moves in on her slowly the whole time.
       tl.fromTo(her, { clipPath: 'inset(100% -20% -20% -20%)', opacity: 0 }, { clipPath: 'inset(-20% -20% -20% -20%)', opacity: 1, duration: 1.2, ease: 'power1.out' }, 0)
-        .fromTo(scene, { z: -700 }, { z: -380, duration: at.away, ease: 'sine.inOut' }, 0)
-        .to(q('.reel__intro'), { opacity: 0, duration: 0.4 }, at.ring)
+        .fromTo(scene, { z: FLY.scene[0] }, { z: FLY.scene[1], duration: at.back, ease: 'sine.inOut' }, 0)
+        .to(q('.reel__intro'), { opacity: 0, duration: 0.4 }, at.ribbon - 0.4)
         .fromTo(q('.reel__foot'), { opacity: 0 }, { opacity: 1, duration: 0.6 }, at.films + 1);
 
-      // 3. The ring comes down from above, steeply tilted, and settles round her; later it lifts away and opens out.
-      tl.fromTo(turn, { deg: 70 }, { deg: 70 + FLY.turn, duration: at.away + 1 }, 0)
-        .fromTo(orbit, { y: () => -window.innerHeight * 0.95, rotationX: -50, rotationZ: -12, scale: 1.3 },
-          { y: 0, ...FLY.tilt, scale: 1, duration: at.settled - at.ring, ease: 'power2.out' }, at.ring)
-        .fromTo(show, { v: 0 }, { v: 1, duration: 0.6 }, at.ring)
-        .to(orbit, { y: () => -window.innerHeight * 0.8, rotationX: -44, scale: 1.7, duration: 1, ease: 'power2.in' }, at.away)
-        .to(show, { v: 0, duration: 0.8 }, at.away + 0.2);
+      // 3. The ring: in from the bottom left as a ribbon, to the middle, then in round her; later back to a ribbon
+      // at the top and away to the top right. It turns the whole time.
+      tl.fromTo(turn, { deg: 70 }, { deg: 70 + FLY.turn, duration: at.leave + 1 }, 0)
+        .fromTo(orbit, station(R.start, sceneZ(0)), { ...station(R.ribbon, sceneZ(at.ribbon)), duration: at.ribbon, ease: 'power2.out' }, 0)
+        .to(orbit, { x: 0, y: 0, z: 0, ...FLY.tilt, duration: at.settled - at.ribbon, ease: 'sine.inOut' }, at.ribbon)
+        .to(orbit, { ...station(R.top, sceneZ(at.leave)), duration: at.leave - at.back, ease: 'sine.inOut' }, at.back)
+        .to(orbit, { ...station(R.gone, sceneZ(at.leave)), scale: 0.8, duration: 1, ease: 'power2.in' }, at.leave)
+        .fromTo(far, { show: 0 }, { show: 1, duration: (at.settled - at.ribbon) * 0.6 }, at.ribbon + (at.settled - at.ribbon) * 0.4)
+        .to(far, { show: 0, duration: (at.leave - at.back) * 0.4 }, at.back)
+        .fromTo(show, { v: 1 }, { v: 0, duration: 0.4 }, at.leave + 0.6);
 
-      // 4. The light comes up once the ring has settled, and goes out as it leaves. 5. She fades.
+      // 4. The light comes up once the ring has settled, and goes out as it pulls back. 5. She fades.
       tl.fromTo(trails, { level: 0 }, { level: 1, duration: 1.2 }, at.settled - 0.5)
-        .to(trails, { level: 0, duration: 0.7 }, at.away)
-        .to(her, { opacity: 0, scale: 0.94, duration: 0.8, ease: 'power1.in' }, at.away + 0.15);
+        .to(trails, { level: 0, duration: 0.7 }, at.back)
+        .to(her, { opacity: 0, scale: 0.94, duration: 0.8, ease: 'power1.in' }, at.back + 0.15);
 
       // The words cross behind her while the ring is up (the upper one to the right, the lower one to the left),
       // then slide off past the screen's edges.
-      tl.to(wordA, { x: () => window.innerWidth * 0.52, duration: at.away }, 0)
-        .to(wordB, { x: () => -window.innerWidth * 0.52, duration: at.away }, 0)
-        .to(wordA, { x: () => window.innerWidth - wordA.offsetLeft + 40, duration: 1, ease: 'power2.in' }, at.away)
-        .to(wordB, { x: () => -(wordB.offsetLeft + wordB.offsetWidth + 40), duration: 1, ease: 'power2.in' }, at.away);
+      tl.to(wordA, { x: () => window.innerWidth * 0.52, duration: at.leave }, 0)
+        .to(wordB, { x: () => -window.innerWidth * 0.52, duration: at.leave }, 0)
+        .to(wordA, { x: () => window.innerWidth - wordA.offsetLeft + 40, duration: 1, ease: 'power2.in' }, at.leave)
+        .to(wordB, { x: () => -(wordB.offsetLeft + wordB.offsetWidth + 40), duration: 1, ease: 'power2.in' }, at.leave);
 
       // 6. The films fly in.
       cards.forEach((card, i) => {
