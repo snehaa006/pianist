@@ -2,7 +2,9 @@
 
 Vite + React static site built with the `/pianist` design system (`.claude/skills/pianist/`).
 Base components, Bebas Neue and the client components are copied from the skill unchanged, except for one added prop
-on MaskedHeading (`maxFontSize`) so the name can fill the full width (the original caps type at 200px). The colours
+on MaskedHeading (`maxFontSize`) so the name can fill the full width (the original caps type at 200px), and two on
+OptionWheel: `scroll={false}` leaves the mouse wheel to the page (the dial then turns by click, drag and arrow keys) and
+`ariaLabel` names it. The colours
 are not the skill's: the site now runs a red poster theme (below), so `src/styles/tokens.css` and the palette in
 `src/components/fx/presets.js` differ from the skill's copies.
 
@@ -36,7 +38,7 @@ films, the mailing list, Watch and the footer; their primary button is a crimson
 | AeroShards | Watch header (WebGPU only; closes up without it) |
 | GooeyNav | Watch filter: All · On stage · At home · Exams (chips on phones) |
 | BorderGlow | Brass edge-light on the lead film of the Watch grid |
-| OptionWheel | Repertoire dial with a detail panel (desktop) |
+| OptionWheel | Repertoire dial with a detail panel (desktop); her pieces beside the stairs on Home (desktop, `scroll={false}`) |
 | DepthText, TextPressure | 404 only |
 
 Budget: `src/lib/fxStage.jsx` lets only the section filling most of the viewport run its WebGL/canvas effect;
@@ -57,10 +59,26 @@ Trails of light circle her on tilted orbits (`src/lib/trails.js`, two canvases: 
 ring pulls back to a ribbon at the top and sweeps off to the top right (the entrance and exit are the ones from before
 she was added), she fades, the light goes out, and the films fly into a 4x2 grid one at a time, each from its own
 side, swinging like a sheet of paper (the grid runs 12% wider than the text column, as far as half a page margin from
-the screen's edges); red blinds close over the grid into the repertoire band. GSAP
-ScrollTrigger, scrubbed, so scrolling back plays it in reverse; while pinned the ring also turns slowly by itself.
-Only the loops that can be seen play. Wide screens (≥900px) with motion allowed; phones and reduced motion get the
-headline and a plain grid of stills.
+the screen's edges); red blinds close over the grid, and the piano-key stairs follow them up out of the red (below),
+before the screen lets go into the repertoire band. GSAP ScrollTrigger, scrubbed, so scrolling back plays it in
+reverse; while pinned the ring also turns slowly by itself. Only the loops that can be seen play. Wide screens (≥900px)
+with motion allowed; phones and reduced motion get the headline and a plain grid of stills, then the stairs as a
+screen of their own.
+
+The stairs (`src/components/Stairs.jsx`, `src/lib/stairs.js`; Home, after the films), after the "See you on the
+other side" linocut poster and a keyboard turned on its side: the keys come out of the screen's left edge one above
+the other, each a step further out than the one above, so they climb from the floor to the upper left, low notes at
+the bottom and high ones at the top. Cream keys, ink black keys at the back, and under the front of every step the ink
+shadow of the one above, so the back reads as a keyboard and the front as stairs. In the films reel they build with
+the scroll as the blinds close, the bottom step coming out as the lowest band shuts, then her pieces arrive on the
+right: a dial of every piece she has on film (OptionWheel, as on Repertoire; a plain list on phones and touch), the
+piece's composer and where it was filmed, *Play the piece* / *Pause* and *Watch the film*. Choosing a piece plays it
+(the site sound, below): the stairs fold back into the wall from the top and build again on that piece's notes, each
+piece its own flight (its white keys from its low notes to its high ones, so the steps and the black keys' places
+change), and while it plays each key goes in, back toward the wall and darkening, for as long as she holds its note.
+Nothing sounds until a piece is chosen or *Play the piece* is pressed. On phones the stairs stay under the nav while
+the list scrolls beneath them, so a chosen piece is seen playing. With reduced motion the stairs stand still, built,
+and the keys don't move with the music.
 
 The Biography page ends on a keyboard that turns into a city (`src/components/Skyline.jsx`, after a poster the client
 supplied): under the footer's wordmark the keys run toward you in perspective, and at their far end every white key
@@ -108,16 +126,22 @@ the name comes first, then the photograph, the line, the button and the keyboard
 
 Nothing plays on arrival. The nav's *Hear me play* pill (`src/components/SoundToggle.jsx`) starts her at-home grand
 recording (`public/media/audio/at-home-grand.webm|.m4a`, the cleanest of the eight recordings) inside that click,
-fading in over Largo; pressed again (*Pause*) it fades out. On phones the pill shows its three bars only. The piano
-keeps playing from page to page, fades out while a film is open in the lightbox, rests 2.4 s between plays and
-pauses in hidden tabs. Logic lives in `src/lib/sound.jsx`.
+fading in over Largo; pressed again (*Pause*) it fades out. On phones the pill shows its three bars only. Choosing a
+piece on the stairs plays that piece instead, from its beginning (the one playing fades out over Allegro first), and
+the pill then pauses and resumes that one. The piano keeps playing from page to page, fades out while a film is open
+in the lightbox, rests 2.4 s between plays (the same piece again) and pauses in hidden tabs. Logic lives in
+`src/lib/sound.jsx`; the pieces' files in `src/lib/tracks.js`.
 
-While it plays, the hero keyboard plays along: each key dips and darkens (rose on the cream keys, graphite on the
-black) for as long as she holds its note, lighter for softer notes. The notes come from the recording itself
-(`public/media/audio/at-home-grand.notes.json`, 743 notes, transcribed by Spotify's Basic Pitch with
-`scripts/notes.py`; rerun it if the audio changes), read against the audio's own clock (`useSound().playhead`). A
-keyboard shorter than the piano's 52 white keys is its middle, and notes beyond it are played an octave or more in.
-Keys that are sounding never fly off as birds; with reduced motion the keys stay still.
+Every piece she has on film is there as audio only (`public/media/audio/<slug>.webm|.m4a`), cut to the music: no
+spoken exam introduction, walk-on or applause, the last chord left to ring, all at -20 LUFS so one is as loud as the
+next (`npm run media -- --audio`; the cut points are in `scripts/process-media.sh`).
+
+While a piece plays, the hero keyboard and the stairs play along: each key goes down (or in) and darkens (rose on the
+cream keys, graphite on the black) for as long as she holds its note, lighter for softer notes. The notes come from
+the recordings themselves (`public/media/audio/<slug>.notes.json`, 154 to 852 notes a piece, transcribed by Spotify's
+Basic Pitch with `scripts/notes.py`; rerun it for a piece if its audio changes), read against the audio's own clock
+(`useSound().playhead`). A keyboard shorter than a piece's range plays the notes beyond it an octave or more in. Keys
+that are sounding never fly off as birds; with reduced motion the keys stay still.
 
 ## Media
 
@@ -138,9 +162,12 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | `public/media/cutouts/selin-grand.webp` | Her at the grand piano at home, cut out of the film with alpha (606×464): the films ring's hologram, and the About silhouette (as a CSS mask over ink). Made by `python3 -I scripts/cutout.py <dist>`, see the script for the model |
 | `public/media/cutouts/selin-grand-photo.webp` | The same frame, untouched, in the same crop (606×464): the photograph the About silhouette wipes to. Written by the same script |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image: her silhouette on the red, her name in ink |
+| `public/media/audio/<slug>.webm/.m4a` | Each piece as audio only, cut to the music, -20 LUFS (Opus 96k + AAC 128k): the site sound and the stairs (`--audio` encodes these alone) |
+| `public/media/audio/<slug>.notes.json` | The notes she plays in each piece, for the keys that play along. Made by `python3 -I scripts/notes.py [slug …]`, see the script for the model |
 
 Full performances load only when the lightbox opens (`preload="metadata"` on click). The reel's loops (about 100 KB
-each) load when it first plays them. Images below the first screen are lazy.
+each) load when it first plays them. A piece's audio (0.6 to 1.6 MB) loads when it is first played, its notes (under
+20 KB) when the stairs first show it. Images below the first screen are lazy.
 
 ## Facts and placeholders
 

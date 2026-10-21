@@ -36,6 +36,8 @@ const OptionWheel = ({
   inset = 80,
   loop = false,
   draggable = true,
+  scroll = true,
+  ariaLabel = 'Option wheel',
   soundUrl = '',
   soundVolume = 0.5,
   className = ''
@@ -176,9 +178,10 @@ const OptionWheel = ({
   );
 
   // Wheel / touchpad scrolling, registered manually so it can be non-passive.
+  // scroll={false} leaves the wheel to the page (the wheel then turns by click, drag and arrow keys only).
   useEffect(() => {
     const el = rootRef.current;
-    if (!el) return;
+    if (!el || !scroll) return;
     const onWheel = e => {
       e.preventDefault();
       const cfg = cfgRef.current;
@@ -195,7 +198,7 @@ const OptionWheel = ({
       el.removeEventListener('wheel', onWheel);
       if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
     };
-  }, [applyTarget]);
+  }, [applyTarget, scroll]);
 
   const handlePointerDown = useCallback(e => {
     if (!cfgRef.current.draggable) return;
@@ -272,7 +275,7 @@ const OptionWheel = ({
       ref={rootRef}
       role="listbox"
       tabIndex={0}
-      aria-label="Option wheel"
+      aria-label={ariaLabel}
       className={`option-wheel${side === 'right' ? ' option-wheel--right' : ''}${isDragging ? ' option-wheel--dragging' : ''}${className ? ` ${className}` : ''}`}
       style={{
         '--ow-text-color': textColor,

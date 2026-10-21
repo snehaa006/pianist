@@ -5,6 +5,7 @@ import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import FilmLoop from '../components/FilmLoop.jsx';
 import Compare from '../components/Compare.jsx';
+import Stairs from '../components/Stairs.jsx';
 import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
@@ -31,7 +32,8 @@ export default function Home() {
   const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
   const filmsLead = `${inWords(performances.length, true)} films, ${inWords(onStage)} on stage and ${inWords(atHome.length)} at home, ${inWords(atHomeExams)} of them recorded for London College of Music exams.`;
   const films = useRef(null);
-  const fly = useFlyIn(films);
+  const stairs = useRef({ v: 0 });
+  const fly = useFlyIn(films, stairs);
 
   return (
     <>
@@ -39,7 +41,8 @@ export default function Home() {
 
       {/* Every film. Wide screens: one pinned screen on the ink stage where she sits at the grand in the middle, lit
           like a hologram, while the films turn round her on a ring and light circles her; then the films fly into
-          the grid, playing all the while (lib/flyIn.js). Elsewhere: headline and grid. */}
+          the grid, playing all the while, the red blinds close over them and the piano-key stairs build on the red
+          (lib/flyIn.js). Elsewhere: headline and grid, then the stairs as a screen of their own. */}
       {fly ? (
         <section ref={films} className="stage reel" aria-labelledby="films-h">
           <h2 className="reel__title" id="films-h">
@@ -86,27 +89,31 @@ export default function Home() {
               <i key={i} />
             ))}
           </div>
+          <Stairs build={stairs} />
         </section>
       ) : (
-        <section className="stage screen" aria-labelledby="films-h">
-          <div className="container">
-            <Opus>(Op. 01: Watch)</Opus>
-            <Headline id="films-h" hinge="left" accent="home">
-              On stage and at home
-            </Headline>
-            <p className="lead muted reveal reveal--rise">{filmsLead}</p>
-            <div className="films">
-              {performances.map((p, i) => (
-                <PerformanceCard key={p.id} item={p} index={i} />
-              ))}
+        <>
+          <section className="stage screen" aria-labelledby="films-h">
+            <div className="container">
+              <Opus>(Op. 01: Watch)</Opus>
+              <Headline id="films-h" hinge="left" accent="home">
+                On stage and at home
+              </Headline>
+              <p className="lead muted reveal reveal--rise">{filmsLead}</p>
+              <div className="films">
+                {performances.map((p, i) => (
+                  <PerformanceCard key={p.id} item={p} index={i} />
+                ))}
+              </div>
+              <div className="actions">
+                <Link className="link" to="/watch">
+                  All performances <Arrow />
+                </Link>
+              </div>
             </div>
-            <div className="actions">
-              <Link className="link" to="/watch">
-                All performances <Arrow />
-              </Link>
-            </div>
-          </div>
-        </section>
+          </section>
+          <Stairs />
+        </>
       )}
 
       <RepertoireBand />

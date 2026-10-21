@@ -5,16 +5,19 @@
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
 #   - film loops: a muted 6 s warm-monochrome 640x360 loop of every film (MP4 + WebM), played on the home reel
 #   - stills: warm-monochrome WebP posters, the 4:5 portrait (the supplied photo, in colour) and a 1200x630 share image
-#   - site sound: the at-home grand performance as audio only (Opus WebM + AAC M4A), played on "Hear me play"
-# Usage: bash scripts/process-media.sh [--stills | --loops]
+#   - site sound: every piece as audio only, cut to the music (Opus WebM + AAC M4A), played on "Hear me play" and
+#     on the stairs; their notes come from scripts/notes.py
+# Usage: bash scripts/process-media.sh [--stills | --loops | --audio] [--only=slug,slug]
 #   --stills: redo images only, skip the video encodes. --loops: encode the film loops only.
+#   --audio: encode the site sound only.
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
-STILLS_ONLY=0; LOOPS_ONLY=0; ONLY=""
+STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ONLY=""
 for arg in "$@"; do
   case "$arg" in
     --stills) STILLS_ONLY=1 ;;
     --loops) LOOPS_ONLY=1 ;;
+    --audio) AUDIO_ONLY=1 ;;
     --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
   esac
 done
@@ -23,6 +26,33 @@ SRC="$(cd "$(dirname "$0")/../../videos" && pwd)"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/public/media"
 FONT="$(cd "$(dirname "$0")/.." && pwd)/src/styles/fonts/BebasNeue-Regular.ttf"
 mkdir -p "$OUT/video/loops" "$OUT/posters" "$OUT/og" "$OUT/audio"
+
+# Site sound: each piece cut to its music, without the spoken exam introductions, the walk-on or the applause (the
+# edges were found from the recordings' loudness and their transcribed notes: the cut starts about a tenth of a second
+# before the first note and ends once the last chord has died away or the applause comes in). The natural decay
+# stays; the last `fade` seconds fade out; all are normalised to -20 LUFS, so one piece is as loud as the next.
+# slug | source file | music in (s) | music out (s) | fade (s)
+PIECES=(
+  "at-home-grand|WhatsApp Video 2026-10-06 at 14.22.50.mp4|5.2|92.6|1"
+  "austrian-master-classes|WhatsApp Video 2026-10-06 at 14.23.41.mp4|10.3|89.4|0.6"
+  "on-stage|WhatsApp Video 2026-10-06 at 14.22.40.mp4|16.2|66.35|0.35"
+  "song-of-twilight|WhatsApp Video 2026-10-06 at 14.22.59.mp4|20.85|99.2|0.6"
+  "lcm-grade-1|WhatsApp Video 2026-10-06 at 14.23.31.mp4|14.4|113.3|1"
+  "dog-hungry|WhatsApp Video 2026-10-06 at 14.23.06.mp4|17.5|65.4|0.5"
+  "andante|WhatsApp Video 2026-10-06 at 14.23.23.mp4|16.3|62.4|0.8"
+)
+sound() {
+  for row in "${PIECES[@]}"; do
+    IFS='|' read -r slug file in out fade <<<"$row"
+    [[ -n "$ONLY" && "$ONLY" != *",$slug,"* ]] && continue
+    echo "♪ $slug"
+    local st; st=$(awk -v a="$in" -v b="$out" -v f="$fade" 'BEGIN { print b - a - f }')
+    local af="atrim=$in:$out,asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st=$st:d=$fade,loudnorm=I=-20:TP=-1.5:LRA=11"
+    ffmpeg -v error -y -i "$SRC/$file" -vn -af "$af" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/$slug.webm"
+    ffmpeg -v error -y -i "$SRC/$file" -vn -af "$af" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/$slug.m4a"
+  done
+}
+(( AUDIO_ONLY )) && { sound; ls -la "$OUT"/audio; exit 0; }
 
 # slug | source file | poster time (s)
 VIDEOS=(
@@ -116,13 +146,6 @@ ffmpeg -v error -y -f lavfi -i "color=c=0xB42F35:s=1200x630" -i "$CUT" \
 # (../montage/scripts/hero-film.py still cuts the old ten-second hero film if it is ever wanted back.)
 # Her cut-out at the grand piano (cutouts/selin-grand.webp) is made by scripts/cutout.py.
 
-# Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
-# applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.
-GRAND="$SRC/WhatsApp Video 2026-10-06 at 14.22.50.mp4"
-SOUND="atrim=5.2:92.6,asetpts=PTS-STARTPTS,afade=t=in:d=0.08,afade=t=out:st=86.4:d=1,loudnorm=I=-20:TP=-1.5:LRA=11"
-if (( ! STILLS_ONLY )); then
-  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 48000 -c:a libopus -b:a 96k "$OUT/audio/at-home-grand.webm"
-  ffmpeg -v error -y -i "$GRAND" -vn -af "$SOUND" -ar 44100 -c:a aac -b:a 128k -movflags +faststart "$OUT/audio/at-home-grand.m4a"
-fi
+(( ! STILLS_ONLY )) && sound
 
 ls -la "$OUT"/*

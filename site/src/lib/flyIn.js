@@ -18,9 +18,13 @@ gsap.registerPlugin(ScrollTrigger);
 //   5. The ring pulls back to a thin ribbon at the top and sweeps off to the top right; she fades, the light goes
 //      out, and the words, which have been crossing all along, slide off the other way.
 //   6. The films fly into a 4x2 grid one at a time, each from its own side, swinging like a sheet of paper.
-//   7. Red blinds close over the grid, lowest band first, and the red band after follows on.
+//   7. Red blinds close over the grid, lowest band first.
+//   8. On the red, the piano-key stairs build (components/Stairs.jsx, lib/stairs.js): the keys come out of the left
+//      wall a step at a time, from the floor up; then her pieces arrive beside them, to choose one and hear it. The
+//      screen then lets go with the stairs on it, and the red band after follows on.
 // Scroll drives all of it, so scrolling back plays it in reverse; while the screen is pinned the ring also turns
-// slowly by itself. Wide screens with motion allowed only; elsewhere the section is a headline and a plain grid.
+// slowly by itself. Wide screens with motion allowed only; elsewhere the section is a headline and a plain grid, and
+// the stairs a screen of their own.
 export const FLY = {
   scroll: 0.3, // screen heights of scrolling per timeline unit
   perspective: 1400, // px, the sky's (.reel__sky) perspective; the depths below are against it
@@ -42,6 +46,7 @@ export const FLY = {
   // Timeline units: when each move starts.
   at: { ribbon: 1.4, settled: 2.4, back: 4.4, leave: 5.4, films: 5.9 },
   step: 0.6, // units between one film setting off and the next
+  stairs: 3, // units the stairs take to build, once the blinds have closed (about a screen of scrolling)
   swing: [1, 0.6, -0.2, 0.06, 0] // the tilt as a film settles: in, still tilted on screen, past flat, back, flat
 };
 
@@ -79,7 +84,8 @@ const run = (video, on) => {
   else if (!on && !video.paused) video.pause();
 };
 
-export function useFlyIn(ref) {
+// `stairs`: the ref the stairs read their build from ({ v: 0..1 }, see components/Stairs.jsx).
+export function useFlyIn(ref, stairs) {
   const wide = useMedia('(min-width: 900px)');
   const reduced = useReducedMotion();
   const on = wide && !reduced;
@@ -238,8 +244,18 @@ export function useFlyIn(ref) {
       });
 
       // 7. Every film in place for a moment, then the blinds.
-      tl.fromTo(q('.reel__blinds i'), { scaleY: 0 }, { scaleY: 1, duration: 0.6, ease: 'power1.in', stagger: { each: 0.07, from: 'end' } }, blinds)
-        .to({}, { duration: 0.2 });
+      const bands = q('.reel__blinds i');
+      tl.fromTo(bands, { scaleY: 0 }, { scaleY: 1, duration: 0.6, ease: 'power1.in', stagger: { each: 0.07, from: 'end' } }, blinds);
+
+      // 8. The stairs follow the blinds up: the bottom step comes out of the wall as the lowest band shuts, and the steps
+      // climb on after the last one; her pieces arrive as the top steps come out.
+      const steps = blinds + 0.45;
+      const panel = q('.stairs__panel')[0];
+      if (stairs && panel) {
+        tl.fromTo(stairs.current, { v: 0 }, { v: 1, duration: FLY.stairs }, steps)
+          .fromTo(panel, { autoAlpha: 0, y: 32 }, { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, steps + FLY.stairs * 0.6);
+      }
+      tl.to({}, { duration: 0.3 });
     }, stage);
     const onResize = () => trails?.resize();
     window.addEventListener('resize', onResize);
@@ -251,7 +267,7 @@ export function useFlyIn(ref) {
       if (tick) gsap.ticker.remove(tick);
       ctx.revert();
     };
-  }, [on, ref]);
+  }, [on, ref, stairs]);
 
   return on;
 }

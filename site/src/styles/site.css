@@ -143,6 +143,46 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* Red blinds: ten bands, each closing upward from its lower edge, the lowest first; the red band after follows on. */
 .reel__blinds { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: repeat(10, 1fr); pointer-events: none; }
 .reel__blinds i { background: var(--grain), var(--color-crimson); transform: scaleY(0); transform-origin: 50% 100%; margin-bottom: -1px; }
+
+/* ---- The stairs: the piano keys as a flight of steps, and her pieces (components/Stairs.jsx) ------------------------
+   On the red, whatever surrounds them. The keys (a canvas, lib/stairs.js) come out of the screen's left edge and climb
+   from the floor to the upper left, under the nav; the pieces stand on the right: a heading, the dial (or a list), and
+   the piece's composer with Play and its film. In the films reel they lie over the closed blinds and the pieces arrive
+   once the steps are out (GSAP shows the panel, lib/flyIn.js); elsewhere they are a screen of their own. Phones: the
+   stairs first, the pieces under them. */
+.stairs { --bg: var(--color-crimson); --bg-alt: var(--color-crimson-deep); --fg: var(--color-ivory); --fg-display: var(--color-ink);
+  --fg-muted: var(--color-rose); --fg-accent: var(--color-ivory); --rule: var(--color-hairline); --action: var(--color-ink);
+  --action-hover: var(--color-oxblood); --action-fg: var(--color-ivory); --focus: var(--color-ivory);
+  position: relative; min-height: 100svh; box-sizing: border-box; padding-block: 0; overflow: hidden; color: var(--fg); }
+.stairs--reel { position: absolute; inset: 0; z-index: 4; min-height: 0; pointer-events: none; }
+.stairs--reel .stairs__panel { pointer-events: auto; }
+.stairs__keys { position: absolute; left: 0; bottom: 0; display: block; width: 46%;
+  height: calc(100% - var(--nav-height) - var(--space-3)); }
+.stairs__panel { position: relative; box-sizing: border-box; min-height: 100svh; margin-left: 52%;
+  padding: calc(var(--nav-height) + var(--space-7)) var(--page-margin) var(--space-7) 0;
+  display: flex; flex-direction: column; gap: var(--space-5); }
+.stairs--reel .stairs__panel { height: 100%; min-height: 0; }
+.stairs__lead { margin-top: var(--space-3); max-width: 24ch; }
+.stairs__wheel { flex: 1 1 0; min-height: 240px; max-height: 480px; margin-left: calc(-1 * var(--space-2)); }
+.stairs__wheel .option-wheel { --ow-inset: var(--space-2); }
+.stairs__wheel .option-wheel:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+.stairs__list { list-style: none; margin: 0; padding: 0; display: grid; }
+.stairs__piece { display: inline-flex; align-items: center; min-height: var(--control-md); padding: 0; border: 0; background: none;
+  color: var(--fg-muted); font: inherit; font-size: var(--text-h3); line-height: var(--leading-h3); letter-spacing: var(--tracking-h3);
+  text-align: left; cursor: pointer; transition: color var(--dur-presto); }
+.stairs__piece:hover { color: var(--fg); }
+.stairs__piece[data-current] { color: var(--fg-display); } /* large type: ink on red is 3.2:1 */
+.stairs__foot { display: grid; gap: var(--space-4); margin-top: auto; }
+.stairs__now { display: grid; gap: var(--space-1); }
+.stairs__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-5); }
+/* Phones: the stairs stay under the nav while the pieces scroll up beneath them, so a piece chosen from the list is
+   seen playing on the keys. The canvas carries the red, so the list passes behind it. */
+@media (max-width: 899px) {
+  .stairs { display: flex; flex-direction: column; min-height: 0; overflow: clip; }
+  .stairs__keys { position: sticky; top: 64px; z-index: 1; width: 100%; height: 48svh; min-height: 300px;
+    margin-top: var(--space-4); background: var(--grain), var(--color-crimson); }
+  .stairs__panel { min-height: 0; margin: 0; padding: var(--space-7) var(--page-margin) var(--space-9); }
+}
 .film { margin: 0; }
 .film__button { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
 .film__frame { display: block; }
