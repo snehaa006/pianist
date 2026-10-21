@@ -125,10 +125,11 @@ export const presets = {
     animated: false
   },
   MicroSlats: {
-    preset: 'swell',         // reads like a row of hammers/keys: oxblood hammers on the red, a cream glint
-    color: palette.oxblood,
-    glintColor: palette.ivory,
-    backgroundColor: palette.crimson,
+    preset: 'swell',         // reads like a row of hammers/keys: graphite hammers in the dark, lit scarlet as the swell passes
+    color: palette.graphite,
+    glintColor: palette.scarlet,
+    backgroundColor: palette.ink,
+    glint: 0.6,              // the stage light on the swell, kept below the preset's so it never outshines the type
     slatWidth: 10,
     slatHeight: 40,
     gap: 6,

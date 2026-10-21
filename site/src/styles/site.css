@@ -140,7 +140,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .reel__foot { position: absolute; left: 0; right: 0; bottom: var(--space-5); display: flex; align-items: flex-end;
   justify-content: space-between; gap: var(--space-6); }
 .reel__lead { max-width: 34ch; }
-/* Red blinds: ten bands, each closing upward from its lower edge, the lowest first; the red band after follows on. */
+/* Red blinds: ten bands, each closing upward from its lower edge, the lowest first; the stairs follow them up. */
 .reel__blinds { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: repeat(10, 1fr); pointer-events: none; }
 .reel__blinds i { background: var(--grain), var(--color-crimson); transform: scaleY(0); transform-origin: 50% 100%; margin-bottom: -1px; }
 

@@ -156,7 +156,8 @@ export default function Home() {
   );
 }
 
-// Op. 02: what she plays, over a row of rising hammers (MicroSlats, oxblood on the red), with three counted facts.
+// Op. 02: what she plays, on the ink stage over a row of rising hammers (MicroSlats: graphite, lit scarlet where the swell
+// passes), with three counted facts. After the red stairs, the dark hall.
 function RepertoireBand() {
   const zone = useRef(null);
   const facts = [
@@ -165,7 +166,7 @@ function RepertoireBand() {
     { n: performances.filter(p => p.tags.includes('stage')).length, label: 'Performances on stage' }
   ];
   return (
-    <section ref={zone} className="screen band" id="repertoire" aria-labelledby="rep-h">
+    <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
       <SlatsLayer zoneRef={zone} />
       <div className="container band__content">
         <Staff />

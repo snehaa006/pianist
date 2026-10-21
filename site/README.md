@@ -14,7 +14,7 @@ After a red poster of a pianist (black shapes on red, cream keys). Tokens in `sr
 
 | Token | Hex | Use |
 |---|---|---|
-| `--color-crimson` | `#B42F35` | the canvas (Home hero, About, repertoire band, Repertoire, Biography, Contact), the nav |
+| `--color-crimson` | `#B42F35` | the canvas (Home hero, the stairs, About, Repertoire, Biography, Contact), the nav |
 | `--color-crimson-deep` | `#9A262C` | the red at a poster's edges (`--vignette`), hover on red |
 | `--color-oxblood` | `#6E0E12` | deep red surface (`.screen--oxblood`: the note from Selin) |
 | `--color-ink` | `#0E0A0A` | headlines on red (`--fg-display`, large type only: 3.2:1), buttons on red, the ink stages |
@@ -23,13 +23,13 @@ After a red poster of a pianist (black shapes on red, cream keys). Tokens in `sr
 | `--color-scarlet` | `#E8524A` | the accent on ink only (5.38:1): accent words, numerals, rings, focus; it replaces brass |
 
 Red screens get a fine grain and a deeper red toward the edges (`--grain`, `--vignette`). Ink stages stay for the
-films, the mailing list, Watch and the footer; their primary button is a crimson pill.
+films, the repertoire band on Home, the mailing list, Watch and the footer; their primary button is a crimson pill.
 
 ## Where each client component lives
 
 | Component | Place |
 |---|---|
-| MicroSlats | Behind the repertoire band on Home (oxblood hammers on the red) |
+| MicroSlats | Behind the repertoire band on Home (graphite hammers on the ink stage, lit scarlet as the swell passes) |
 | MaskedHeading | Not used since the hero change (the name filled with video was slow to arrive); `hero-loop.*` media is kept if you want it back |
 | FoldText | Every screen headline; the hinge changes per screen (bottom, top, left, right) |
 | CircularText | Not used (the featured film after the hero, and its "WATCH • THE • FILM •" badge, were removed at the client's request) |
