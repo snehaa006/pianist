@@ -21,9 +21,10 @@
 .body-sm { font-size: var(--text-body-sm); line-height: var(--leading-body-sm); letter-spacing: var(--tracking-body-sm); }
 .label { font-size: var(--text-label); line-height: var(--leading-label); letter-spacing: var(--tracking-label); text-transform: uppercase; }
 .muted { color: var(--fg-muted); }
+/* Headlines are the black shapes on the red (cream on ink and oxblood) */
+.wordmark, .display, .h1, .h2, .headline { color: var(--fg-display); }
 .opus { display: block; font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); margin-bottom: var(--space-5); }
-.accent-word { color: var(--fg-muted); }
-.stage .accent-word { color: var(--color-brass); }
+.accent-word { color: var(--fg-accent); }
 
 /* ---- Buttons ----------------------------------------------------------- */
 .btn {
@@ -76,7 +77,7 @@
 .nav { position: fixed; inset: 0 0 auto 0; z-index: 50; height: var(--nav-height); display: flex; align-items: center;
   justify-content: space-between; gap: var(--space-6); padding-inline: var(--page-margin); color: var(--color-ivory);
   transition: background-color var(--dur-allegro) var(--ease-legato), color var(--dur-allegro) var(--ease-legato), border-color var(--dur-allegro); border-bottom: 1px solid transparent; }
-.nav--solid { background: var(--color-ivory); color: var(--color-ink); border-bottom-color: var(--color-hairline); }
+.nav--solid { background: var(--color-crimson); color: var(--color-ivory); border-bottom-color: var(--color-hairline); }
 .nav__name { font-size: var(--text-h4); letter-spacing: 0.12em; color: inherit; text-decoration: none; }
 .nav__links { display: flex; gap: var(--space-6); list-style: none; margin: 0; padding: 0; }
 .nav__links a { position: relative; color: inherit; text-decoration: none; font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; transition: opacity var(--dur-presto); }
@@ -91,7 +92,7 @@
   padding-block: var(--space-5); border-bottom: 1px solid var(--rule); transition: background-color var(--dur-andante) var(--ease-legato); }
 .concert__date { display: flex; flex-direction: column; transition: transform var(--dur-andante) var(--ease-legato); }
 .concert__day { font-size: clamp(3.5rem, 6vw, 6rem); line-height: 0.85; }
-.stage .concert__day { color: var(--color-brass); }
+.stage .concert__day { color: var(--color-scarlet); }
 .concert__month { font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); }
 .concert__city { font-size: var(--text-h3); line-height: 1; }
 .concert__venue { font-size: var(--text-body-sm); color: var(--fg-muted); }
@@ -116,28 +117,27 @@
 
 /* ---- Music motifs ------------------------------------------------------ */
 .staff { display: grid; gap: 5px; width: 120px; margin-block: var(--space-7); }
-.staff span { display: block; height: 1px; background: var(--rule); }
-.stage .staff span { background: var(--color-brass); }
+.staff span { display: block; height: 1px; background: var(--ornament); }
 .keys { display: inline-flex; gap: 18px; } .keys__group { display: inline-flex; gap: 6px; }
 .keys__key { width: 10px; height: 40px; background: var(--fg); }
-.stage .keys__key { background: var(--color-brass); }
+.stage .keys__key { background: var(--color-scarlet); }
 @keyframes key-press { 0%, 100% { opacity: 0.25; } 50% { opacity: 1; } }
 .keys--loading .keys__key { animation: key-press var(--dur-largo) var(--ease-rubato) infinite; }
 
 /* ---- Quote ------------------------------------------------------------- */
 .quote { margin: 0; font-size: var(--text-h1); line-height: var(--leading-h1); max-width: 18ch; }
-.quote__mark { color: var(--fg-muted); } .stage .quote__mark { color: var(--color-brass); }
+.quote__mark { color: var(--fg-muted); } .stage .quote__mark { color: var(--color-scarlet); }
 .quote__cite { display: block; margin-top: var(--space-6); font-size: var(--text-label); letter-spacing: var(--tracking-label); color: var(--fg-muted); font-style: normal; }
 
 /* ---- Form -------------------------------------------------------------- */
 .field { display: grid; gap: var(--space-2); }
 .field__label { font-size: var(--text-label); letter-spacing: var(--tracking-label); text-transform: uppercase; }
 .input-row { display: flex; }
-.input { flex: 1; height: var(--control-md); padding: 0 16px; border: 1px solid var(--fg-muted); border-radius: 0; background: var(--color-paper);
+.input { flex: 1; height: var(--control-md); padding: 0 16px; border: 1px solid var(--color-ink); border-radius: 0; background: var(--color-paper);
   color: var(--color-ink); font: inherit; font-size: var(--text-body-sm); letter-spacing: var(--tracking-body-sm); transition: border-color var(--dur-presto); }
 .input:hover { border-color: var(--fg); }
-.input[aria-invalid='true'] { border-color: var(--color-velvet); }
-.field__error { color: var(--color-velvet); font-size: var(--text-body-sm); }
+.input[aria-invalid='true'] { border: 2px solid var(--error-line); }
+.field__error { justify-self: start; padding: 2px 8px; background: var(--error-bg); color: var(--error-fg); font-size: var(--text-body-sm); }
 .input-row .btn { margin-left: -1px; }
 @media (max-width: 639px) { .input-row { flex-direction: column; gap: var(--space-3); } .input-row .btn { margin: 0; width: 100%; } }
 

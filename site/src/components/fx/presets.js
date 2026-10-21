@@ -4,16 +4,19 @@
 // WebGL shaders cannot read CSS variables.
 
 export const palette = {
-  ink: '#0B0B0C',
-  lacquer: '#151517',
-  graphite: '#2A2A2E',
-  dust: '#A8A196',
-  felt: '#6B665E',
-  ivory: '#F4EFE6',
-  paper: '#FBF8F3',
-  velvet: '#7A1C2A',
-  brass: '#B8935A',
-  brassHi: '#D2B07A'
+  ink: '#0E0A0A',
+  lacquer: '#1A1213',
+  graphite: '#3A2A2B',
+  dust: '#BDB0A0',
+  felt: '#6B5E58',
+  ivory: '#F4E9D8',
+  paper: '#FBF4EA',
+  crimson: '#B42F35',
+  crimsonDeep: '#9A262C',
+  oxblood: '#6E0E12',
+  rose: '#F5D9CF',
+  scarlet: '#E8524A',
+  scarletHi: '#F06A5A'
 };
 
 const reduceMotion = () =>
@@ -63,7 +66,7 @@ export const presets = {
   },
   DepthText: {
     faceColor: palette.ivory,
-    depthColor: palette.brass,
+    depthColor: palette.scarlet,
     layers: 18,
     depth: 1.6,
     tilt: 4,
@@ -93,10 +96,10 @@ export const presets = {
     particleDistances: [70, 10],
     particleR: 80,
     timeVariance: 250,
-    colors: [1, 2, 1, 2, 1, 2]   // --color-1 brass, --color-2 ivory (set in pianist-overrides.css)
+    colors: [1, 2, 1, 2, 1, 2]   // --color-1 scarlet, --color-2 cream (set in pianist-overrides.css)
   },
   OptionWheel: {
-    textColor: palette.felt,
+    textColor: palette.rose,  // the repertoire dial sits on the red canvas
     activeColor: palette.ink,
     side: 'left',
     fontSize: 3,
@@ -112,8 +115,8 @@ export const presets = {
   // ---- Surfaces & atmosphere (one per viewport, stage sections only) ----
   BorderGlow: {
     backgroundColor: palette.lacquer,
-    glowColor: '36 40 54',   // brass in "H S L"
-    colors: [palette.brass, palette.brassHi, palette.ivory],
+    glowColor: '4 77 60',    // scarlet in "H S L"
+    colors: [palette.scarlet, palette.scarletHi, palette.ivory],
     borderRadius: 0,         // two-shape system: cards are sharp
     glowRadius: 32,
     glowIntensity: 0.6,
@@ -122,10 +125,10 @@ export const presets = {
     animated: false
   },
   MicroSlats: {
-    preset: 'swell',         // reads like a row of hammers/keys
-    color: palette.graphite,
-    glintColor: palette.brass,
-    backgroundColor: palette.ink,
+    preset: 'swell',         // reads like a row of hammers/keys: oxblood hammers on the red, a cream glint
+    color: palette.oxblood,
+    glintColor: palette.ivory,
+    backgroundColor: palette.crimson,
     slatWidth: 10,
     slatHeight: 40,
     gap: 6,
@@ -135,7 +138,7 @@ export const presets = {
   },
   MoltenMetal: {
     color1: palette.ink,
-    color2: palette.brass,
+    color2: palette.crimson,
     color3: palette.ivory,
     colorMode: 'ember',
     speed: 0.18,
@@ -150,7 +153,7 @@ export const presets = {
   AeroShards: {
     backgroundColor: palette.ink,
     shardColor: palette.graphite,
-    accentColor: palette.brass,
+    accentColor: palette.scarlet,
     material: 'satin',
     flow: 'ribbon',
     placement: 'right',
@@ -166,7 +169,7 @@ export const presets = {
   },
   RippleDistortion: {
     grayscale: true,
-    tint: palette.brass,
+    tint: palette.scarlet,
     tintAmount: 0.08,
     strength: 0.12,
     rings: 3,
@@ -187,7 +190,7 @@ export const presets = {
     mixBlendMode: 'screen'
   },
   GlowCursor: {
-    color: palette.brass,
+    color: palette.scarlet,
     secondaryColor: palette.ivory,
     trailLength: 28,
     trailWidth: 5,
@@ -198,7 +201,7 @@ export const presets = {
   },
   SwarmCursor: {
     color: palette.ivory,
-    accentColor: palette.brass,
+    accentColor: palette.scarlet,
     count: 7,
     size: 7,
     glow: 0.4,

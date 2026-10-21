@@ -8,9 +8,10 @@ Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 
 **Photograph** (`../photos/selin-incekara-austrian-master-classes.jpg`, 1200×1600, colour): Selin seated on the bench of
 a grand piano, smiling, a man standing behind her. It is the Austrian Master Classes hall (same columns, stucco and
-doors as the concert film) and the same polka-dot dress, so it was taken around that concert. It replaces the video
-still as the 4:5 portrait on Home (About) and Biography, cropped to 4:5 and shown in its original colour, with no
-grade (`npm run media` rebuilds it). The original file is kept unchanged.
+doors as the concert film) and the same polka-dot dress, so it was taken around that concert. It is the landing page's
+photograph (Home, first screen) and the portrait on Biography, cropped to 4:5 and shown in its original colour, with no
+grade (`npm run media` rebuilds it). Home's About screen shows her silhouette at the grand piano at home instead (cut
+from the at-home film). The original file is kept unchanged.
 
 **Bio**, in her own words: two paragraphs, kept exactly as she wrote them in `src/data/bio.js` (first person, her
 spelling "İncekara", her punctuation). Never edit or rewrite them; `scripts/check-copy.mjs` skips that file because it
@@ -58,12 +59,12 @@ Edit `src/data/performances.js` (per film) and `src/data/site.js` (site-wide). N
 | andante | `[Lifespan]`, `[Year]` |
 | grade-1-technical | `[Year]` |
 
-These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Master Classes concert in [Year]."), the featured film, the fermata caption, every card, the lightbox and the repertoire page.
+These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Year]." and the film its button opens), the featured film, the fermata caption, every card, the lightbox and the repertoire page.
 
 ### Site-wide (`src/data/site.js`)
 | Field | Appears on |
 |---|---|
-| `[Name]` in `portraitAlt` (the man in the photograph) | alt text of the portrait, Home and Biography |
+| `[Name]` in `portraitAlt` (the man in the photograph) | alt text of the photograph, Home (first screen) and Biography |
 | `from [earliest composer] to [latest composer]` | Home repertoire screen |
 | Management `[Name], [Agency]` + `[email]` | Contact page |
 | Press `[Name]` + `[email]` | same |
@@ -82,4 +83,4 @@ These feed the hero line ("Watch [Composer]'s [Work], filmed at an Austrian Mast
 - **Press quote**: none exists, so the fermata is a photograph only.
 - **Repertoire filter chips** (Solo · Concertos · Chamber): every filmed piece is solo, so the filter would have nothing to sort. The OptionWheel dial lists the five pieces instead.
 - **GhostCursor, GlowCursor and SwarmCursor**: no cursor effect; the hero glow was removed at the client's request.
-- **Nav Tickets pill**: nothing is on sale; omitting it keeps one velvet action per viewport.
+- **Nav Tickets pill**: nothing is on sale; omitting it keeps one primary action per viewport.
