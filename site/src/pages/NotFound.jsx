@@ -4,7 +4,7 @@ import TextPressure from '../components/fx/TextPressure/TextPressure.jsx';
 import { presets } from '../components/fx/presets';
 import { useFx, usePageTitle } from '../lib/hooks';
 
-// 88 bars, one per key; the 36 black keys stand taller, in brass.
+// 88 bars, one per key; the 36 black keys stand taller, in scarlet.
 const BLACK = new Set([1, 4, 6, 9, 11]); // positions in an octave starting on A
 const keys = Array.from({ length: 88 }, (_, i) => BLACK.has(i % 12));
 const MESSAGE = "This page isn't in the programme.";

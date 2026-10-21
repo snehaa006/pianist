@@ -30,7 +30,7 @@ function Slot({ zoneRef, children }) {
   );
 }
 
-// Hammers rising and falling behind the repertoire band.
+// Hammers rising and falling behind the repertoire band (oxblood on the red).
 export function SlatsLayer({ zoneRef }) {
   return (
     <div className="fx-layer" aria-hidden="true">
@@ -41,7 +41,7 @@ export function SlatsLayer({ zoneRef }) {
   );
 }
 
-// Slow brass-and-ink wash, always under a 72% ink scrim.
+// Slow red-and-ink wash, always under a 72% ink scrim.
 export function MoltenLayer({ zoneRef }) {
   return (
     <div className="fx-layer fx-layer--scrim" aria-hidden="true">

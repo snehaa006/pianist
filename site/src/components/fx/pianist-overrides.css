@@ -12,22 +12,22 @@
   font-weight: 400;
 }
 
-/* CircularText: small label badge, brass on stage, ink on ivory */
+/* CircularText: small label badge, scarlet on stage, cream on red */
 .circular-text {
   color: var(--fg);
   letter-spacing: 0.2em;
 }
-.stage .circular-text { color: var(--color-brass); }
+.stage .circular-text { color: var(--color-scarlet); }
 .circular-text span { font-size: 15px; }
 
 /* OptionWheel: repertoire composer picker */
 .option-wheel { --ow-font-size: clamp(2rem, 4vw, 3.5rem); letter-spacing: 0.01em; }
 
-/* GooeyNav: particle colours + monochrome pill (use on .stage only) */
+/* GooeyNav: particle colours (scarlet and cream) + monochrome pill (use on .stage only) */
 .gooey-nav-container {
-  --color-1: var(--color-brass);
+  --color-1: var(--color-scarlet);
   --color-2: var(--color-ivory);
-  --color-3: var(--color-brass-hover);
+  --color-3: var(--color-scarlet-hover);
   --color-4: var(--color-dust);
   font-size: var(--text-label);
   letter-spacing: var(--tracking-label);

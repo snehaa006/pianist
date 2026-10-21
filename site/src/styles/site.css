@@ -8,7 +8,9 @@ p { margin: 0; }
 button, input { font-family: inherit; font-weight: 400; } /* browsers default buttons to a system face */
 
 .micro { font-size: var(--text-micro); line-height: var(--leading-micro); letter-spacing: var(--tracking-micro); text-transform: uppercase; }
-.screen--paper { --bg: var(--color-paper); --bg-alt: var(--color-ivory); }
+/* The red canvas is a printed poster: a fine grain, and the red a little deeper toward the edges. */
+body { background-image: var(--grain); }
+.screen:not(.stage), .hero { background-image: var(--grain), var(--vignette); }
 .page-top { padding-top: calc(var(--nav-height) + var(--space-9)); }
 .actions { display: flex; flex-wrap: wrap; gap: var(--space-5); align-items: center; margin-top: var(--space-6); }
 .lead + .body, .body + .body { margin-top: var(--space-5); }
@@ -28,53 +30,55 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .skip-link:focus { top: var(--space-3); }
 
 /* ---- Navigation states ------------------------------------------------- */
-.nav--over-stage { color: var(--color-ivory); --focus: var(--color-brass); }
-.nav--ink { background: var(--color-ink); color: var(--color-ivory); border-bottom-color: var(--color-graphite); --focus: var(--color-brass); }
+.nav--over-stage { color: var(--color-ivory); --focus: var(--color-scarlet); }
+.nav--ink { background: var(--color-ink); color: var(--color-ivory); border-bottom-color: var(--color-graphite); --focus: var(--color-scarlet); }
 .nav__name, .nav__links a { display: inline-flex; align-items: center; min-height: var(--control-md); }
 .nav__links a[aria-current='page']::after { bottom: 2px; }
 .nav--over-stage .nav__links a[aria-current='page']::after,
-.nav--ink .nav__links a[aria-current='page']::after { background: var(--color-brass); }
+.nav--ink .nav__links a[aria-current='page']::after { background: var(--color-scarlet); }
 
 .menu { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; padding: 0 var(--page-margin) var(--space-8); overflow-y: auto; }
 .menu__bar { height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; }
 .menu__close { display: inline-flex; align-items: center; }
 .menu__links { list-style: none; margin: auto 0 0; padding: 0; display: grid; gap: var(--space-3); }
 .menu__links a { color: var(--fg); text-decoration: none; display: inline-block; }
-.menu__links a[aria-current='page'] { color: var(--color-brass); }
+.menu__links a[aria-current='page'] { color: var(--color-scarlet); }
 .menu__item { opacity: 0; transform: translateY(24px);
   animation: arpeggio var(--dur-andante) var(--ease-legato) forwards;
   animation-delay: calc(var(--i, 0) * var(--stagger-arpeggio) + var(--dur-presto)); }
 @keyframes arpeggio { to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .menu__item { opacity: 1; transform: none; animation: none; } }
 
-/* ---- Hero ------------------------------------------------------------- */
-.hero { min-height: 100svh; box-sizing: border-box; display: flex; flex-direction: column; justify-content: flex-end;
-  padding-block: calc(var(--nav-height) + var(--space-8)) var(--space-8); overflow: hidden; }
-.hero__media { position: absolute; inset: 0; }
-.hero__media img { object-position: 46% 50%; animation: from-ink var(--dur-largo) var(--ease-legato) both; }
+/* ---- Hero: a poster on the red ------------------------------------------
+   Her photograph stands on a full-width keyboard (drawn by Flight in .hero__keys); her name fills the column
+   beside it. The canvas lies over everything, so the birds cross the name; it never takes the pointer. */
+.hero { position: relative; overflow: hidden; }
+.hero--poster { --keys-h: clamp(72px, 13vh, 132px); min-height: 100svh; box-sizing: border-box; display: flex;
+  flex-direction: column; padding-top: calc(var(--nav-height) + var(--space-6)); }
+.hero__stage { flex: 1; position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-8); align-items: end; }
+.hero__photo { height: calc(100svh - var(--nav-height) - var(--space-6) - var(--keys-h)); max-height: 980px; aspect-ratio: 4 / 5;
+  background: var(--color-oxblood); animation: from-ink var(--dur-largo) var(--ease-legato) both; }
+.hero__photo:hover img { transform: none; }
 @keyframes from-ink { from { opacity: 0; } to { opacity: 1; } }
-.hero__content { position: relative; z-index: 1; }
-.hero__masked { color: var(--color-ivory); }
-.hero__wordmark { font-size: var(--wordmark-one-line); margin-left: -0.02em; }
-.hero__wordmark .wm-line { display: inline-block; }
-.hero__lead { max-width: 34ch; margin-top: var(--space-6); }
-.hero__actions { margin-top: var(--space-6); }
-@media (max-width: 639px) {
-  .hero__wordmark { font-size: var(--wordmark-two-line); white-space: normal; }
-  .hero__wordmark .wm-line { display: block; }
-}
-
-/* ---- Featured film (full-bleed 16:9) --------------------------------- */
-.feature { position: relative; }
-.feature__frame { aspect-ratio: 16 / 9; max-height: 100svh; width: 100%; }
-.feature__text { position: absolute; inset: auto 0 var(--space-8) 0; z-index: 2; display: flex; align-items: flex-end;
-  justify-content: space-between; gap: var(--space-6); }
-.feature__text .h1 { margin-top: var(--space-2); }
-.feature__lead { margin-top: var(--space-4); }
-.feature__link { margin-top: var(--space-4); }
-.feature__play { flex: none; }
+.hero__text { container-type: inline-size; align-self: stretch; min-width: 0; display: flex; flex-direction: column;
+  justify-content: space-between; gap: var(--space-6); padding-bottom: var(--space-6); }
+.hero__name { font-size: min(33cqi, 27svh); line-height: 0.8; white-space: normal; margin-left: -0.03em; }
+.hero__name .wm-line { display: block; }
+.hero__lead { max-width: 30ch; margin: 0; }
+.hero__actions { margin-top: var(--space-5); }
+.hero__keys { position: relative; flex: none; height: var(--keys-h); }
+.hero__flight { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; pointer-events: none; }
 @media (max-width: 899px) {
-  .feature__text { position: relative; inset: auto; padding-block: var(--space-7) var(--space-9); }
+  .hero--poster { --keys-h: 76px; padding-top: calc(64px + var(--space-5)); }
+  .hero__stage { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
+  .hero__text { display: contents; }
+  .hero__name { order: -1; font-size: calc((100vw - 2 * var(--page-margin)) * 0.335); }
+  .hero__photo { height: auto; width: 100%; max-width: 520px; }
+  .hero__foot { padding-bottom: var(--space-7); }
+  /* The photo takes the full width here: the birds keep to the lower part and fade out before reaching it. */
+  .hero__flight { top: auto; bottom: 0; height: 42%;
+    -webkit-mask-image: linear-gradient(to top, #000 55%, transparent); mask-image: linear-gradient(to top, #000 55%, transparent); }
 }
 
 /* ---- Film cards -------------------------------------------------------- */
@@ -84,26 +88,49 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @media (max-width: 899px) { .films, .films--watch { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .films, .films--watch { grid-template-columns: 1fr; gap: var(--space-7); } }
 /* ---- The films reel (lib/flyIn.js, wide screens with motion) ----------- */
-/* One pinned screen. Two words cross under a ring of the films that comes in from the bottom left, swings up
-   close, pulls back and sweeps away; the films then fly into a 4x2 grid and ink blinds close over it. GSAP owns
-   the transforms and opacity, so the reveal steps aside. The screen clips everything that flies. */
+/* One pinned screen on the ink stage. She sits at the grand in the middle, lit like a hologram; a ring of the films
+   comes in from the bottom left as a ribbon, settles round her and turns (the near films pass in front of her, the
+   far ones behind: she stands at the ring's centre in the same 3D scene), then sweeps off to the top right; trails of light circle her on two canvases (behind her, in front of her),
+   then the films fly into a 4x2 grid and ink blinds close over it. GSAP owns the transforms and opacity, so the
+   reveal steps aside. The screen clips everything that flies. */
 .reel { position: relative; height: 100svh; min-height: 640px; box-sizing: border-box; overflow: hidden;
-  --tile-w: clamp(300px, 31vw, 480px); --ring-r: calc(var(--tile-w) * 2.8); }
+  --tile-w: clamp(170px, 15vw, 250px); --ring-r: calc(var(--tile-w) * 2.72); --her-w: min(52vw, 96svh); }
 .reel__title { position: absolute; inset: 0; margin: 0; pointer-events: none; white-space: nowrap;
   font-size: clamp(3.5rem, 7.5vw, 8rem); line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
 .reel__word { position: absolute; }
-.reel__word--a { left: var(--page-margin); top: 36%; }
-.reel__word--b { right: var(--page-margin); top: calc(36% + 0.9em); }
-.reel__intro { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); }
-.reel__sky { position: absolute; inset: 0; perspective: 1400px; pointer-events: none; }
-.reel__orbit { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
+.reel__word--a { left: var(--page-margin); top: 21%; }
+.reel__word--b { right: var(--page-margin); top: calc(21% + 0.9em); }
+.reel__intro { position: absolute; left: var(--page-margin); top: calc(var(--nav-height) + var(--space-6)); }
+.reel__light { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.reel__light--front { z-index: 1; }
+.reel__sky { position: absolute; inset: 0; perspective: 1400px; pointer-events: none; } /* FLY.perspective */
+.reel__scene { position: absolute; left: 50%; top: 60%; transform-style: preserve-3d; }
+/* Her, upright at the ring's centre: the ring passes at the height of the keys (60% of the way down her). */
+.reel__her { position: absolute; width: var(--her-w); aspect-ratio: 606 / 464; left: calc(var(--her-w) / -2);
+  top: calc(var(--her-w) * 464 / 606 * -0.6); }
+.reel__her img { display: block; width: 100%; height: 100%;
+  filter: drop-shadow(0 0 1px rgba(255, 226, 205, 0.85)) drop-shadow(0 0 10px rgba(232, 82, 74, 0.7)) drop-shadow(0 0 36px rgba(180, 47, 53, 0.45)); }
+/* The hologram's dots and scan lines, only where she is (her cut-out as the mask), flickering a little. */
+.reel__dots { position: absolute; inset: 0; pointer-events: none; mix-blend-mode: screen; opacity: 0.5;
+  background: radial-gradient(circle at center, rgba(255, 222, 200, 0.95) 0 0.9px, transparent 1.4px) 0 0 / 5px 5px,
+    repeating-linear-gradient(0deg, rgba(232, 82, 74, 0.28) 0 1px, transparent 1px 4px);
+  -webkit-mask: url('/media/cutouts/selin-grand.webp') 0 0 / 100% 100% no-repeat;
+  mask: url('/media/cutouts/selin-grand.webp') 0 0 / 100% 100% no-repeat;
+  animation: holo 3.4s steps(1) infinite; }
+@keyframes holo { 0%, 100% { opacity: 0.5; } 38% { opacity: 0.36; } 40% { opacity: 0.62; } 44% { opacity: 0.46; } 71% { opacity: 0.54; } }
+.reel__orbit { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
 .reel__ring { position: absolute; transform-style: preserve-3d; }
 .reel__tile { position: absolute; width: var(--tile-w); max-width: none; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
   left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); background: var(--color-lacquer);
+  outline: 1px solid rgba(232, 82, 74, 0.6); outline-offset: -1px;
   transform: rotateY(calc(var(--n) * 22.5deg)) translateZ(var(--ring-r)); } /* FLY.spread in lib/flyIn.js */
-.reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center; }
+/* The landed grid runs 12% wider than the page's text column, as far as half a page margin from the screen's edges,
+   and never taller than the screen allows. */
+.reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center;
+  max-width: none; padding-inline: 0; }
 .films--fly { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; gap: var(--space-4);
-  width: min(100%, calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
+  width: min(calc(100vw - var(--page-margin)), calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) * 1.12),
+    calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
 .films--fly .film { transition: none; will-change: transform, opacity; }
 .films--fly .film__play { width: 44px; height: 44px; font-size: 13px; left: var(--space-4); bottom: var(--space-4); }
 .films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 13px); }
@@ -113,9 +140,9 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .reel__foot { position: absolute; left: 0; right: 0; bottom: var(--space-5); display: flex; align-items: flex-end;
   justify-content: space-between; gap: var(--space-6); }
 .reel__lead { max-width: 34ch; }
-/* Ink blinds: ten bands, each closing upward from its lower edge, the lowest first; the ink screen after follows on. */
+/* Red blinds: ten bands, each closing upward from its lower edge, the lowest first; the red band after follows on. */
 .reel__blinds { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: repeat(10, 1fr); pointer-events: none; }
-.reel__blinds i { background: var(--color-ink); transform: scaleY(0); transform-origin: 50% 100%; margin-bottom: -1px; }
+.reel__blinds i { background: var(--grain), var(--color-crimson); transform: scaleY(0); transform-origin: 50% 100%; margin-bottom: -1px; }
 .film { margin: 0; }
 .film__button { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
 .film__frame { display: block; }
@@ -145,6 +172,31 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .split__media, .split__text { grid-column: 1 / -1; }
   .split__media { max-width: 520px; }
 }
+
+/* ---- About on Home: her silhouette at the grand -------------------------------------------------
+   The cut-out is a mask over ink, so the silhouette is the token colour. Its top fades where the film's frame cut
+   the lid. Moving the mouse wipes it to the photograph it was cut from, in the same crop (Compare, below). */
+.about { overflow: hidden; }
+.about__figure { position: relative; }
+.about__shape { aspect-ratio: 606 / 464; background: var(--color-ink);
+  -webkit-mask: url('/media/cutouts/selin-grand.webp') center / contain no-repeat;
+  mask: url('/media/cutouts/selin-grand.webp') center / contain no-repeat; }
+.about__photo { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- Compare: two pictures split by a line that follows the pointer (components/Compare.jsx) ----------
+   After the MCIL products page wipe: --at (0..1) is where a 2px line stands across the box, the top picture shows
+   left of it, and a lone chevron on the line points at whichever side has more to give. The line shows once there
+   is a pointer to follow (straight away with a mouse, after a tap on touch). Vertical swipes still scroll on touch. */
+.compare { --at: 0; position: relative; touch-action: pan-y; }
+.compare__over { position: absolute; inset: 0; clip-path: inset(0 calc(100% - var(--at) * 100%) 0 0); }
+.compare__line { position: absolute; top: 0; bottom: 0; left: calc(var(--at) * 100%); width: 2px; translate: -50% 0;
+  background: var(--color-ivory); pointer-events: none; opacity: 0; transition: opacity var(--dur-allegro) var(--ease-legato); }
+.compare.is-open .compare__line { opacity: 1; }
+.compare__chevron { position: absolute; top: 50%; left: 50%; translate: -50% -50%; overflow: visible; fill: none;
+  stroke: var(--color-ivory); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(14, 10, 10, 0.45)); }
+.compare.is-right .compare__chevron { transform: scaleX(-1); }
+.compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; outline: 2px solid var(--focus); outline-offset: 3px; }
 
 /* ---- A note from the artist ------------------------------------------- */
 .note__label { margin: 0 0 var(--space-6); }
@@ -197,7 +249,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .notfound .h1 { max-width: 14ch; }
 .keyboard88 { display: flex; align-items: flex-start; gap: 2px; height: 40px; margin-bottom: var(--space-8); max-width: 100%; }
 .keyboard88 span { flex: 0 1 2px; min-width: 1px; height: 24px; background: var(--color-graphite); }
-.keyboard88 span.is-black { height: 40px; background: var(--color-brass); }
+.keyboard88 span.is-black { height: 40px; background: var(--color-scarlet); }
 
 /* ---- Footer --------------------------------------------------------------- */
 .footer__links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; }
@@ -207,10 +259,23 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* The wordmark stands whole above the bottom edge, not cropped by it. */
 .footer { padding-bottom: var(--space-8); }
 .footer__mark { margin-bottom: 0; }
+/* Biography: the footer is one screen under the nav bar, its links and wordmark and then the keyboard city
+   (Skyline.jsx) filling the rest, edge to edge and down to the bottom of the page. The city scales to that height
+   and shows as many keys as the width takes; the towers grow up out of the keys as it arrives, middle outward. */
+.footer--city { --bar: var(--nav-height); display: flex; flex-direction: column; box-sizing: border-box;
+  height: calc(100svh - var(--bar)); min-height: 520px; padding-block: var(--space-7) 0; }
+@media (max-width: 899px) { .footer--city { --bar: 64px; } } /* the nav's height on phones (components.css) */
+.footer--city .footer__mark { margin-top: var(--space-6); }
+.skyline { display: block; flex: 1 1 0; min-height: 200px; width: 100%; }
+/* Phones: a lower city, so more keys fit across; the sky above takes the rest. */
+@media (max-width: 899px) { .skyline { max-height: 360px; margin-top: auto; } }
+.skyline.reveal { opacity: 1; transform: none; }
+.skyline__tower { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0);
+  transition: transform var(--dur-largo) var(--ease-legato) var(--d, 0ms); }
+.skyline.is-in .skyline__tower { transform: none; }
+@media (prefers-reduced-motion: reduce) { .skyline__tower { transform: none; transition: none; } }
 
-/* Robustness: the masked name reads as dust-coloured letters until the loop or its poster arrives,
-   and a missing image never prints its alt text across a frame. */
-.hero__masked .masked-heading__clip { background: var(--color-dust); }
+/* Robustness: a missing image never prints its alt text across a frame. */
 .frame img { color: transparent; }
 
 /* FoldText's crease shading (visible only mid-fold): token colours and sharp corners, like everything else. */
@@ -252,7 +317,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .curtain { position: fixed; inset: 0; z-index: 95; display: grid; place-items: center; background: var(--color-ink);
   pointer-events: none; transform-origin: top;
   animation: curtain-lift var(--dur-andante) var(--ease-legato) var(--dur-presto) both; }
-.curtain .keys__key { background: var(--color-brass); }
+.curtain .keys__key { background: var(--color-scarlet); }
 @keyframes curtain-lift { from { transform: translateY(0); } to { transform: translateY(-100%); } }
 
 .page-loader { min-height: 100svh; display: grid; place-items: center; }
@@ -285,19 +350,12 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .chips { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-6); }
 .chip { min-height: var(--control-md); }
 
-/* CircularText badge turning slowly around the play button */
-.badge { position: relative; width: 168px; height: 168px; flex: none; display: grid; place-items: center; }
-.badge__ring { position: absolute; inset: 0; }
-.badge__ring .circular-text { width: 168px; height: 168px; color: var(--color-brass); }
-.badge__ring .circular-text span { font-size: 14px; }
-.badge__play { position: relative; z-index: 1; }
-@media (max-width: 639px) { .badge { width: 120px; height: 120px; } .badge__ring .circular-text { width: 120px; height: 120px; } .badge__ring .circular-text span { font-size: 12px; } }
 
 /* Counted facts on the repertoire band */
 .facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); margin: var(--space-8) 0 0; max-width: 960px; }
 .facts__item { display: grid; align-content: start; gap: var(--space-2); border-top: 1px solid var(--rule); padding-top: var(--space-4); }
 .facts__item dt { max-width: 22ch; }
-.facts__n { order: -1; margin: 0; color: var(--color-brass); }
+.facts__n { order: -1; margin: 0; color: var(--fg-display); }
 @media (max-width: 639px) { .facts { grid-template-columns: 1fr; gap: var(--space-5); } }
 
 /* Watch page */
@@ -326,13 +384,10 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 
 /* 404 */
 .notfound__numeral { margin-bottom: var(--space-6); line-height: 0.86; }
-.notfound__plain { font-size: clamp(8rem, 22vw, 20rem); color: var(--color-brass); }
+.notfound__plain { font-size: clamp(8rem, 22vw, 20rem); color: var(--color-scarlet); }
 .depth-text__layer, .depth-text__face { letter-spacing: -0.01em; }
 .notfound__pressure { height: clamp(64px, 6.4vw, 96px); width: 100%; overflow: hidden; }
 .notfound__pressure .text-pressure-title { margin: 0; font-weight: 400; color: var(--color-ivory); }
-/* CircularText rotates full-size letter boxes; keep their corners inside the round badge */
-.badge__ring { overflow: hidden; border-radius: var(--radius-round); }
-.feature { overflow: hidden; }
 /* BorderGlow's edge light reaches 40px past its card; the stage clips it at the page edge */
 .watch { overflow: hidden; }
 
@@ -371,26 +426,3 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @media (max-width: 899px) { .nav__sound { margin-right: var(--space-3); } }
 /* Phones: the bars alone (the button keeps its spoken label) */
 @media (max-width: 639px) { .sound-toggle__text { display: none; } .sound-toggle__pill { padding: 0 12px; } }
-
-/* ---- Hero film: her film, whole, directly under the nav ----------------------------------------------------
-   Ten slow seconds in warm monochrome (hero-film.py in ../montage), 1920x996, and 1080x1820 on portrait screens.
-   The film always fits the first screen whole: the full width wherever that fits, otherwise as tall as the screen
-   under the nav, centred on ink, which its vignette fades into, so any margin reads as the dark around a stage. */
-.hero--film { --hero-top: var(--nav-height); --film-w: 1920; --film-h: 996;
-  min-height: 0; display: block; padding: var(--hero-top) 0 0; background: var(--color-ink); }
-@media (max-width: 899px) { .hero--film { --hero-top: 64px; } } /* the nav is 64px tall here */
-@media (max-aspect-ratio: 4/5) { .hero--film { --film-w: 1080; --film-h: 1820; } } /* the phone cut */
-.hero__film { position: relative; margin-inline: auto; aspect-ratio: var(--film-w) / var(--film-h);
-  width: min(100%, calc((100vh - var(--hero-top)) * var(--film-w) / var(--film-h)));
-  width: min(100%, calc((100svh - var(--hero-top)) * var(--film-w) / var(--film-h))); }
-.hero__film video { display: block; width: 100%; height: 100%; object-fit: cover; }
-/* pause / play: a small paper disc in the corner, ink glyph (two bars, or a triangle when paused) */
-.hero__pause { position: absolute; right: var(--page-margin); bottom: var(--space-5);
-  width: var(--control-md); height: var(--control-md);
-  display: grid; place-items: center; padding: 0; border: 1px solid rgba(11, 11, 12, 0.28); border-radius: var(--radius-round);
-  background: rgba(244, 239, 230, 0.86); color: var(--color-ink); cursor: pointer; opacity: 0.8;
-  transition: opacity var(--dur-presto), border-color var(--dur-allegro) var(--ease-legato); }
-.hero__pause:hover { opacity: 1; border-color: var(--color-ink); }
-.hero__pause span { width: 10px; height: 12px; border-left: 3px solid currentColor; border-right: 3px solid currentColor; box-sizing: border-box; }
-.hero__pause.is-paused span { width: 0; height: 0; border-style: solid; border-width: 7px 0 7px 12px; border-color: transparent transparent transparent currentColor; margin-left: 3px; }
-@media (max-width: 639px) { .hero__pause { right: var(--space-3); bottom: var(--space-3); } }

@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import { site } from '../data/site';
 
-// Single input row + velvet pill. Label above the field, helper below, one-line success state.
+// Single input row + the primary pill. Label above the field, helper below, one-line success state.
 export default function NewsletterForm() {
   const id = useId();
   const [email, setEmail] = useState('');

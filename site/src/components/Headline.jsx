@@ -4,7 +4,7 @@ import { useReducedMotion } from '../lib/hooks';
 
 // Screen headline. Letters unfold as the line scrolls in (FoldText preset); `hinge` varies the fold
 // per screen (bottom, top, left, right). One FoldText per word so lines only break between words.
-// `accent` names one word to switch to --fg-muted on ivory, brass on ink (emphasis without weight).
+// `accent` names one word to switch to --fg-accent: cream in an ink headline on red, scarlet on ink (emphasis without weight).
 // Reduced motion: plain text.
 export default function Headline({ as: Tag = 'h2', className = 'h1', id, hinge = 'bottom', accent, children }) {
   const reduced = useReducedMotion();

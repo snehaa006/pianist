@@ -95,7 +95,7 @@ ffmpeg -v error -y -ss 49 -i "$HERO" -frames:v 1 -vf "$LIFT,format=yuv420p" -c:v
 ffmpeg -v error -y -ss 12 -i "$HERO" -frames:v 1 \
   -vf "$MONO,format=yuv420p" -c:v libwebp -quality 82 "$OUT/posters/fermata.webp"
 
-# About portrait, 4:5: the supplied photograph at the piano in the Austrian Master Classes hall (source is 1200x1600,
+# Hero and Biography portrait, 4:5: the supplied photograph at the piano in the Austrian Master Classes hall (source is 1200x1600,
 # sRGB; the crop drops the ceiling frieze). In its original colour, no grade. Full size for 2x screens, half size
 # for the rest.
 PHOTO="$SRC/../photos/selin-incekara-austrian-master-classes.jpg"
@@ -105,15 +105,16 @@ ffmpeg -v error -y -i "$PHOTO" -frames:v 1 \
   -vf "crop=1200:1500:0:100,scale=600:750:flags=lanczos,format=yuv420p" -c:v libwebp -quality 84 \
   "$OUT/posters/portrait-600.webp"
 
-# Social share image, 1200x630: dark stage still under the --scrim gradient (ink, 0% at 40% → 72% at the bottom),
-# wordmark bottom-left in ivory.
-ffmpeg -v error -y -ss 26 -i "$SRC/WhatsApp Video 2026-10-06 at 14.22.40.mp4" \
-  -f lavfi -i "color=c=0x0B0B0C:s=1200x630,format=rgba,geq=r=11:g=11:b=12:a='184*clip((Y-252)/378\\,0\\,1)'" \
-  -filter_complex "[0:v]scale=1200:-2,crop=1200:630:0:(ih-630)/2,$MONO,format=rgba[bg];[bg][1:v]overlay=format=auto,drawtext=fontfile=$FONT:text=SELIN INCEKARA:fontcolor=0xF4EFE6:fontsize=168:x=56:y=h-th-48,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xA8A196:fontsize=30:x=60:y=h-th-232" \
+# Social share image, 1200x630, a poster like the landing page: her silhouette at the grand piano (the cut-out from
+# scripts/cutout.py, as an ink mask) on the red, her name in ink, "Pianist" in cream.
+CUT="$OUT/cutouts/selin-grand.webp"
+ffmpeg -v error -y -f lavfi -i "color=c=0xB42F35:s=1200x630" -i "$CUT" \
+  -filter_complex "[1:v]format=rgba,scale=-1:500,geq=r=14:g=10:b=10:a='alpha(X\,Y)'[shape];[0:v][shape]overlay=x=W-w-24:y=H-h,drawtext=fontfile=$FONT:text=SELIN:fontcolor=0x0E0A0A:fontsize=160:x=52:y=72,drawtext=fontfile=$FONT:text=INCEKARA:fontcolor=0x0E0A0A:fontsize=160:x=52:y=210,drawtext=fontfile=$FONT:text=PIANIST:fontcolor=0xF4E9D8:fontsize=34:x=58:y=h-th-60" \
   -frames:v 1 -q:v 3 "$OUT/og/selin-incekara-share.jpg"
 
-# Hero film (public/media/video/hero-film{,-phone}.*, posters hero-film*): ten slow seconds cut from these videos
-# by ../montage/scripts/hero-film.py, encoded by ../montage/scripts/encode-hero-film.sh.
+# The landing page no longer plays a film: it opens on the photograph above (posters/portrait*), standing on a keyboard.
+# (../montage/scripts/hero-film.py still cuts the old ten-second hero film if it is ever wanted back.)
+# Her cut-out at the grand piano (cutouts/selin-grand.webp) is made by scripts/cutout.py.
 
 # Site sound: the cleanest recording of the eight (acoustic grand at home, noise floor about -78 dB, no speech or
 # applause). The music runs 5.3 s to 91.5 s; keep the natural decay, fade the last second, normalise to -20 LUFS.

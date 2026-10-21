@@ -9,15 +9,15 @@ export const links = [
   { to: '/contact', label: 'Contact' }
 ];
 
-// Pages that open on an ink stage: the nav starts transparent with ivory text; Watch stays on ink.
-// Home opens on the reel's ivory paper, so its nav is solid ivory from the top.
+// Pages that open on an ink stage: the nav starts transparent with cream text; Watch stays on ink.
+// The red pages (Home opens on the red poster) get a solid red nav from the top.
 const onInk = { top: 'stage', after: 'ink', threshold: () => 24 };
 const surfaces = {
   '/watch': onInk
 };
-const ivoryPages = ['/', '/repertoire', '/about', '/contact'];
+const redPages = ['/', '/repertoire', '/about', '/contact'];
 // Unknown paths render the 404, which is on ink too.
-const surfaceFor = path => surfaces[path] || (ivoryPages.includes(path) ? undefined : onInk);
+const surfaceFor = path => surfaces[path] || (redPages.includes(path) ? undefined : onInk);
 
 export default function Nav() {
   const { pathname } = useLocation();

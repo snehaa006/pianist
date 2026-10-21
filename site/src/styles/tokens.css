@@ -1,6 +1,6 @@
 /* ==========================================================================
    SELIN INCEKARA — Design Tokens
-   Concert-black lacquer, ivory keys, hall-velvet, pedal brass.
+   Poster red, piano black, key cream. Black shapes on red, cream keys, a scarlet glint on the stage.
    One typeface (Bebas Neue 400). Two shapes (0 radius + pill). One accent per screen.
    Copy this file into the project and import it once, before any component CSS.
    ========================================================================== */
@@ -15,39 +15,51 @@
 }
 
 :root {
+  /* ---- Colour: the reds (the canvas) ----------------------------------- */
+  --color-crimson: #B42F35;      /* poster red: the default canvas */
+  --color-crimson-deep: #9A262C; /* the red at a poster's edges; hover on red */
+  --color-oxblood: #6E0E12;      /* deep red surface (a velvet curtain) */
+  --color-rose: #F5D9CF;         /* muted text on red (4.62:1 on crimson) */
+
   /* ---- Colour: neutrals ------------------------------------------------ */
-  --color-ink: #0B0B0C;        /* piano-black lacquer — text on light, dark surfaces */
-  --color-lacquer: #151517;    /* raised dark surface (cards/panels on ink) */
-  --color-graphite: #2A2A2E;   /* hairlines on dark, pressed dark state */
-  --color-stone: #8F897F;      /* muted text on dark (5.67:1 on ink) */
-  --color-dust: #A8A196;       /* secondary text on dark (7.69:1 on ink) */
-  --color-felt: #6B665E;       /* muted text on light (4.97:1 on ivory) */
-  --color-hairline: #DAD3C7;   /* 1px rules on light — decorative only */
-  --color-ivory: #F4EFE6;      /* default light canvas — aged key ivory */
-  --color-paper: #FBF8F3;      /* lighter alt canvas / inputs on ivory */
+  --color-ink: #0E0A0A;        /* piano-black lacquer: shapes and headlines on red, dark surfaces */
+  --color-lacquer: #1A1213;    /* raised dark surface (cards/panels on ink) */
+  --color-graphite: #3A2A2B;   /* hairlines on dark, pressed dark state */
+  --color-stone: #9C8F86;      /* muted text on dark (6.3:1 on ink) */
+  --color-dust: #BDB0A0;       /* secondary text on dark (9.27:1 on ink) */
+  --color-felt: #6B5E58;       /* muted text on cream */
+  --color-hairline: rgba(244, 233, 216, 0.3); /* 1px rules on red — decorative only */
+  --color-ivory: #F4E9D8;      /* key cream: text on red (5.15:1) and on ink */
+  --color-paper: #FBF4EA;      /* lighter cream: inputs */
 
   /* ---- Colour: accents (max ONE accent moment per viewport) ------------ */
-  --color-velvet: #7A1C2A;     /* concert-hall seat velvet — the single primary action */
-  --color-velvet-hover: #9A2636;
-  --color-brass: #B8935A;      /* pedal brass — ornament on DARK only (6.89:1 on ink) */
-  --color-brass-hover: #D2B07A;
+  --color-scarlet: #E8524A;    /* stage light: ornament on INK only (5.38:1 on ink) */
+  --color-scarlet-hover: #F06A5A;
 
-  /* ---- Semantic roles --------------------------------------------------- */
-  --bg: var(--color-ivory);
-  --bg-alt: var(--color-paper);
+  /* ---- Semantic roles (the red canvas) ---------------------------------- */
+  --bg: var(--color-crimson);
+  --bg-alt: var(--color-crimson-deep);
   --bg-inverse: var(--color-ink);
-  --fg: var(--color-ink);
-  --fg-muted: var(--color-felt);
+  --fg: var(--color-ivory);            /* running text, labels, links */
+  --fg-display: var(--color-ink);      /* headlines: black shapes on red (large type only, 3.2:1) */
+  --fg-muted: var(--color-rose);
+  --fg-accent: var(--color-ivory);     /* the one accent word in a headline */
   --fg-inverse: var(--color-ivory);
   --fg-inverse-muted: var(--color-dust);
   --rule: var(--color-hairline);
   --rule-strong: var(--color-ink);
-  --rule-inverse: var(--color-graphite);
-  --action: var(--color-velvet);
-  --action-hover: var(--color-velvet-hover);
-  --action-fg: var(--color-paper);
-  --ornament: var(--color-brass);
-  --focus: var(--color-velvet);
+  --action: var(--color-ink);
+  --action-hover: var(--color-oxblood);
+  --action-fg: var(--color-ivory);
+  --ornament: var(--color-ink);
+  --focus: var(--color-ivory);
+  --error-bg: var(--color-ink);        /* errors sit on an ink tag: red text would vanish into the canvas */
+  --error-fg: var(--color-ivory);
+  --error-line: var(--color-ink);
+
+  /* Poster surface: fine grain over the red, darker toward the edges (lighter in the middle, like a print). */
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.06  0 0 0 0 0.02  0 0 0 0 0.02  0 0 0 -1.6 1.1'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.22'/></svg>");
+  --vignette: radial-gradient(130% 95% at 50% 38%, rgba(110, 14, 18, 0) 52%, rgba(110, 14, 18, 0.5) 100%);
 
   /* ---- Typography -------------------------------------------------------- */
   --font-display: 'Bebas Neue', 'Oswald', 'Arial Narrow', 'Helvetica Neue', Arial, sans-serif;
@@ -114,13 +126,34 @@
   --bg: var(--color-ink);
   --bg-alt: var(--color-lacquer);
   --fg: var(--color-ivory);
+  --fg-display: var(--color-ivory);
   --fg-muted: var(--color-dust);
+  --fg-accent: var(--color-scarlet);
   --rule: var(--color-graphite);
   --rule-strong: var(--color-ivory);
+  --action: var(--color-crimson);
+  --action-hover: var(--color-crimson-deep);
+  --action-fg: var(--color-ivory);
+  --ornament: var(--color-scarlet);
+  --focus: var(--color-scarlet);
+  --error-bg: transparent;
+  --error-fg: var(--color-scarlet);
+  --error-line: var(--color-scarlet);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Deep red "curtain" sections: cream type on oxblood */
+.screen--oxblood, [data-surface='oxblood'] {
+  --bg: var(--color-oxblood);
+  --bg-alt: var(--color-crimson-deep);
+  --fg: var(--color-ivory);
+  --fg-display: var(--color-ivory);
+  --fg-muted: var(--color-rose);
+  --fg-accent: var(--color-scarlet);
   --action: var(--color-ivory);
   --action-hover: var(--color-paper);
   --action-fg: var(--color-ink);
-  --focus: var(--color-brass);
   background: var(--bg);
   color: var(--fg);
 }
@@ -140,7 +173,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 h1, h2, h3, h4, h5, h6, strong, b { font-weight: 400; } /* hierarchy = size, never weight */
-::selection { background: var(--color-velvet); color: var(--color-paper); }
+::selection { background: var(--color-ink); color: var(--color-ivory); }
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {

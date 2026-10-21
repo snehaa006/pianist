@@ -4,18 +4,16 @@ import Hero from '../components/Hero.jsx';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
 import FilmLoop from '../components/FilmLoop.jsx';
+import Compare from '../components/Compare.jsx';
 import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
 import { SlatsLayer } from '../components/Effects.jsx';
-import CircularText from '../components/fx/CircularText/CircularText.jsx';
-import { presets } from '../components/fx/presets';
-import { useLightbox } from '../components/Lightbox.jsx';
 import { byId, examFilms, inWords, performances, pieces } from '../data/performances';
 import { site } from '../data/site';
 import { bio } from '../data/bio';
-import { usePageTitle, useReducedMotion, useReveals } from '../lib/hooks';
+import { usePageTitle, useReveals } from '../lib/hooks';
 import { useFlyIn } from '../lib/flyIn';
 
 const Arrow = () => (
@@ -28,7 +26,6 @@ export default function Home() {
   usePageTitle(null);
   useReveals();
   const concert = byId('austrian-master-classes');
-  const stage = byId('on-stage');
   const onStage = performances.filter(p => p.tags.includes('stage')).length;
   const atHome = performances.filter(p => p.tags.includes('home'));
   const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
@@ -40,12 +37,11 @@ export default function Home() {
     <>
       <Hero />
 
-      <FeaturedFilm item={stage} />
-
-      {/* Every film. Wide screens: one pinned screen where the films ride a turning ring, come up close, sweep
-          away and fly into the grid, playing all the while (lib/flyIn.js). Elsewhere: headline and grid. */}
+      {/* Every film. Wide screens: one pinned screen on the ink stage where she sits at the grand in the middle, lit
+          like a hologram, while the films turn round her on a ring and light circles her; then the films fly into
+          the grid, playing all the while (lib/flyIn.js). Elsewhere: headline and grid. */}
       {fly ? (
-        <section ref={films} className="reel" aria-labelledby="films-h">
+        <section ref={films} className="stage reel" aria-labelledby="films-h">
           <h2 className="reel__title" id="films-h">
             <span className="reel__word reel__word--a">On stage,</span>{' '}
             <span className="reel__word reel__word--b">
@@ -55,15 +51,23 @@ export default function Home() {
           <div className="reel__intro">
             <Opus>(Op. 01: Watch)</Opus>
           </div>
+          <canvas className="reel__light" aria-hidden="true" />
           <div className="reel__sky" aria-hidden="true">
-            <div className="reel__orbit">
-              <div className="reel__ring">
-                {[...performances, ...performances].map((p, i) => (
-                  <FilmLoop key={`${p.id}-${i}`} item={p} className="reel__tile" style={{ '--n': i }} />
-                ))}
+            <div className="reel__scene">
+              <div className="reel__her">
+                <img src="/media/cutouts/selin-grand.webp" alt="" width="606" height="464" decoding="async" />
+                <span className="reel__dots" />
+              </div>
+              <div className="reel__orbit">
+                <div className="reel__ring">
+                  {[...performances, ...performances].map((p, i) => (
+                    <FilmLoop key={`${p.id}-${i}`} item={p} className="reel__tile" style={{ '--n': i }} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
+          <canvas className="reel__light reel__light--front" aria-hidden="true" />
           <div className="container reel__films">
             <div className="films films--fly">
               {performances.map((p, i) => (
@@ -84,7 +88,7 @@ export default function Home() {
           </div>
         </section>
       ) : (
-        <section className="screen" aria-labelledby="films-h">
+        <section className="stage screen" aria-labelledby="films-h">
           <div className="container">
             <Opus>(Op. 01: Watch)</Opus>
             <Headline id="films-h" hinge="left" accent="home">
@@ -126,40 +130,9 @@ export default function Home() {
         </figure>
       </section>
 
-      <section className="screen" id="about" aria-labelledby="about-h">
-        <div className="container grid split">
-          <figure className="split__media frame ratio-4x5 reveal reveal--wipe">
-            <img
-              src="/media/posters/portrait.webp"
-              srcSet="/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w"
-              sizes="(max-width: 899px) min(100vw, 520px), min(44vw, 640px)"
-              alt={site.portraitAlt}
-              width="1200"
-              height="1500"
-              loading="lazy"
-              decoding="async"
-            />
-          </figure>
-          <div className="split__text">
-            <Opus>(Op. 03: About)</Opus>
-            <Headline id="about-h" hinge="right">
-              The pianist
-            </Headline>
-            <p className="body reveal reveal--rise">{bio[0]}</p>
-            <p className="body muted reveal" style={{ '--i': 2 }}>
-              On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
-              College of Music exams at Grades 1 and 3.
-            </p>
-            <div className="actions">
-              <Link className="link" to="/about">
-                Read the biography <Arrow />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <About />
 
-      <section className="screen screen--paper" aria-labelledby="note-h">
+      <section className="screen screen--oxblood" aria-labelledby="note-h">
         <div className="container">
           <h2 className="label note__label reveal reveal--track" id="note-h">
             A note from Selin Incekara
@@ -176,44 +149,7 @@ export default function Home() {
   );
 }
 
-// Watch: one filmed performance, full-bleed; the play button sits inside a slowly turning badge.
-function FeaturedFilm({ item }) {
-  const { open } = useLightbox();
-  const reduced = useReducedMotion();
-  return (
-    <section className="stage feature" aria-labelledby="feature-h">
-      <div className="feature__frame frame scrim">
-        <img src={item.poster} alt={item.alt} width="832" height="464" loading="lazy" decoding="async" />
-      </div>
-      <div className="container feature__text">
-        <div>
-          <span className="label muted reveal reveal--track">{item.composer}</span>
-          <h2 className="h1 reveal reveal--rise" id="feature-h">
-            {item.work}
-          </h2>
-          <p className="lead muted feature__lead reveal" style={{ '--i': 2 }}>
-            Filmed live on stage at {item.venue}, {item.year}.
-          </p>
-          <Link className="link feature__link" to="/watch">
-            All performances <Arrow />
-          </Link>
-        </div>
-        <div className="badge">
-          {!reduced && (
-            <div className="badge__ring" aria-hidden="true">
-              <CircularText {...presets.CircularText} text="WATCH • THE • FILM • WATCH • THE • FILM • " />
-            </div>
-          )}
-          <button type="button" className="play badge__play" aria-label="Watch the performance" onClick={e => open(item, e.currentTarget)}>
-            <span aria-hidden="true">▶</span>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-// Op. 02: what she plays, over a row of rising hammers (MicroSlats), with three counted facts.
+// Op. 02: what she plays, over a row of rising hammers (MicroSlats, oxblood on the red), with three counted facts.
 function RepertoireBand() {
   const zone = useRef(null);
   const facts = [
@@ -222,7 +158,7 @@ function RepertoireBand() {
     { n: performances.filter(p => p.tags.includes('stage')).length, label: 'Performances on stage' }
   ];
   return (
-    <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
+    <section ref={zone} className="screen band" id="repertoire" aria-labelledby="rep-h">
       <SlatsLayer zoneRef={zone} />
       <div className="container band__content">
         <Staff />
@@ -246,6 +182,58 @@ function RepertoireBand() {
           <Link className="btn btn--secondary" to="/repertoire">
             See the repertoire <Arrow />
           </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Op. 03: her at the grand piano at home, an ink silhouette on the red (the cut-out from the films ring, as a mask),
+// its open lid fading where the photograph's frame cut it. Moving the mouse wipes it to the photograph it was cut from
+// (Compare, after the MCIL products page): a line trails the pointer across the page, the photograph left of it and
+// the silhouette right, starting halfway.
+function About() {
+  const stage = byId('on-stage');
+  return (
+    <section className="screen about" id="about" aria-labelledby="about-h">
+      <div className="container grid split">
+        <div className="split__media about__figure">
+          <Compare
+            label="Wipe to her photograph"
+            over={
+              <img
+                className="about__photo"
+                src="/media/cutouts/selin-grand-photo.webp"
+                alt="The photograph: Selin Incekara playing the grand piano in a bright room at home."
+                width="606"
+                height="464"
+                loading="lazy"
+                decoding="async"
+              />
+            }
+          >
+            <div
+              className="about__shape reveal reveal--wipe"
+              role="img"
+              aria-label="Selin Incekara at the grand piano at home, in silhouette."
+            />
+          </Compare>
+        </div>
+        <div className="split__text">
+          <Opus>(Op. 03: About)</Opus>
+          <Headline id="about-h" hinge="right">
+            The pianist
+          </Headline>
+          <p className="body reveal reveal--rise">{bio[0]}</p>
+          <p className="body muted reveal" style={{ '--i': 2 }}>
+            On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
+            College of Music exams at Grades 1 and 3.
+          </p>
+          <div className="actions">
+            <Link className="link" to="/about">
+              Read the biography <Arrow />
+            </Link>
+          </div>
         </div>
       </div>
     </section>

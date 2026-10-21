@@ -3,7 +3,7 @@ import Headline from './Headline.jsx';
 import NewsletterForm from './NewsletterForm.jsx';
 import { MoltenLayer } from './Effects.jsx';
 
-// The mailing list on a slow brass-and-ink wash (MoltenMetal under a 72% ink scrim).
+// The mailing list on a slow red-and-ink wash (MoltenMetal under a 72% ink scrim).
 export default function MailingList({ as: Tag = 'h2' }) {
   const zone = useRef(null);
   return (

@@ -10,7 +10,7 @@ import { filters, inWords, performances } from '../data/performances';
 import { useFx, usePageTitle, useReveals } from '../lib/hooks';
 
 // Every performance on the stage. Desktop filters with GooeyNav, phones with pill chips;
-// the first film of the current filter sits in a brass BorderGlow; each opens in the ink lightbox.
+// the first film of the current filter sits in a scarlet BorderGlow; each opens in the ink lightbox.
 export default function Watch() {
   const [filter, setFilter] = useState('all');
   const [shardsFailed, setShardsFailed] = useState(false);
