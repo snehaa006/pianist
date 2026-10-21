@@ -5,8 +5,9 @@ import Marionette from './Marionette.jsx';
 import { site, isPlaceholder } from '../data/site';
 
 // Ink band. The footer is her name hanging on strings (Marionette, after the "Play music, be free" poster): the keys
-// hang from its top edge, the name under them, and the links and © run along its foot, one piece. On the Biography
-// page it ends instead on a keyboard whose white keys rise into a city (Skyline), under the links and the wordmark.
+// hang from its top edge, the name at the bottom, and the links and © run along its foot, one piece, at least a screen
+// tall. On the Biography page it ends instead on a keyboard whose white keys rise into a city (Skyline), under the
+// links and the wordmark.
 export default function Footer() {
   const socials = site.socials.filter(s => !isPlaceholder(s.url));
   const city = useLocation().pathname.replace(/\/+$/, '') === '/about';
@@ -49,7 +50,7 @@ export default function Footer() {
   }
   return (
     <footer className="stage footer footer--strings">
-      <div className="container">
+      <div className="container footer__stage">
         <Marionette className="footer__strings" text="Selin Incekara" />
       </div>
       <div className="footer__foot">{row}</div>

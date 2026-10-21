@@ -68,8 +68,8 @@ screen of their own.
 The stairs (`src/components/Stairs.jsx`, `src/lib/stairs.js`; Home, after the films), after the "Howling Black Soul"
 linocut poster and a keyboard turned on its side: seen in perspective, the steps climb from the floor, tall near it
 and smaller as they go up, out of a black wall on the left whose edge is cut rough and flecked with cream, as in the
-print. Their fronts all end on one smooth S, so the stair's outer line winds out and back as it climbs, like a spiral
-stair seen from the side (after the Beethoven poster). Each step is a white key, low notes at the bottom and high ones
+print. Each step's front is cut square where it meets one smooth S, so the stair's outer line steps out and back as it
+climbs, like a spiral stair seen from the side (after the Beethoven poster). Each step is a white key, low notes at the bottom and high ones
 at the top: a cream slab with the ink shadow of the step above along its top; the black keys come out of the wall
 between their two white keys. In the films reel they build with
 the scroll as the blinds close, the bottom step coming out as the lowest band shuts, then her pieces arrive on the
@@ -92,13 +92,14 @@ keys and narrow ones the middle. The towers grow up out of the keys as it arrive
 that with reduced motion). Only on /about; the other pages end on her name on strings (below).
 
 On every other page the footer is her name hanging on strings (`src/components/Marionette.jsx`,
-`src/lib/marionette.js`), after the "Play music, be free" poster, all one piece: a row of cream piano keys, cut ragged as
-if torn from paper, the gaps where the black keys would be cut out of them, hangs from the footer's top edge; thin threads run down from each to the letters of
+`src/lib/marionette.js`), after the "Play music, be free" poster, all one piece and at least a screen tall under the
+nav: a row of cream piano keys, cut ragged as if torn from paper, the gaps where the black keys would be cut out of
+them, hangs from the footer's top edge, and the name stands at its foot, the threads taking the height between; thin threads run down from each to the letters of
 SELIN INCEKARA, which hang and sway on them, a letter on one thread or two. The first time the footer comes into view
 the letters are lowered into place on their strings, one after another; the mouse moving through them sets them
 swinging; and while a piece plays the keys play along, each going down with its note, and the letters hanging from
-it dip and swing. The links and © run along the footer's foot, over a hairline. Canvas, sized to fill the column
-(about 9:4), drawn once Bebas Neue has arrived; running only on screen and in a visible tab; with reduced motion the
+it dip and swing. The links and © run along the footer's foot, over a hairline. Canvas, filling the footer's stage,
+drawn once Bebas Neue has arrived; running only on screen and in a visible tab; with reduced motion the
 name hangs still.
 
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of

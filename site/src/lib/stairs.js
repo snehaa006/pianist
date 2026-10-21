@@ -1,7 +1,8 @@
 // The stairs: a keyboard turned on its side and built into a flight of steps, after the "Howling Black Soul" linocut
 // poster. Seen in perspective, the steps climb from the floor, tall near it and smaller as they go up, out of a black
-// wall on the left whose edge is cut rough, as in the print; their fronts all end on one smooth S, so the stair's outer
-// line winds out and back as it climbs, like a spiral stair seen from the side (after the Beethoven poster). Each step
+// wall on the left whose edge is cut rough, as in the print; each step's front is cut square where it meets one smooth
+// S, so the stair's outer line steps out and back as it climbs, like a spiral stair seen from the side (after the
+// Beethoven poster). Each step
 // is a white key, the low notes at the bottom and the high ones at the top: a cream slab with the ink shadow of the
 // step above along its top; the black keys come out of the wall between their two white keys.
 //
@@ -225,13 +226,15 @@ export function createStairs(canvas, options = {}) {
 
     // How far out of the wall each step is (0 inside .. 1 in place), and how far it has gone in with its note (px).
     const shown = i => Math.min(out(i, n, built), out(i, n, own));
-    // A step's front at height yy: on the S once it is out, short of it on the way, back from it while its note sounds.
-    const front = (i, yy) => {
+    // A step's front, cut square where it meets the S: there once it is out, short of it on the way, back from it while
+    // its note sounds.
+    const front = i => {
       const st = steps[i];
-      return st.back + (outline(yy) - st.back) * shown(i) - (press.get(lo + i) || 0) * st.h * PRESS.travel;
+      return st.back + (st.front - st.back) * shown(i) - (press.get(lo + i) || 0) * st.h * PRESS.travel;
     };
 
-    // The steps, bottom up: each a cream slab under the shadow of the step above, both ending on the S.
+    // The steps, bottom up: each a cream slab under the shadow of the step above, both cut square at its front, so the
+    // fronts climb the S as a staircase.
     let reached = -1; // the highest step out of the wall at all
     for (let i = 0; i < n; i++) {
       if (shown(i) <= 0) break;
@@ -239,17 +242,7 @@ export function createStairs(canvas, options = {}) {
       const st = steps[i];
       const line = Math.max(2, st.h * FLIGHT.line);
       const k = press.get(lo + i) || 0;
-      const band = (from, to) => {
-        ctx.beginPath();
-        ctx.moveTo(st.back - 8, from);
-        for (let j = 0; j <= 6; j++) {
-          const yy = lerp(from, to, j / 6);
-          ctx.lineTo(front(i, yy), yy);
-        }
-        ctx.lineTo(st.back - 8, to);
-        ctx.closePath();
-        ctx.fill();
-      };
+      const band = (from, to) => ctx.fillRect(st.back - 8, from, front(i) - st.back + 8, to - from);
       ctx.fillStyle = k ? mix(CREAM_RGB, PRESS.white, k * PRESS.whiteMix) : CREAM;
       band(st.top + line, st.bottom);
       ctx.fillStyle = INK;

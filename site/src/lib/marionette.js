@@ -13,9 +13,11 @@ const CREAM = '#F4E9D8';
 const CREAM_RGB = [244, 233, 216];
 const DUST_RGB = [189, 176, 160]; // a played key, darkened toward the stage's dust
 const FONT = '"Bebas Neue", "Oswald", "Arial Narrow", sans-serif';
-// The scene, in cap heights of the name (Bebas Neue's capitals stand 0.7 of its size): the gap over the keys, the keys,
-// the threads under them, the letters, the room under them. The name runs `fill` of the width.
-const SCENE = { top: 0.08, keys: 1, threads: 0.95, letters: 1, foot: 0.06, cap: 0.7, fill: 0.97 };
+// The scene, in cap heights of the name (Bebas Neue's capitals stand 0.7 of its size): the gap over the keys, the keys
+// (at least, or `band` of the height if that is more), the threads under them (at least: they take whatever height is
+// left, so the keys hang from the top and the name stands at the bottom however tall the box), the letters, the room
+// under them. The name runs `fill` of the width.
+const SCENE = { top: 0.08, keys: 1, band: 0.2, threads: 0.6, letters: 1, foot: 0.06, cap: 0.7, fill: 0.97 };
 // The keys: about one to every `pitch` cap heights across; heights `height` (share of the band), notches `notch` wide
 // (share of a key) and `depth` deep (share of its height), lean up to `lean` degrees, hang down to `drop` lower (share
 // of the band), the top cut ragged by up to `rag` (share of its height); a played key goes `dip` of the band down.
@@ -78,13 +80,14 @@ export function createMarionette(canvas, options = {}) {
     const text = o.text.toUpperCase();
     ctx.font = `100px ${FONT}`;
     const at100 = ctx.measureText(text).width;
-    const total = SCENE.top + SCENE.keys + SCENE.threads + SCENE.letters + SCENE.foot;
-    const size = Math.min((W * SCENE.fill * 100) / at100, H / (total * SCENE.cap));
+    const least = SCENE.top + SCENE.keys + SCENE.threads + SCENE.letters + SCENE.foot;
+    const size = Math.min((W * SCENE.fill * 100) / at100, H / (least * SCENE.cap));
     const cap = size * SCENE.cap;
     const r = random(23);
+    const rest = cap * (SCENE.top + SCENE.threads + SCENE.letters + SCENE.foot); // all but the keys, at their least
 
     // The keys, from a C, centred on middle C, the band's width shared out between them.
-    const band = { top: cap * SCENE.top, h: cap * SCENE.keys };
+    const band = { top: cap * SCENE.top, h: Math.min(Math.max(cap * SCENE.keys, H * SCENE.band), H - rest) };
     const n = Math.max(6, Math.min(24, Math.round(W / (cap * KEYS.pitch))));
     const first = whiteIndex(60) - Math.floor(n / 2);
     const kw = W / n;
@@ -123,8 +126,9 @@ export function createMarionette(canvas, options = {}) {
     low = keys[0].note;
     high = keys[keys.length - 1].note;
 
-    // The letters, side by side across the middle, each hung from the key above it on one thread or two.
-    const top = band.top + band.h + cap * SCENE.threads;
+    // The letters, side by side across the foot of the box, each hung from the key above it on one thread or two.
+    const top = H - cap * (SCENE.letters + SCENE.foot);
+    const drop = (top - band.top - band.h) * SWING.from; // how far up they start, to be lowered
     ctx.font = `${size}px ${FONT}`;
     let x = (W - ctx.measureText(text).width) / 2;
     const old = letters;
@@ -139,7 +143,7 @@ export function createMarionette(canvas, options = {}) {
           return { dx: t * w, key };
         });
         const was = old[letters.length];
-        letters.push({ ch, x, w, top, size, cap, threads, a: was?.a || 0, va: was?.va || 0, y: was?.y || 0, vy: was?.vy || 0, phase: r() * Math.PI * 2, i });
+        letters.push({ ch, x, w, top, size, cap, drop, threads, a: was?.a || 0, va: was?.va || 0, y: was?.y || 0, vy: was?.vy || 0, phase: r() * Math.PI * 2, i });
       }
       x += w;
     });
@@ -178,7 +182,7 @@ export function createMarionette(canvas, options = {}) {
       // Down on the strings: from high up to their place, each a little after the one before.
       const start = lowering < 0 ? Infinity : lowering + l.i * SWING.stagger;
       const hang = l.threads.reduce((s, th) => s + th.key.dip, 0) / l.threads.length;
-      const target = clock < start ? -(l.cap * SCENE.threads * SWING.from) : hang;
+      const target = clock < start ? -l.drop : hang;
       if (lowering < 0 || clock < start) {
         l.y = target;
         l.vy = 0;
