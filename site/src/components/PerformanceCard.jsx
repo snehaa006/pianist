@@ -1,8 +1,10 @@
 import { useLightbox } from './Lightbox.jsx';
+import FilmLoop from './FilmLoop.jsx';
 import { metaOf } from '../data/performances';
 
 // A filmed performance: 16:9 warm-monochrome still, play circle, composer / work / where.
-// `compact`: the still alone, the work named on it; the words below are kept for screen readers only.
+// `compact`: the film's muted loop over the still (the home reel plays and pauses it), the work named on it;
+// the words below are kept for screen readers only.
 export default function PerformanceCard({ item, index = 0, size = 'md', eager = false, compact = false }) {
   const { open } = useLightbox();
   return (
@@ -14,14 +16,18 @@ export default function PerformanceCard({ item, index = 0, size = 'md', eager = 
         onClick={e => open(item, e.currentTarget)}
       >
         <span className="film__frame frame scrim ratio-16x9">
-          <img
-            src={item.poster}
-            alt={item.alt}
-            width="1024"
-            height="576"
-            loading={eager ? 'eager' : 'lazy'}
-            decoding="async"
-          />
+          {compact ? (
+            <FilmLoop item={item} />
+          ) : (
+            <img
+              src={item.poster}
+              alt={item.alt}
+              width="1024"
+              height="576"
+              loading={eager ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          )}
           <span className="play film__play" aria-hidden="true">
             ▶
           </span>

@@ -4,6 +4,11 @@
 
 const media = slug => ({
   poster: `/media/posters/${slug}.webp`,
+  // 6 s, muted, warm monochrome: the home reel plays these
+  loop: [
+    { src: `/media/video/loops/${slug}.mp4`, type: 'video/mp4' },
+    { src: `/media/video/loops/${slug}.webm`, type: 'video/webm' }
+  ],
   sources: [
     { src: `/media/video/${slug}.mp4`, type: 'video/mp4' },
     { src: `/media/video/${slug}.webm`, type: 'video/webm' }

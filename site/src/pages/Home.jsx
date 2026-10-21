@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Hero from '../components/Hero.jsx';
 import Headline from '../components/Headline.jsx';
 import PerformanceCard from '../components/PerformanceCard.jsx';
+import FilmLoop from '../components/FilmLoop.jsx';
 import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
@@ -28,8 +29,10 @@ export default function Home() {
   useReveals();
   const concert = byId('austrian-master-classes');
   const stage = byId('on-stage');
+  const onStage = performances.filter(p => p.tags.includes('stage')).length;
   const atHome = performances.filter(p => p.tags.includes('home'));
   const atHomeExams = atHome.filter(p => p.tags.includes('exam')).length;
+  const filmsLead = `${inWords(performances.length, true)} films, ${inWords(onStage)} on stage and ${inWords(atHome.length)} at home, ${inWords(atHomeExams)} of them recorded for London College of Music exams.`;
   const films = useRef(null);
   const fly = useFlyIn(films);
 
@@ -39,67 +42,57 @@ export default function Home() {
 
       <FeaturedFilm item={stage} />
 
-      {/* The films from home. Wide screens: a pinned stage that opens on a turning ring of the films, then the
-          films fly into the grid one by one as you scroll (lib/flyIn.js). Elsewhere: headline and grid. */}
+      {/* Every film. Wide screens: one pinned screen where the films ride a turning ring, come up close, sweep
+          away and fly into the grid, playing all the while (lib/flyIn.js). Elsewhere: headline and grid. */}
       {fly ? (
-        <section ref={films} className="reel fly-zone" aria-labelledby="home-h">
-          <div className="reel__sky" aria-hidden="true">
-            <div className="reel__orbit">
-              <div className="reel__ring">
-                {[...atHome, ...atHome, ...atHome].map((p, i) => (
-                  <img
-                    key={`${p.id}-${i}`}
-                    className="reel__tile"
-                    style={{ '--n': i }}
-                    src={p.poster}
-                    alt=""
-                    width="1024"
-                    height="576"
-                    decoding="async"
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-          <h2 className="reel__title display" id="home-h">
-            <span className="reel__word reel__word--a">At home,</span>{' '}
+        <section ref={films} className="reel" aria-labelledby="films-h">
+          <h2 className="reel__title" id="films-h">
+            <span className="reel__word reel__word--a">On stage,</span>{' '}
             <span className="reel__word reel__word--b">
-              at the <span className="accent-word">piano</span>
+              and <span className="accent-word">at home</span>
             </span>
           </h2>
           <div className="reel__intro">
             <Opus>(Op. 01: Watch)</Opus>
           </div>
+          <div className="reel__sky" aria-hidden="true">
+            <div className="reel__orbit">
+              <div className="reel__ring">
+                {[...performances, ...performances].map((p, i) => (
+                  <FilmLoop key={`${p.id}-${i}`} item={p} className="reel__tile" style={{ '--n': i }} />
+                ))}
+              </div>
+            </div>
+          </div>
           <div className="container reel__films">
             <div className="films films--fly">
-              {atHome.map((p, i) => (
-                <PerformanceCard key={p.id} item={p} index={i} eager compact />
+              {performances.map((p, i) => (
+                <PerformanceCard key={p.id} item={p} index={i} compact />
               ))}
             </div>
           </div>
           <div className="container reel__foot">
-            <p className="body-sm muted reel__lead">
-              {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of
-              Music exams.
-            </p>
+            <p className="body-sm muted reel__lead">{filmsLead}</p>
             <Link className="link" to="/watch">
               All performances <Arrow />
             </Link>
           </div>
+          <div className="reel__blinds" aria-hidden="true">
+            {Array.from({ length: 10 }, (_, i) => (
+              <i key={i} />
+            ))}
+          </div>
         </section>
       ) : (
-        <section className="screen" aria-labelledby="home-h">
+        <section className="screen" aria-labelledby="films-h">
           <div className="container">
             <Opus>(Op. 01: Watch)</Opus>
-            <Headline id="home-h" hinge="left" accent="piano">
-              At home, at the piano
+            <Headline id="films-h" hinge="left" accent="home">
+              On stage and at home
             </Headline>
-            <p className="lead muted reveal reveal--rise">
-              {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of
-              Music exams.
-            </p>
+            <p className="lead muted reveal reveal--rise">{filmsLead}</p>
             <div className="films">
-              {atHome.map((p, i) => (
+              {performances.map((p, i) => (
                 <PerformanceCard key={p.id} item={p} index={i} />
               ))}
             </div>
