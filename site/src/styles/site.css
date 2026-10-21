@@ -259,11 +259,16 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* The wordmark stands whole above the bottom edge, not cropped by it. */
 .footer { padding-bottom: var(--space-8); }
 .footer__mark { margin-bottom: 0; }
-/* Biography: the page ends on the keyboard city (Skyline.jsx), edge to edge and down to the bottom of the page. It
-   keeps its proportions, cropping its sides on narrow screens; the towers grow up out of the keys as it arrives,
-   from the middle outward. */
-.footer--city { padding-bottom: 0; }
-.skyline { display: block; width: 100%; aspect-ratio: 1440 / 620; min-height: 260px; max-height: 820px; } /* Skyline W / H */
+/* Biography: the footer is one screen under the nav bar, its links and wordmark and then the keyboard city
+   (Skyline.jsx) filling the rest, edge to edge and down to the bottom of the page. The city scales to that height
+   and shows as many keys as the width takes; the towers grow up out of the keys as it arrives, middle outward. */
+.footer--city { --bar: var(--nav-height); display: flex; flex-direction: column; box-sizing: border-box;
+  height: calc(100svh - var(--bar)); min-height: 520px; padding-block: var(--space-7) 0; }
+@media (max-width: 899px) { .footer--city { --bar: 64px; } } /* the nav's height on phones (components.css) */
+.footer--city .footer__mark { margin-top: var(--space-6); }
+.skyline { display: block; flex: 1 1 0; min-height: 200px; width: 100%; }
+/* Phones: a lower city, so more keys fit across; the sky above takes the rest. */
+@media (max-width: 899px) { .skyline { max-height: 360px; margin-top: auto; } }
 .skyline.reveal { opacity: 1; transform: none; }
 .skyline__tower { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0);
   transition: transform var(--dur-largo) var(--ease-legato) var(--d, 0ms); }

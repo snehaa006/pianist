@@ -65,9 +65,11 @@ headline and a plain grid of stills.
 The Biography page ends on a keyboard that turns into a city (`src/components/Skyline.jsx`, after a poster the client
 supplied): under the footer's wordmark the keys run toward you in perspective, and at their far end every white key
 rises into a tower (flat roofs, aerials, setbacks, sloped tops, roof blocks), cream on the ink, shading where the
-towers meet the keys. One SVG from a fixed seed, edge to edge and down to the bottom of the page; it keeps its
-proportions and crops its sides on narrow screens. The towers grow up out of the keys as it arrives, from the middle
-outward (none of that with reduced motion). Only on /about; the other pages keep the plain footer.
+towers meet the keys. There the footer is exactly one screen under the nav bar: links, wordmark, then the city
+filling the rest, edge to edge and down to the bottom of the page (on phones it stays lower, under a taller sky). One
+SVG from a fixed seed, sized by that height and drawn a screen's width further either side, so wide screens see more
+keys and narrow ones the middle. The towers grow up out of the keys as it arrives, from the middle outward (none of
+that with reduced motion). Only on /about; the other pages keep the plain footer.
 
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of
 a keyboard, tumbles, and opens into a bird (a swift) that flies off up the page; each key and each bird are the same

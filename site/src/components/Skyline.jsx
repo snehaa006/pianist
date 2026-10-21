@@ -1,14 +1,16 @@
 // The end of the Biography page, after the poster of a keyboard that turns into a city: the keys run toward you in
 // perspective, and at their far end every white key rises into a tower (flat roofs, aerials, setbacks, sloped tops,
 // little roof blocks), cream on the ink. One SVG, drawn from a fixed seed so it is the same every time; the towers
-// grow up out of the keys as it comes into view (`reveal`, see .skyline in site.css).
+// grow up out of the keys as it comes into view (`reveal`, see .skyline in site.css). It is sized by its height (the
+// room the footer leaves it): the drawing runs a screen's width further on either side, so wider boxes see more keys
+// and narrower ones the middle.
 
-const W = 1440;
+const W = 1440; // the middle stretch, where the keyboard's perspective is centred
 const H = 620;
 const BACK = 360; // y of the keyboard's far edge, where the towers stand; the keys come forward to the bottom (H)
 const VANISH = 35; // y where the keys' edges would meet, far above: a key is 1.8 times as wide at the front
 const CX = W / 2;
-const PITCH = 40; // a white key's width at the far edge: 36 keys across
+const PITCH = 40; // a white key's width at the far edge: 36 keys across the middle stretch, 108 in all
 const GAP = 3; // the line between two white keys there
 const BLACK = 0.58; // a black key's width (share of PITCH) and its length (share of the keys' depth)
 const BLACK_AFTER = [true, true, false, true, true, true, false]; // white keys a black key follows, from C
@@ -76,22 +78,23 @@ function build() {
   const keys = [];
   const blacks = [];
   const towers = [];
-  const count = W / PITCH;
+  const first = -W / PITCH;
+  const last = (2 * W) / PITCH - 1;
   const front = H;
   const blackEnd = BACK + BLACK * (H - BACK);
   const bw = PITCH * BLACK;
   const hasBlack = i => BLACK_AFTER[((i % 7) + 7) % 7];
-  for (let i = 0; i < count; i++) {
+  for (let i = first; i <= last; i++) {
     const l = i * PITCH;
     const rt = l + PITCH;
     keys.push(quad(l + GAP / 2, rt - GAP / 2, BACK, front));
-    if (i < count - 1 && hasBlack(i)) blacks.push(quad(rt - bw / 2, rt + bw / 2, BACK, blackEnd));
+    if (i < last && hasBlack(i)) blacks.push(quad(rt - bw / 2, rt + bw / 2, BACK, blackEnd));
     // The tower stands on the part of the key the black keys leave free.
     const x0 = hasBlack(i - 1) ? l + bw / 2 : l + GAP / 2;
     const x1 = hasBlack(i) ? rt - bw / 2 : rt - GAP / 2;
     const h = 70 + 140 * r() ** 0.85;
     // They rise from the middle outward.
-    towers.push({ d: tower(x0, x1, h, r), delay: Math.round(Math.abs(i + 0.5 - count / 2) * 40 + r() * 120) });
+    towers.push({ d: tower(x0, x1, h, r), delay: Math.round((Math.abs(l + PITCH / 2 - CX) / PITCH) * 30 + r() * 120) });
   }
   return { keys: keys.join(''), blacks: blacks.join(''), towers };
 }
@@ -100,7 +103,7 @@ const CITY = build();
 
 export default function Skyline({ className = '' }) {
   return (
-    <svg className={`skyline reveal ${className}`} viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <svg className={`skyline reveal ${className}`} viewBox={`${-W} 0 ${3 * W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
       <defs>
         <linearGradient id="skyline-tower" gradientUnits="userSpaceOnUse" x1="0" y1={BACK - 34} x2="0" y2={BACK}>
           <stop offset="0" style={{ stopColor: 'var(--color-ivory)' }} />
