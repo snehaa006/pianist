@@ -56,10 +56,18 @@ stands at the ring's centre in the same 3D scene, so the near films pass in fron
 Trails of light circle her on tilted orbits (`src/lib/trails.js`, two canvases: behind her and in front of her). The
 ring pulls back to a ribbon at the top and sweeps off to the top right (the entrance and exit are the ones from before
 she was added), she fades, the light goes out, and the films fly into a 4x2 grid one at a time, each from its own
-side, swinging like a sheet of paper; red blinds close over the grid into the repertoire band. GSAP
+side, swinging like a sheet of paper (the grid runs 12% wider than the text column, as far as half a page margin from
+the screen's edges); red blinds close over the grid into the repertoire band. GSAP
 ScrollTrigger, scrubbed, so scrolling back plays it in reverse; while pinned the ring also turns slowly by itself.
 Only the loops that can be seen play. Wide screens (≥900px) with motion allowed; phones and reduced motion get the
 headline and a plain grid of stills.
+
+The Biography page ends on a keyboard that turns into a city (`src/components/Skyline.jsx`, after a poster the client
+supplied): under the footer's wordmark the keys run toward you in perspective, and at their far end every white key
+rises into a tower (flat roofs, aerials, setbacks, sloped tops, roof blocks), cream on the ink, shading where the
+towers meet the keys. One SVG from a fixed seed, edge to edge and down to the bottom of the page; it keeps its
+proportions and crops its sides on narrow screens. The towers grow up out of the keys as it arrives, from the middle
+outward (none of that with reduced motion). Only on /about; the other pages keep the plain footer.
 
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of
 a keyboard, tumbles, and opens into a bird (a swift) that flies off up the page; each key and each bird are the same

@@ -124,9 +124,13 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); background: var(--color-lacquer);
   outline: 1px solid rgba(232, 82, 74, 0.6); outline-offset: -1px;
   transform: rotateY(calc(var(--n) * 22.5deg)) translateZ(var(--ring-r)); } /* FLY.spread in lib/flyIn.js */
-.reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center; }
+/* The landed grid runs 12% wider than the page's text column, as far as half a page margin from the screen's edges,
+   and never taller than the screen allows. */
+.reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center;
+  max-width: none; padding-inline: 0; }
 .films--fly { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; gap: var(--space-4);
-  width: min(100%, calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
+  width: min(calc(100vw - var(--page-margin)), calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) * 1.12),
+    calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
 .films--fly .film { transition: none; will-change: transform, opacity; }
 .films--fly .film__play { width: 44px; height: 44px; font-size: 13px; left: var(--space-4); bottom: var(--space-4); }
 .films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 13px); }
@@ -255,6 +259,16 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* The wordmark stands whole above the bottom edge, not cropped by it. */
 .footer { padding-bottom: var(--space-8); }
 .footer__mark { margin-bottom: 0; }
+/* Biography: the page ends on the keyboard city (Skyline.jsx), edge to edge and down to the bottom of the page. It
+   keeps its proportions, cropping its sides on narrow screens; the towers grow up out of the keys as it arrives,
+   from the middle outward. */
+.footer--city { padding-bottom: 0; }
+.skyline { display: block; width: 100%; aspect-ratio: 1440 / 620; min-height: 260px; max-height: 820px; } /* Skyline W / H */
+.skyline.reveal { opacity: 1; transform: none; }
+.skyline__tower { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0);
+  transition: transform var(--dur-largo) var(--ease-legato) var(--d, 0ms); }
+.skyline.is-in .skyline__tower { transform: none; }
+@media (prefers-reduced-motion: reduce) { .skyline__tower { transform: none; transition: none; } }
 
 /* Robustness: a missing image never prints its alt text across a frame. */
 .frame img { color: transparent; }

@@ -1,12 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { links } from './Nav.jsx';
+import Skyline from './Skyline.jsx';
 import { site, isPlaceholder } from '../data/site';
 
-// Ink band; the wordmark is cropped by the bottom edge as a closing gesture.
+// Ink band; the wordmark is cropped by the bottom edge as a closing gesture. On the Biography page the page ends
+// instead on a keyboard whose white keys rise into a city (Skyline), under the wordmark.
 export default function Footer() {
   const socials = site.socials.filter(s => !isPlaceholder(s.url));
+  const city = useLocation().pathname.replace(/\/+$/, '') === '/about';
   return (
-    <footer className="stage footer">
+    <footer className={`stage footer${city ? ' footer--city' : ''}`}>
       <div className="container footer__row label">
         <ul className="footer__links">
           {links.map(l => (
@@ -33,6 +36,7 @@ export default function Footer() {
           Selin Incekara
         </p>
       </div>
+      {city && <Skyline />}
     </footer>
   );
 }
