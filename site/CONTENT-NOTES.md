@@ -34,6 +34,13 @@ Still to confirm: who is standing behind her in the photo (the alt text reads `[
 | `andante` | `WhatsApp Video 2026-10-06 at 14.23.23.mp4` (1:04) | **Charles Henry Wilton: Andante**. LCM recorded exam, **Grade 1, Performance List A**. Same session as the Grade 1 List B piece. | Spoken introduction (heard as "Andante by … Wilton"); an Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook. Note analysis: G major. | Likely, confirm |
 | `grade-1-technical` | `WhatsApp Video 2026-10-06 at 14.23.15.mp4` (2:17) | LCM recorded exam, **Grade 1 technical work**: scales, broken chords and arpeggios, each named on camera (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios). | Spoken throughout. Shown on Watch; left out of Repertoire (not a piece). | High |
 
+### The pieces as sound (Home's stairs and "Hear me play")
+Each of the seven pieces (every film but the technical work) is also on the site as audio only, cut to the music:
+the exam films lose her spoken introduction (the first 10–14 s), the two stage films their walk-on and applause. The
+cut points (`scripts/process-media.sh`) were found from the loudness and the transcribed notes, not by ear; if a cut
+clips a breath or a last chord, move it there. The stairs name each piece as the Repertoire dial does: its work once
+known, otherwise where it was filmed, with `[Composer]` until it is filled in.
+
 ### Musical analysis of the three unnamed pieces (never shown on the site)
 Notes were transcribed from the audio and analysed for key and texture. These are leads for you to confirm, not identifications:
 
