@@ -296,6 +296,9 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .footer__links a { display: inline-flex; align-items: center; min-height: var(--control-md); min-width: var(--control-md); }
 .footer__row { align-items: center; }
 .footer .micro { color: var(--fg-muted); }
+/* Her name on strings (Marionette.jsx): keys along the top, threads, the name under them, filling the column's width.
+   The box is as tall as the scene needs for that width (lib/marionette.js fits itself to it either way). */
+.footer__strings { display: block; width: 100%; aspect-ratio: 9 / 4; margin-top: var(--space-8); }
 /* The wordmark stands whole above the bottom edge, not cropped by it. */
 .footer { padding-bottom: var(--space-8); }
 .footer__mark { margin-bottom: 0; }

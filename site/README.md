@@ -45,7 +45,7 @@ Budget: `src/lib/fxStage.jsx` lets only the section filling most of the viewport
 effects are code-split and never load on phones, touch devices or with reduced motion.
 
 Text motion: FoldText headlines, mask *rise* for lead lines, *wipe* for captions, notes and portraits, *track* for opus
-tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark (shown whole, not cropped), counted
+tags (tracking closes from 0.6em to label width), *lift* for the Biography footer's wordmark (shown whole), counted
 display numerals, an ink curtain between pages and the keyboard-rhythm loader while a page loads.
 
 The films reel (`src/lib/flyIn.js`, Home's "On stage, and at home"): one pinned screen on the ink stage with all
@@ -65,17 +65,19 @@ reverse; while pinned the ring also turns slowly by itself. Only the loops that 
 with motion allowed; phones and reduced motion get the headline and a plain grid of stills, then the stairs as a
 screen of their own.
 
-The stairs (`src/components/Stairs.jsx`, `src/lib/stairs.js`; Home, after the films), after the "See you on the
-other side" linocut poster and a keyboard turned on its side: the keys come out of the screen's left edge one above
-the other, each a step further out than the one above, so they climb from the floor to the upper left, low notes at
-the bottom and high ones at the top. Cream keys, ink black keys at the back, and under the front of every step the ink
-shadow of the one above, so the back reads as a keyboard and the front as stairs. In the films reel they build with
+The stairs (`src/components/Stairs.jsx`, `src/lib/stairs.js`; Home, after the films), after the "Howling Black Soul"
+linocut poster and a keyboard turned on its side: seen in perspective, the steps climb from the floor, tall near it
+and smaller as they go up, out of a black wall on the left whose edge is cut rough and flecked with cream, as in the
+print. Their noses wind out and back as they climb, so the stair's outer line is an S, like a spiral stair seen from
+the side (after the Beethoven poster). Each step is a white key, low notes at the bottom and high ones at the top: a
+cream slab with the ink shadow of the step above along its top, running on past its nose in a thin wedge; the black
+keys come out of the wall between their two white keys. In the films reel they build with
 the scroll as the blinds close, the bottom step coming out as the lowest band shuts, then her pieces arrive on the
 right: a dial of every piece she has on film (OptionWheel, as on Repertoire; a plain list on phones and touch), the
 piece's composer and where it was filmed, *Play the piece* / *Pause* and *Watch the film*. Choosing a piece plays it
 (the site sound, below): the stairs fold back into the wall from the top and build again on that piece's notes, each
 piece its own flight (its white keys from its low notes to its high ones, so the steps and the black keys' places
-change), and while it plays each key goes in, back toward the wall and darkening, for as long as she holds its note.
+change), and while it plays each key goes in, back into the wall and darkening, for as long as she holds its note.
 Nothing sounds until a piece is chosen or *Play the piece* is pressed. On phones the stairs stay under the nav while
 the list scrolls beneath them, so a chosen piece is seen playing. With reduced motion the stairs stand still, built,
 and the keys don't move with the music.
@@ -87,13 +89,24 @@ towers meet the keys. There the footer is exactly one screen under the nav bar: 
 filling the rest, edge to edge and down to the bottom of the page (on phones it stays lower, under a taller sky). One
 SVG from a fixed seed, sized by that height and drawn a screen's width further either side, so wide screens see more
 keys and narrow ones the middle. The towers grow up out of the keys as it arrives, from the middle outward (none of
-that with reduced motion). Only on /about; the other pages keep the plain footer.
+that with reduced motion). Only on /about; the other pages end on her name on strings (below).
+
+Every other page ends on her name hanging on strings (`src/components/Marionette.jsx`, `src/lib/marionette.js`; the
+footer), after the "Play music, be free" poster: a row of cream piano keys, cut ragged as if torn from paper, the gaps
+where the black keys would be cut out of them, hangs along the top; thin threads run down from each to the letters of
+SELIN INCEKARA, which hang and sway on them, a letter on one thread or two. The first time the footer comes into view
+the letters are lowered into place on their strings, one after another; the mouse moving through them sets them
+swinging; and while a piece plays the keys play along, each going down with its note, and the letters hanging from
+it dip and swing. Canvas, sized to fill the column (about 9:4), drawn once Bebas Neue has arrived; running only on
+screen and in a visible tab; with reduced motion the name hangs still.
 
 Keys into birds (`src/lib/flight.js`, `src/components/Flight.jsx`), after the Swell Season poster: a key lifts out of
 a keyboard, tumbles, and opens into a bird (a swift) that flies off up the page; each key and each bird are the same
 16-point outline, so one morphs into the other and the key's long sides become the wings. White keys make cream
 birds, black keys ink ones, and a key grows back from below once its bird has gone. On the hero's full 88-key
-keyboard (keys leave from its right side; moving the mouse along it sends keys up too). Canvas, running only on
+keyboard (keys leave from its right side; moving the mouse along it sends keys up too), which is laid loosely, like
+keys cut out and set down by hand: each white key a little taller or shorter and leaning a degree or two on its foot,
+each black key hanging a little longer or shorter, all over a soft shadow in the deep red. Canvas, running only on
 screen and in a visible tab; with reduced motion it draws one still frame of birds already in flight.
 
 The About screen's silhouette turns into her photograph under the pointer (`src/components/Compare.jsx`, after the
