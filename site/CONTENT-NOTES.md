@@ -76,7 +76,7 @@ These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Ye
 | Management `[Name], [Agency]` + `[email]` | Contact page |
 | Press `[Name]` + `[email]` | same |
 | Direct `[email]` | same |
-| `newsletterAction` (mailing-list form endpoint) | both sign-up forms; until set, sign-ups are not stored |
+| `newsletterAction` (mailing-list form endpoint) | the sign-up form on Contact; until set, sign-ups are not stored |
 | `socials` (Instagram, YouTube URLs) | footer; hidden until set |
 | `pressKit` (PDF path) | Biography; hidden until set |
 
@@ -85,7 +85,9 @@ These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Ye
 
 ## Things deliberately left out
 - **Concerts screen** (Upcoming / Past concerts) and the Home **Book a concert** screen: removed from Home at the client's
-  request. Contact details stay on the Contact page; the mailing list stays on Home.
+  request. Contact details stay on the Contact page.
+- **Mailing-list band** (Home and Contact, before the footer): removed at the client's request, so each page ends on
+  the footer. The sign-up form stays on Contact, under the contact rows.
 - **Next season screen**: no project or date exists.
 - **Press quote**: none exists, so the fermata is a photograph only.
 - **Repertoire filter chips** (Solo · Concertos · Chamber): every filmed piece is solo, so the filter would have nothing to sort. The OptionWheel dial lists the five pieces instead.

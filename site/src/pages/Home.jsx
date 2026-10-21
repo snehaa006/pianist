@@ -6,7 +6,6 @@ import PerformanceCard from '../components/PerformanceCard.jsx';
 import FilmLoop from '../components/FilmLoop.jsx';
 import Compare from '../components/Compare.jsx';
 import Stairs from '../components/Stairs.jsx';
-import MailingList from '../components/MailingList.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
 import { Staff } from '../components/Motifs.jsx';
@@ -150,8 +149,6 @@ export default function Home() {
           </p>
         </div>
       </section>
-
-      <MailingList />
     </>
   );
 }

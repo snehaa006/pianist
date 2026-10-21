@@ -13,6 +13,10 @@
 //   play: () => { t, notes } | null   keyboard only: music to play along to, `notes` as [start s, end s, MIDI note,
 //                           velocity] in order of start and `t` the seconds into it; each key dips while its note sounds
 // It returns { start, stop, still, resize, poke(x, y), destroy }. still() draws one fixed frame (reduced motion).
+//
+// The keyboard is laid loosely, like keys cut out and set down by hand: each white key a little taller or shorter and
+// leaning a degree or two on its foot, each black key hanging a little longer or shorter and leaning from its top, all
+// over a soft shadow in the deep red.
 
 const TAU = Math.PI * 2;
 const CREAM = '#F4E9D8';
@@ -40,6 +44,12 @@ const whiteNote = j => 21 + 12 * Math.floor(j / 7) + WHITE_STEPS[j % 7];
 // cream, the stage graphite over the ink), at full press; how long it takes to go down and to come back up (s).
 const PRESS = { dip: 0.07, white: [154, 38, 44], whiteMix: 0.3, black: [58, 42, 43], blackMix: 0.9, down: 0.035, up: 0.14 };
 const CREAM_RGB = [244, 233, 216];
+// The loose keyboard: how much taller (negative) or shorter a white key may be (share of its height), and a black key
+// longer or shorter; how far they lean (degrees); how far a key may sit off its place (share of its width); the shadow,
+// two layers offset down and to the right (px), in the deep red; the shade along a white key's left side and the sheen
+// on a black key.
+const LOOSE = { white: [-0.07, 0.12], black: [-0.1, 0.16], lean: [1.6, 3], shift: 0.06,
+  shadow: [[3, 3, 0.34], [6, 5, 0.16]], shadowColor: '#4A0A0E', shade: 'rgba(110, 14, 18, 0.13)', sheen: 'rgba(244, 233, 216, 0.13)' };
 const INK_RGB = [14, 10, 10];
 const mix = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
 
@@ -129,8 +139,16 @@ export function createFlight(canvas, options = {}) {
     const first = Math.round((52 - n) / 2); // white keys of the full piano left off below this keyboard
     const ww = bed.width / n;
     const gap = Math.max(1, ww * 0.07);
+    const loose = random(o.seed + 101); // its own seed, so the birds' flights stay as they were
     const key = (black, note, x, y, w, h) => {
-      const k = { black, note, x, y, w, h, state: 'rest', at: 0, press: 0 };
+      const [lo, hi] = black ? LOOSE.black : LOOSE.white;
+      const lean = (black ? LOOSE.lean[1] : LOOSE.lean[0]) * (Math.PI / 180);
+      const k = {
+        black, note, x, y, w, h, state: 'rest', at: 0, press: 0,
+        trim: lerp(lo, hi, loose()) * h, // white keys lose it from the top, black keys gain it at the bottom
+        lean: (loose() * 2 - 1) * lean,
+        shift: (loose() * 2 - 1) * LOOSE.shift * w
+      };
       keys.push(k);
       byNote.set(note, k);
     };
@@ -266,12 +284,27 @@ export function createFlight(canvas, options = {}) {
       dy = (1 - e) * k.h * 0.9;
       alpha = e;
     }
+    if (k.press) dy += k.press * k.h * PRESS.dip;
+    // A white key stands on its foot and leans from there; a black key hangs from its top.
+    const h = k.black ? k.h + k.trim : k.h - k.trim;
+    ctx.save();
+    ctx.translate(k.x + k.w / 2 + k.shift, (k.black ? k.y : k.y + k.h) + dy);
+    ctx.rotate(k.lean);
+    const y0 = k.black ? 0 : -h;
+    ctx.fillStyle = LOOSE.shadowColor;
+    for (const [sx, sy, a] of LOOSE.shadow) {
+      ctx.globalAlpha = alpha * a;
+      ctx.fillRect(-k.w / 2 + sx, y0 + sy, k.w, h);
+    }
     ctx.globalAlpha = alpha;
     if (k.press) {
-      dy += k.press * k.h * PRESS.dip;
       ctx.fillStyle = k.black ? mix(INK_RGB, PRESS.black, k.press * PRESS.blackMix) : mix(CREAM_RGB, PRESS.white, k.press * PRESS.whiteMix);
     } else ctx.fillStyle = k.black ? INK : CREAM;
-    ctx.fillRect(k.x, k.y + dy, k.w, k.h);
+    ctx.fillRect(-k.w / 2, y0, k.w, h);
+    ctx.fillStyle = k.black ? LOOSE.sheen : LOOSE.shade;
+    if (k.black) ctx.fillRect(k.w * 0.18, y0, k.w * 0.14, h * 0.94);
+    else ctx.fillRect(-k.w / 2, y0, k.w * 0.14, h);
+    ctx.restore();
   }
 
   function drawFlier(f, t) {

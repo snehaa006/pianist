@@ -1,12 +1,15 @@
-// The stairs: a keyboard turned on its side and pulled out into a flight of steps, after the "See you on the other
-// side" linocut poster. The keys come out of the left wall one above the other, each a step further out than the one
-// above it, so they climb from the floor to the upper left: the low notes at the bottom, the high ones at the top.
-// Cream keys, ink black keys at the back, and under every step the ink shadow of the one above, as in the print.
+// The stairs: a keyboard turned on its side and built into a flight of steps, after the "Howling Black Soul" linocut
+// poster. Seen in perspective, the steps climb from the floor, tall near it and smaller as they go up, out of a black
+// wall on the left whose edge is cut rough, as in the print; each step's front is cut square where it meets one smooth
+// S, so the stair's outer line steps out and back as it climbs, like a spiral stair seen from the side (after the
+// Beethoven poster). Each step
+// is a white key, the low notes at the bottom and the high ones at the top: a cream slab with the ink shadow of the
+// step above along its top; the black keys come out of the wall between their two white keys.
 //
 // Each piece gets its own flight: the white keys from its low notes to its high ones (nearly all its notes; the few
 // beyond are played an octave in), so a piece with a wide range has more, shallower steps. The stairs build up from the
 // floor a step at a time; when another piece is chosen they fold back into the wall from the top and the new flight
-// builds. While a piece plays, each key goes in (back toward the wall, darkening) for as long as its note sounds,
+// builds. While a piece plays, each key goes in (back into the wall, darkening) for as long as its note sounds,
 // further for louder notes.
 //
 // createStairs(canvas, options) draws on a 2D canvas the size of its CSS box:
@@ -24,12 +27,16 @@ const INK_RGB = [14, 10, 10];
 // A played key: how far it goes in (share of a step's height), the colour it darkens toward at full press (the deep
 // poster red over the cream, the stage graphite over the ink), and how long it takes to go in and come back (s).
 const PRESS = { travel: 0.5, white: [154, 38, 44], whiteMix: 0.35, black: [58, 42, 43], blackMix: 0.9, down: 0.035, up: 0.14 };
-// The flight: at least and at most this many steps, no step taller than `pitch` px, the gap between steps (share of a
-// step), the bottom step's reach and the top step's (shares of the canvas width), the black keys' length (share of the
-// step above them) and thickness (share of a step), and the shadow under each step: where it starts (share of the step
-// above, just past the black keys, so the back reads as a keyboard and the front as stairs), its depth (share of a
-// step) and how far it runs past the tip of the step above (share of a step), slanting.
-const FLIGHT = { min: 14, max: 26, pitch: 64, gap: 0.1, reach: [0.96, 0.24], black: [0.56, 0.6], from: 0.62, shadow: 0.26, overhang: 0.32 };
+// The flight: at least and at most this many steps; the bottom step at most `tallest` px high and the top one `recede`
+// times its height (perspective); where the wall ends (the steps' back ends) and where the fronts' S runs, at the
+// bottom and at the top (shares of the canvas width), winding out and back by `wind` (share of the width), no step
+// shorter than `least`; the shadow line under each step above (share of a step's height); the black keys' length
+// (share of the tread they lie over) and thickness (share of a step's height); and how rough the wall's edge is (share
+// of a step's height).
+const FLIGHT = {
+  min: 14, max: 26, tallest: 96, recede: 0.32, wall: [0.06, 0.2], nose: [0.74, 0.52], wind: 0.26, least: 0.1,
+  line: 0.16, black: [0.5, 0.5], rough: 0.16
+};
 // Building and folding: each key takes `span` of the run, the bottom one first; a run takes `build` or `fold` s.
 const MOTION = { span: 0.3, build: 1.6, fold: 0.6 };
 
@@ -47,6 +54,19 @@ const smooth = (a, b, v) => {
   return t * t * (3 - 2 * t);
 };
 const legato = t => 1 - (1 - t) ** 3;
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// Small seeded generator, so each flight is cut the same way every time.
+function random(seed) {
+  let x = seed >>> 0;
+  return () => {
+    x = (x + 0x6d2b79f5) >>> 0;
+    let t = x;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
 const mix = (a, b, t) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
 
 // The white keys a piece needs: from its lowest notes to its highest, leaving out the rarest 2% at either end, widened
@@ -86,6 +106,8 @@ export function createStairs(canvas, options = {}) {
   let raf = 0;
   let last = 0;
   let drawn = ''; // what the last frame showed, so an unchanged frame is not drawn again
+  let laid = ''; // the canvas size and piece the flight below was laid out for
+  let flight = { steps: [], specks: [], outline: () => 0 }; // each step's shape, the S, the specks of the print
 
   function resize() {
     const box = canvas.getBoundingClientRect();
@@ -136,6 +158,59 @@ export function createStairs(canvas, options = {}) {
     }
   }
 
+  // The flight's shape for this canvas and piece: each step's height and place, the wall's rough edge and the specks of
+  // the print. Seeded by the piece, so it is cut the same way every time it comes back.
+  function lay() {
+    const { n, lo } = piece;
+    const r = random(31 + lo);
+    const q = FLIGHT.recede ** (1 / Math.max(1, n - 1));
+    const first = Math.min(FLIGHT.tallest, (H * (1 - q)) / (1 - q ** n));
+    const steps = [];
+    let y = H;
+    for (let i = 0; i < n; i++) {
+      const h = first * q ** i;
+      const t = i / Math.max(1, n - 1);
+      steps.push({
+        h,
+        bottom: y,
+        top: y - h,
+        back: W * lerp(FLIGHT.wall[0], FLIGHT.wall[1], t ** 1.4) + (r() - 0.5) * h * 0.4,
+        front: 0,
+        rough: [0, 1, 2, 3].map(() => 1 + r() * FLIGHT.rough * h)
+      });
+      y -= h;
+    }
+    // The S every front ends on, as a function of height (not of step, which perspective crowds at the top): out to the
+    // right over the lower half, back in to the left over the upper half, smooth all the way up.
+    const top = y;
+    const outline = yy => {
+      const u = clamp01((H - yy) / (H - top));
+      const wall = lerp(FLIGHT.wall[0], FLIGHT.wall[1], u ** 1.4);
+      return W * Math.max(wall + FLIGHT.least, lerp(FLIGHT.nose[0], FLIGHT.nose[1], u) + FLIGHT.wind * Math.sin(2 * Math.PI * u));
+    };
+    steps.forEach(st => (st.front = outline(st.bottom - st.h / 2)));
+    // Cream specks in the wall, thickest near its edge; ink specks on the steps by the wall.
+    const specks = [];
+    const area = W * (H - y);
+    for (let k = 0; k < area / 1400; k++) {
+      const yy = y + r() * (H - y);
+      const row = steps.findIndex(st => yy <= st.bottom && yy > st.top);
+      if (row < 0) continue;
+      const edge = steps[row].back;
+      const xx = r() * edge;
+      if (r() > 0.15 + 0.85 * (xx / edge) ** 4) continue;
+      specks.push({ row, x: xx, y: yy, s: 0.8 + r() * 1.8, ink: false });
+    }
+    steps.forEach((st, row) => {
+      for (let k = 0; k < 7; k++) {
+        const line = Math.max(2, st.h * FLIGHT.line);
+        specks.push({ row, x: st.back + st.rough[0] + r() * r() * (st.front - st.back) * 0.35, y: st.top + line + r() * (st.h - line), s: 0.6 + r() * 1.5, ink: true });
+      }
+    });
+    flight = { steps, specks, outline };
+    laid = `${W}x${H} ${piece.id}`;
+  }
+
   function draw() {
     listen();
     const built = o.build ? clamp01(o.build()) : 1;
@@ -146,54 +221,78 @@ export function createStairs(canvas, options = {}) {
     ctx.clearRect(0, 0, W, H);
     const { n, lo } = piece;
     if (!W || !H || built <= 0 || own <= 0) return;
+    if (laid !== `${W}x${H} ${piece.id}`) lay();
+    const { steps, specks, outline } = flight;
 
-    const pitch = Math.min(FLIGHT.pitch, (H - Math.min(24, H * 0.05)) / n); // a little headroom over the top step
-    const gap = Math.max(2, Math.round(pitch * FLIGHT.gap));
-    const reach = i => W * (FLIGHT.reach[0] + ((FLIGHT.reach[1] - FLIGHT.reach[0]) * i) / Math.max(1, n - 1));
-    const shadow = pitch * FLIGHT.shadow;
-    const overhang = pitch * FLIGHT.overhang;
-    // How far out each white key is (0 inside the wall .. 1 in place), and how far it has gone in with its note (px).
+    // How far out of the wall each step is (0 inside .. 1 in place), and how far it has gone in with its note (px).
     const shown = i => Math.min(out(i, n, built), out(i, n, own));
-    const pushed = key => (press.get(key) || 0) * pitch * PRESS.travel;
-    const tip = i => reach(i) * shown(i) - (1 - shown(i)) * (overhang + 8) - pushed(lo + i);
+    // A step's front, cut square where it meets the S: there once it is out, short of it on the way, back from it while
+    // its note sounds.
+    const front = i => {
+      const st = steps[i];
+      return st.back + (st.front - st.back) * shown(i) - (press.get(lo + i) || 0) * st.h * PRESS.travel;
+    };
 
-    // Bottom up: a step, then the shadow the step above casts on it; the step above then sits on the shadow's edge.
+    // The steps, bottom up: each a cream slab under the shadow of the step above, both cut square at its front, so the
+    // fronts climb the S as a staircase.
+    let reached = -1; // the highest step out of the wall at all
     for (let i = 0; i < n; i++) {
-      const y = H - (i + 1) * pitch;
-      const x = tip(i);
-      if (x > 0) {
-        const k = press.get(lo + i) || 0;
-        ctx.fillStyle = k ? mix(CREAM_RGB, PRESS.white, k * PRESS.whiteMix) : CREAM;
-        ctx.fillRect(0, y + gap, x, pitch - gap);
-      }
-      if (i + 1 < n) {
-        const above = tip(i + 1);
-        const from = Math.max(0, above * FLIGHT.from);
-        if (above + overhang > from) {
-          ctx.fillStyle = INK;
-          ctx.beginPath();
-          ctx.moveTo(from, y);
-          ctx.lineTo(Math.max(from, above), y);
-          ctx.lineTo(Math.max(from, above + overhang), y + gap + shadow);
-          ctx.lineTo(from, y + gap + shadow);
-          ctx.closePath();
-          ctx.fill();
-        }
-      }
+      if (shown(i) <= 0) break;
+      reached = i;
+      const st = steps[i];
+      const line = Math.max(2, st.h * FLIGHT.line);
+      const k = press.get(lo + i) || 0;
+      const band = (from, to) => ctx.fillRect(st.back - 8, from, front(i) - st.back + 8, to - from);
+      ctx.fillStyle = k ? mix(CREAM_RGB, PRESS.white, k * PRESS.whiteMix) : CREAM;
+      band(st.top + line, st.bottom);
+      ctx.fillStyle = INK;
+      band(st.top, st.top + line);
     }
-    // The black keys, raised over the white ones at the back, each centred on the line between two steps.
-    for (let i = 0; i < n - 1; i++) {
+    if (reached < 0) return;
+
+    // The wall, rising with the steps, its edge cut rough over their back ends; then its specks.
+    let top = H;
+    ctx.fillStyle = INK;
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    for (let i = 0; i <= reached; i++) {
+      const st = steps[i];
+      const rise = Math.min(1, shown(i) * 3);
+      const y1 = st.bottom - st.h * rise;
+      st.rough.forEach((d, j) => ctx.lineTo(st.back + d, lerp(st.bottom, y1, j / 3)));
+      top = y1;
+      if (rise < 1) break;
+    }
+    ctx.lineTo(0, top);
+    ctx.closePath();
+    ctx.fill();
+    for (const sp of specks) {
+      if (sp.row > reached || sp.y < top) continue;
+      if (sp.ink && shown(sp.row) < 1) continue;
+      ctx.fillStyle = sp.ink ? INK : CREAM;
+      ctx.fillRect(sp.x, sp.y, sp.s, sp.s);
+    }
+
+    // The black keys, out of the wall between their two white keys, over the shadow line between them.
+    for (let i = 0; i < Math.min(reached, n - 1); i++) {
       if (!blackAbove(lo + i)) continue;
       const key = lo + i + 0.5;
+      const e = Math.min(out(i + 0.6, n, built), out(i + 0.6, n, own));
+      if (e <= 0) continue;
+      const below = steps[i];
+      const above = steps[i + 1];
+      const th = FLIGHT.black[1] * (below.h + above.h) / 2;
+      const len = (outline(below.top) - above.back) * FLIGHT.black[0];
+      const x = above.back + len * e - (press.get(key) || 0) * above.h * PRESS.travel;
       const k = press.get(key) || 0;
-      const v = Math.min(out(i + 0.6, n, built), out(i + 0.6, n, own));
-      const len = reach(i + 1) * FLIGHT.black[0];
-      const x = len * v - (1 - v) * 8 - pushed(key);
-      if (x <= 0) continue;
-      const th = pitch * FLIGHT.black[1];
-      const cy = H - (i + 1) * pitch + gap / 2;
       ctx.fillStyle = k ? mix(INK_RGB, PRESS.black, k * PRESS.blackMix) : INK;
-      ctx.fillRect(0, cy - th / 2, x, th);
+      ctx.beginPath();
+      ctx.moveTo(0, below.top - th / 2);
+      ctx.lineTo(x, below.top - th / 2);
+      ctx.lineTo(x - th * 0.35, below.top + th / 2);
+      ctx.lineTo(0, below.top + th / 2);
+      ctx.closePath();
+      ctx.fill();
     }
   }
 

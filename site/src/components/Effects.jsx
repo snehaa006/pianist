@@ -5,7 +5,6 @@ import { useFxSlot } from '../lib/fxStage.jsx';
 // Every canvas/WebGL component is loaded on demand, only on desktop, and only while its section
 // holds the stage (see lib/fxStage.jsx). Phones, touch and reduced motion never download them.
 const MicroSlats = lazy(() => import('./fx/MicroSlats/MicroSlats.jsx'));
-const MoltenMetal = lazy(() => import('./fx/MoltenMetal/MoltenMetal.jsx'));
 const AeroShards = lazy(() => import('./fx/AeroShards/AeroShards.jsx'));
 
 // If an effect fails (no WebGL, no WebGPU), the still underneath simply stays.
@@ -36,17 +35,6 @@ export function SlatsLayer({ zoneRef }) {
     <div className="fx-layer" aria-hidden="true">
       <Slot zoneRef={zoneRef}>
         <MicroSlats {...presets.MicroSlats} />
-      </Slot>
-    </div>
-  );
-}
-
-// Slow red-and-ink wash, always under a 72% ink scrim.
-export function MoltenLayer({ zoneRef }) {
-  return (
-    <div className="fx-layer fx-layer--scrim" aria-hidden="true">
-      <Slot zoneRef={zoneRef}>
-        <MoltenMetal {...presets.MoltenMetal} />
       </Slot>
     </div>
   );
