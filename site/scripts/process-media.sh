@@ -3,15 +3,18 @@
 #   - full performance: H.264 MP4 + VP9 WebM, native size (all sources are under 1080p),
 #     30 fps max, light brand grade (about 20% desaturated, slightly warm)
 #   - hero: a muted 7.5 s loop with a crossfaded seam (MP4 + WebM, no audio track)
+#   - film loops: a muted 6 s warm-monochrome 640x360 loop of every film (MP4 + WebM), played on the home reel
 #   - stills: warm-monochrome WebP posters, the 4:5 portrait (the supplied photo, in colour) and a 1200x630 share image
 #   - site sound: the at-home grand performance as audio only (Opus WebM + AAC M4A), played on "Hear me play"
-# Usage: bash scripts/process-media.sh [--stills]   (--stills: redo images only, skip the video encodes)
+# Usage: bash scripts/process-media.sh [--stills | --loops]
+#   --stills: redo images only, skip the video encodes. --loops: encode the film loops only.
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
-STILLS_ONLY=0; ONLY=""
+STILLS_ONLY=0; LOOPS_ONLY=0; ONLY=""
 for arg in "$@"; do
   case "$arg" in
     --stills) STILLS_ONLY=1 ;;
+    --loops) LOOPS_ONLY=1 ;;
     --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
   esac
 done
@@ -19,7 +22,7 @@ done
 SRC="$(cd "$(dirname "$0")/../../videos" && pwd)"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/public/media"
 FONT="$(cd "$(dirname "$0")/.." && pwd)/src/styles/fonts/BebasNeue-Regular.ttf"
-mkdir -p "$OUT/video" "$OUT/posters" "$OUT/og" "$OUT/audio"
+mkdir -p "$OUT/video/loops" "$OUT/posters" "$OUT/og" "$OUT/audio"
 
 # slug | source file | poster time (s)
 VIDEOS=(
@@ -42,11 +45,25 @@ MONO="$WARM,curves=all='0/0.043 0.5/0.43 1/0.95',vignette=angle=PI/5"
 # lifted (~24%) and there is no vignette; otherwise the black piano would disappear into the background.
 LIFT="$WARM,curves=all='0/0.24 0.5/0.62 1/0.96'"
 
+# Film loops: 6.6 s from two seconds before the poster frame; the last 0.6 s crossfades into the first, so the loop
+# has no seam. Small (640x360, 24 fps, no audio) because the reel plays up to a dozen at once.
+loop() {
+  local in="$1" t="$2" out="$3"
+  local start; start=$(awk -v t="$t" 'BEGIN { print (t > 2 ? t - 2 : 0) }')
+  local graph="[0:v]fps=24,scale=640:360:force_original_aspect_ratio=increase,crop=640:360,$MONO,format=yuv420p,split[a][b];[a]trim=0.6:6.6,setpts=PTS-STARTPTS[body];[b]trim=0:0.6,setpts=PTS-STARTPTS[head];[body][head]xfade=transition=fade:duration=0.6:offset=5.4,format=yuv420p[v]"
+  ffmpeg -v error -y -ss "$start" -t 6.6 -i "$in" -filter_complex "$graph" \
+    -map "[v]" -an -c:v libx264 -preset slow -crf 27 -profile:v high -g 48 -movflags +faststart "$out.mp4"
+  ffmpeg -v error -y -ss "$start" -t 6.6 -i "$in" -filter_complex "$graph" \
+    -map "[v]" -an -c:v libvpx-vp9 -crf 38 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 -g 48 "$out.webm"
+}
+
 for row in "${VIDEOS[@]}"; do
   IFS='|' read -r slug file t <<<"$row"
   [[ -n "$ONLY" && "$ONLY" != *",$slug,"* ]] && continue
   in="$SRC/$file"
   echo "→ $slug"
+  (( ! STILLS_ONLY )) && loop "$in" "$t" "$OUT/video/loops/$slug"
+  (( LOOPS_ONLY )) && continue
   if (( ! STILLS_ONLY )); then
     ffmpeg -v error -y -i "$in" -vf "fps=fps='min(30,source_fps)',$COLOUR,format=yuv420p" \
       -c:v libx264 -preset slow -crf 23 -profile:v high -movflags +faststart \
@@ -60,6 +77,7 @@ for row in "${VIDEOS[@]}"; do
 done
 
 [[ -n "$ONLY" ]] && { ls -la "$OUT"/video "$OUT"/posters; exit 0; }
+(( LOOPS_ONLY )) && { ls -la "$OUT"/video/loops; exit 0; }
 
 # Hero loop: 8.5 s from the Austrian Master Classes concert; the last second crossfades into the first.
 HERO="$SRC/WhatsApp Video 2026-10-06 at 14.23.41.mp4"

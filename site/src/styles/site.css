@@ -83,34 +83,39 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .films--watch .film--lg { grid-column: 1 / -1; }
 @media (max-width: 899px) { .films, .films--watch { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .films, .films--watch { grid-template-columns: 1fr; gap: var(--space-7); } }
-/* ---- Films flying in (lib/flyIn.js, wide screens with motion) ---------- */
-/* One pinned screen: a ring of the films turns under two drifting words, sweeps away, and the films fly into a
-   compact grid. GSAP owns the transforms and opacity, so the reveal steps aside. The screen clips what flies. */
+/* ---- The films reel (lib/flyIn.js, wide screens with motion) ----------- */
+/* One pinned screen. Two words cross under a ring of the films that comes in from the bottom left, swings up
+   close, pulls back and sweeps away; the films then fly into a 4x2 grid and ink blinds close over it. GSAP owns
+   the transforms and opacity, so the reveal steps aside. The screen clips everything that flies. */
 .reel { position: relative; height: 100svh; min-height: 640px; box-sizing: border-box; overflow: hidden;
-  --tile-w: clamp(110px, 10.5vw, 170px); --ring-r: calc(var(--tile-w) * 3.15); }
-.reel__sky { position: absolute; inset: 0; perspective: 1400px; perspective-origin: 50% 30%; pointer-events: none; }
-.reel__orbit { position: absolute; left: 50%; top: 21%; transform-style: preserve-3d; }
+  --tile-w: clamp(300px, 31vw, 480px); --ring-r: calc(var(--tile-w) * 2.8); }
+.reel__title { position: absolute; inset: 0; margin: 0; pointer-events: none; white-space: nowrap;
+  font-size: clamp(3.5rem, 7.5vw, 8rem); line-height: var(--leading-display); letter-spacing: var(--tracking-display); }
+.reel__word { position: absolute; }
+.reel__word--a { left: var(--page-margin); top: 36%; }
+.reel__word--b { right: var(--page-margin); top: calc(36% + 0.9em); }
+.reel__intro { position: absolute; left: 50%; top: 44%; transform: translate(-50%, -50%); }
+.reel__sky { position: absolute; inset: 0; perspective: 1400px; pointer-events: none; }
+.reel__orbit { position: absolute; left: 50%; top: 50%; transform-style: preserve-3d; }
 .reel__ring { position: absolute; transform-style: preserve-3d; }
 .reel__tile { position: absolute; width: var(--tile-w); max-width: none; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
-  left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); backface-visibility: hidden;
-  transform: rotateY(calc(var(--n) * 20deg)) translateZ(var(--ring-r)); }
-.reel__title { position: absolute; inset: 0; margin: 0; pointer-events: none; white-space: nowrap; }
-.reel__word { position: absolute; }
-.reel__word--a { left: 56%; top: 40%; }
-.reel__word--b { right: 50%; top: 58%; }
-.reel__intro { position: absolute; left: 50%; top: 56%; transform: translate(-50%, -50%); }
+  left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); background: var(--color-lacquer);
+  transform: rotateY(calc(var(--n) * 22.5deg)) translateZ(var(--ring-r)); } /* FLY.spread in lib/flyIn.js */
 .reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center; }
-.films--fly { width: min(100%, 1120px, calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 8 / 3));
-  margin: 0; gap: var(--space-4); }
+.films--fly { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; gap: var(--space-4);
+  width: min(100%, calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
 .films--fly .film { transition: none; will-change: transform, opacity; }
-.films--fly .film__play { width: 48px; height: 48px; font-size: 14px; left: var(--space-4); bottom: var(--space-4); }
-.films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 15px); }
+.films--fly .film__play { width: 44px; height: 44px; font-size: 13px; left: var(--space-4); bottom: var(--space-4); }
+.films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 13px); }
 /* The work, on the scrim beside the play circle, level with the duration */
-.film__tag { position: absolute; left: calc(var(--space-4) + 48px + var(--space-3)); right: calc(var(--space-4) + 4em);
-  bottom: calc(var(--space-4) + 15px); z-index: 2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ivory); }
+.film__tag { position: absolute; left: calc(var(--space-4) + 44px + var(--space-3)); right: calc(var(--space-4) + 4em);
+  bottom: calc(var(--space-4) + 13px); z-index: 2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--color-ivory); }
 .reel__foot { position: absolute; left: 0; right: 0; bottom: var(--space-5); display: flex; align-items: flex-end;
   justify-content: space-between; gap: var(--space-6); }
-.reel__lead { max-width: 30ch; }
+.reel__lead { max-width: 34ch; }
+/* Ink blinds: ten bands, each closing upward from its lower edge, the lowest first; the ink screen after follows on. */
+.reel__blinds { position: absolute; inset: 0; z-index: 3; display: grid; grid-template-rows: repeat(10, 1fr); pointer-events: none; }
+.reel__blinds i { background: var(--color-ink); transform: scaleY(0); transform-origin: 50% 100%; margin-bottom: -1px; }
 .film { margin: 0; }
 .film__button { display: block; width: 100%; padding: 0; border: 0; background: none; color: inherit; cursor: pointer; text-align: left; }
 .film__frame { display: block; }
@@ -118,7 +123,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .film--lg .film__play { width: var(--play-size); height: var(--play-size); font-size: 20px; left: var(--space-6); bottom: var(--space-6); }
 .film__duration { position: absolute; right: var(--space-5); bottom: var(--space-5); z-index: 2; color: var(--color-ivory); }
 .film__button:hover .film__play { background: var(--color-ivory); color: var(--color-ink); }
-.film__button:hover img { transform: scale(1.03); }
+.film__button:hover img, .film__button:hover video { transform: scale(1.03); }
 .film__text { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
 .film--lg .film__title { font-size: var(--text-h2); line-height: var(--leading-h2); }
 .film__meta { max-width: var(--measure); }

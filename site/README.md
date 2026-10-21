@@ -27,12 +27,14 @@ Text motion: FoldText headlines, mask *rise* for lead lines, *wipe* for captions
 tags (tracking closes from 0.6em to label width), *lift* for the footer wordmark (shown whole, not cropped), counted
 display numerals, an ink curtain between pages and the keyboard-rhythm loader while a page loads.
 
-Films flying in (`src/lib/flyIn.js`, Home's "At home, at the piano"): the section is one pinned screen. It opens on a
-tilted ring of the six films turning in the air under two big drifting words ("At home," / "at the piano"); as you
-scroll the ring sweeps off to the top right, the words slide away, and the films arrive one at a time in a compact 3×2
-grid (stills only, the work named on each), each from its own side, swinging and flexing like a sheet of paper before
-they settle. GSAP ScrollTrigger, scrubbed, so scrolling back plays it in reverse. Wide screens (≥900px) with motion
-allowed; phones and reduced motion keep the headline and the plain grid.
+The films reel (`src/lib/flyIn.js`, Home's "On stage, and at home"): one pinned screen with all eight films, each
+playing as a 6 s muted loop (`public/media/video/loops/`, made by `npm run media -- --loops`). Two words slide in from
+opposite sides; a ring of the films comes in from the bottom left as a ribbon, swings up close (the far side showing
+over the near side) while the words cross behind it, pulls back to a ribbon at the top and sweeps off to the top
+right. The films then fly into a 4x2 grid one at a time, each from its own side, swinging like a sheet of paper, and
+ink blinds close over the grid into the repertoire band. GSAP ScrollTrigger, scrubbed, so scrolling back plays it in
+reverse; only the loops that can be seen play. Wide screens (≥900px) with motion allowed; phones and reduced motion
+get the headline and a plain grid of stills.
 
 ## Run
 
@@ -79,11 +81,13 @@ npm run media        # needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp
 | `public/media/video/<slug>.mp4/.webm` | Each performance, H.264 + VP9, native size (all under 1080p), 30 fps max, lightly graded (−20% saturation, warm) |
 | `public/media/video/hero-film{,-phone}.*` | The hero film (built in `../montage`, see above), silent, H.264 + VP9 |
 | `public/media/video/hero-loop.*` | 7.5 s muted loop for the name in the hero, seamless crossfade, no audio track |
+| `public/media/video/loops/*` | 6 s muted warm-monochrome 640x360 loop of every film (MP4 + WebM) for the home reel |
 | `public/media/posters/*.webp` | Warm-monochrome stills: posters, hero, fermata |
 | `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, in its original colour (1200 and 600 wide) |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image |
 
-Videos load only when the lightbox opens (`preload="metadata"` on click). Images below the first screen are lazy.
+Full performances load only when the lightbox opens (`preload="metadata"` on click). The reel's loops (about 100 KB
+each) load when it first plays them. Images below the first screen are lazy.
 
 ## Facts and placeholders
 
