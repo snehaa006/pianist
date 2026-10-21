@@ -39,29 +39,78 @@ export default function Home() {
 
       <FeaturedFilm item={stage} />
 
-      {/* The films from home; on wide screens they fly in one by one as you scroll (lib/flyIn.js) */}
-      <section className={`screen${fly ? ' fly-zone' : ''}`} aria-labelledby="home-h">
-        <div className="container">
-          <Opus>(Op. 01: Watch)</Opus>
-          <Headline id="home-h" hinge="left" accent="piano">
-            At home, at the piano
-          </Headline>
-          <p className="lead muted reveal reveal--rise">
-            {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of Music
-            exams.
-          </p>
-          <div ref={films} className={`films${fly ? ' films--fly' : ''}`}>
-            {atHome.map((p, i) => (
-              <PerformanceCard key={p.id} item={p} index={i} eager={fly} />
-            ))}
+      {/* The films from home. Wide screens: a pinned stage that opens on a turning ring of the films, then the
+          films fly into the grid one by one as you scroll (lib/flyIn.js). Elsewhere: headline and grid. */}
+      {fly ? (
+        <section ref={films} className="reel fly-zone" aria-labelledby="home-h">
+          <div className="reel__sky" aria-hidden="true">
+            <div className="reel__orbit">
+              <div className="reel__ring">
+                {[...atHome, ...atHome, ...atHome].map((p, i) => (
+                  <img
+                    key={`${p.id}-${i}`}
+                    className="reel__tile"
+                    style={{ '--n': i }}
+                    src={p.poster}
+                    alt=""
+                    width="1024"
+                    height="576"
+                    decoding="async"
+                  />
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="actions">
+          <h2 className="reel__title display" id="home-h">
+            <span className="reel__word reel__word--a">At home,</span>{' '}
+            <span className="reel__word reel__word--b">
+              at the <span className="accent-word">piano</span>
+            </span>
+          </h2>
+          <div className="reel__intro">
+            <Opus>(Op. 01: Watch)</Opus>
+          </div>
+          <div className="container reel__films">
+            <div className="films films--fly">
+              {atHome.map((p, i) => (
+                <PerformanceCard key={p.id} item={p} index={i} eager compact />
+              ))}
+            </div>
+          </div>
+          <div className="container reel__foot">
+            <p className="body-sm muted reel__lead">
+              {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of
+              Music exams.
+            </p>
             <Link className="link" to="/watch">
               All performances <Arrow />
             </Link>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="screen" aria-labelledby="home-h">
+          <div className="container">
+            <Opus>(Op. 01: Watch)</Opus>
+            <Headline id="home-h" hinge="left" accent="piano">
+              At home, at the piano
+            </Headline>
+            <p className="lead muted reveal reveal--rise">
+              {inWords(atHome.length, true)} films from home, {inWords(atHomeExams)} of them recorded for London College of
+              Music exams.
+            </p>
+            <div className="films">
+              {atHome.map((p, i) => (
+                <PerformanceCard key={p.id} item={p} index={i} />
+              ))}
+            </div>
+            <div className="actions">
+              <Link className="link" to="/watch">
+                All performances <Arrow />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <RepertoireBand />
 

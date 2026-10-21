@@ -5,16 +5,24 @@ import { useMedia, useReducedMotion } from './hooks';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Films flying in: the grid holds still under the nav while its films arrive one at a time, each from its own
-// side of the screen (top left from the top left, top middle straight down, bottom middle straight up, and so
-// on). On the way in each one swings like a sheet of paper, tilting and flexing, and settles flat in its place.
-// Scroll drives it, so scrolling back sends them out again. Wide screens with motion allowed only; elsewhere
-// the films keep the plain reveal.
+// Films flying in: one pinned screen. It opens on a ring of the films turning in the air, tilted so it reads as
+// a ribbon, under two big words drifting across. As you scroll the ring sweeps away to the top right, the words
+// slide off, and the films arrive in the grid one at a time, each from its own side of the screen (top left
+// from the top left, top middle straight down, bottom middle straight up, and so on). On the way in each one
+// swings like a sheet of paper, tilting and flexing, and settles flat in its place. Scroll drives it, so
+// scrolling back sends them out and brings the ring back. Wide screens with motion allowed only; elsewhere the
+// section is a headline and a plain grid.
 export const FLY = {
-  scroll: 0.32, // screen heights of scrolling per film
+  intro: 1.6, // timeline units the ring turns before the first film sets off
+  scroll: 0.32, // screen heights of scrolling per timeline unit
   overlap: 0.3, // how far into one film's flight the next one sets off
-  swing: [1, 0.6, -0.2, 0.06, 0] // the tilt as it settles: in, still tilted on screen, past flat, back, flat
+  tilt: { x: -16, z: -13 }, // the ring's lean: leaning back, rising to the right
+  turn: -70, // degrees the ring turns over the intro
+  swing: [1, 0.6, -0.2, 0.06, 0] // the tilt as a film settles: in, still tilted on screen, past flat, back, flat
 };
+
+// Just past the left edge of the screen, wherever the word starts. Offsets ignore transforms.
+const offLeft = (i, word) => -(word.offsetLeft + word.offsetWidth + 40);
 
 // Where a film sits against the grid's centre: -1, 0 or 1 across and down. Offsets ignore transforms.
 const sideOf = (card, grid) => {
@@ -32,31 +40,45 @@ export function useFlyIn(ref) {
   const on = wide && !reduced;
 
   useLayoutEffect(() => {
-    const grid = ref.current;
-    if (!on || !grid) return undefined;
+    const stage = ref.current;
+    if (!on || !stage) return undefined;
     const ctx = gsap.context(() => {
+      const q = gsap.utils.selector(stage);
+      const grid = q('.films')[0];
       const cards = gsap.utils.toArray(grid.children);
+      const units = FLY.intro + (cards.length - 1) * (1 - FLY.overlap) + 1 + 0.35;
       const tl = gsap.timeline({
         defaults: { ease: 'none' },
         scrollTrigger: {
-          trigger: grid,
-          // Hold the grid centred in the space under the nav; if it is taller than that, from just under the nav.
-          start: () => {
-            const nav = document.querySelector('.nav')?.offsetHeight || 0;
-            const free = window.innerHeight - nav;
-            return `top ${nav + Math.max(16, (free - grid.offsetHeight) / 2)}px`;
-          },
-          end: () => `+=${window.innerHeight * FLY.scroll * cards.length}`,
+          trigger: stage,
+          start: 'top top',
+          end: () => `+=${window.innerHeight * FLY.scroll * units}`,
           pin: true,
           scrub: 0.8,
           invalidateOnRefresh: true
         }
       });
 
+      // The ring turns the whole intro and keeps turning as it leaves for the top right.
+      gsap.set(q('.reel__orbit'), { rotationX: FLY.tilt.x, rotationZ: FLY.tilt.z });
+      tl.fromTo(q('.reel__ring'), { rotationY: 20 }, { rotationY: 20 + FLY.turn, duration: FLY.intro + 0.6 }, 0)
+        .to(
+          q('.reel__orbit'),
+          { x: () => window.innerWidth * 0.5, y: () => -window.innerHeight * 0.55, scale: 0.8, duration: 1, ease: 'power2.in' },
+          FLY.intro - 0.6
+        )
+        .to(q('.reel__sky'), { opacity: 0, duration: 0.4 }, FLY.intro)
+        // Both words drift left, the way the ring turns; the lower one faster, then they slide off.
+        .fromTo(q('.reel__word--a'), { x: () => window.innerWidth * 0.12 }, { x: () => -window.innerWidth * 0.08, duration: FLY.intro }, 0)
+        .fromTo(q('.reel__word--b'), { x: () => window.innerWidth * 0.18 }, { x: () => -window.innerWidth * 0.1, duration: FLY.intro }, 0)
+        .to(q('.reel__word--a'), { x: offLeft, duration: 1, ease: 'power2.in' }, FLY.intro - 0.3)
+        .to(q('.reel__word--b'), { x: offLeft, duration: 1, ease: 'power2.in' }, FLY.intro - 0.4)
+        .to(q('.reel__intro'), { opacity: 0, duration: 0.4 }, FLY.intro - 0.9);
+
       cards.forEach((card, i) => {
         // The column and row only change at the breakpoint that turns this off, so they are read once.
         const s = sideOf(card, grid);
-        const at = i * (1 - FLY.overlap);
+        const at = FLY.intro + i * (1 - FLY.overlap);
         const swing = start => FLY.swing.map(k => k * start);
         gsap.set(card, { transformPerspective: 1100, transformOrigin: '50% 50%' });
         tl.fromTo(
@@ -85,7 +107,7 @@ export function useFlyIn(ref) {
       });
       // A moment with every film in place before the page moves on.
       tl.to({}, { duration: 0.35 });
-    }, grid);
+    }, stage);
     // Later triggers on the page (headline folds) must measure with the pin's extra scroll in place.
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => {
