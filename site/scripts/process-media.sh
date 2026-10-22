@@ -7,17 +7,19 @@
 #   - stills: warm-monochrome WebP posters, the 4:5 portrait (the supplied photo, in colour) and a 1200x630 share image
 #   - site sound: every piece as audio only, cut to the music (Opus WebM + AAC M4A), played on "Hear me play" and
 #     on the stairs; their notes come from scripts/notes.py
-# Usage: bash scripts/process-media.sh [--stills | --loops | --audio] [--only=slug,slug]
+#   - Biography stills: more moments of her, taken from the films (warm monochrome, public/media/about)
+# Usage: bash scripts/process-media.sh [--stills | --loops | --audio | --about] [--only=slug,slug]
 #   --stills: redo images only, skip the video encodes. --loops: encode the film loops only.
-#   --audio: encode the site sound only.
+#   --audio: encode the site sound only. --about: cut the Biography stills only.
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
-STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ONLY=""
+STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ABOUT_ONLY=0; ONLY=""
 for arg in "$@"; do
   case "$arg" in
     --stills) STILLS_ONLY=1 ;;
     --loops) LOOPS_ONLY=1 ;;
     --audio) AUDIO_ONLY=1 ;;
+    --about) ABOUT_ONLY=1 ;;
     --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
   esac
 done
@@ -25,7 +27,7 @@ done
 SRC="$(cd "$(dirname "$0")/../../videos" && pwd)"
 OUT="$(cd "$(dirname "$0")/.." && pwd)/public/media"
 FONT="$(cd "$(dirname "$0")/.." && pwd)/src/styles/fonts/BebasNeue-Regular.ttf"
-mkdir -p "$OUT/video/loops" "$OUT/posters" "$OUT/og" "$OUT/audio"
+mkdir -p "$OUT/video/loops" "$OUT/posters" "$OUT/og" "$OUT/audio" "$OUT/about"
 
 # Site sound: each piece cut to its music, without the spoken exam introductions, the walk-on or the applause (the
 # edges were found from the recordings' loudness and their transcribed notes: the cut starts about a tenth of a second
@@ -87,6 +89,33 @@ loop() {
     -map "[v]" -an -c:v libvpx-vp9 -crf 38 -b:v 0 -row-mt 1 -deadline good -cpu-used 2 -g 48 "$out.webm"
 }
 
+# Biography stills: moments the posters don't show, each cut from its film at its own time and crop (w:h:x:y, in the
+# source's pixels), warm monochrome. The faces to camera come from the start of the exam films, where she says what
+# she will play; the rest are mid-piece, the end of a piece and the bow.
+# slug | source file | time (s) | crop
+ABOUT=(
+  "smile-hungry|WhatsApp Video 2026-10-06 at 14.23.06.mp4|2|432:540:440:0"
+  "smile-twilight|WhatsApp Video 2026-10-06 at 14.22.59.mp4|2|432:540:520:0"
+  "smile-technical|WhatsApp Video 2026-10-06 at 14.23.15.mp4|2|432:540:120:0"
+  "smile-andante|WhatsApp Video 2026-10-06 at 14.23.23.mp4|3|372:464:60:0"
+  "smile-grade-1|WhatsApp Video 2026-10-06 at 14.23.31.mp4|114|432:540:200:20"
+  "score|WhatsApp Video 2026-10-06 at 14.23.31.mp4|111|432:576:120:0"
+  "amc-lift|WhatsApp Video 2026-10-06 at 14.23.41.mp4|88|400:480:0:0"
+  "amc-play|WhatsApp Video 2026-10-06 at 14.23.41.mp4|86|360:480:20:0"
+  "amc-stand|WhatsApp Video 2026-10-06 at 14.23.41.mp4|1|720:480:40:0"
+  "grand-up|WhatsApp Video 2026-10-06 at 14.22.50.mp4|91.5|348:464:40:0"
+  "stage-arms|WhatsApp Video 2026-10-06 at 14.22.40.mp4|65.5|348:464:220:0"
+  "stage-bow|WhatsApp Video 2026-10-06 at 14.22.40.mp4|6.5|372:464:320:0"
+)
+about() {
+  for row in "${ABOUT[@]}"; do
+    IFS='|' read -r slug file t crop <<<"$row"
+    ffmpeg -v error -y -ss "$t" -i "$SRC/$file" -frames:v 1 -vf "crop=$crop,$MONO,format=yuv420p" \
+      -c:v libwebp -quality 82 "$OUT/about/$slug.webp"
+  done
+}
+(( ABOUT_ONLY )) && { about; ls -la "$OUT"/about; exit 0; }
+
 for row in "${VIDEOS[@]}"; do
   IFS='|' read -r slug file t <<<"$row"
   [[ -n "$ONLY" && "$ONLY" != *",$slug,"* ]] && continue
@@ -146,6 +175,7 @@ ffmpeg -v error -y -f lavfi -i "color=c=0xB42F35:s=1200x630" -i "$CUT" \
 # (../montage/scripts/hero-film.py still cuts the old ten-second hero film if it is ever wanted back.)
 # Her cut-out at the grand piano (cutouts/selin-grand.webp) is made by scripts/cutout.py.
 
+about
 (( ! STILLS_ONLY )) && sound
 
 ls -la "$OUT"/*

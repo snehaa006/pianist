@@ -67,3 +67,38 @@ export function usePageTitle(title) {
     document.title = title ? `${title} · Selin Incekara` : 'Selin Incekara · Pianist';
   }, [title]);
 }
+
+// Drift: sets --p on the element while it is on screen, its distance scrolled past the middle of the viewport in
+// screens (0 when its middle is at the viewport's middle, 1 a screen further down the page). CSS moves things by it
+// (prints at their own --speed, a name sliding sideways); with reduced motion --p stays unset and nothing moves.
+export function useDrift(ref) {
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced || !('IntersectionObserver' in window)) return undefined;
+    let frame = 0;
+    let visible = false;
+    const update = () => {
+      frame = 0;
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--p', ((window.innerHeight / 2 - (r.top + r.height / 2)) / window.innerHeight).toFixed(4));
+    };
+    const onScroll = () => {
+      if (visible && !frame) frame = requestAnimationFrame(update);
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      onScroll();
+    });
+    io.observe(el);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      el.style.removeProperty('--p');
+    };
+  }, [ref, reduced]);
+}
