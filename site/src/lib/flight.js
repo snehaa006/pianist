@@ -1,3 +1,5 @@
+import { tapPress, TAP_LIFE } from './tone';
+
 // Keys that turn into birds (after the Swell Season poster): a key lifts out of the keyboard, tumbles, and opens
 // into a bird that flies off up the page. Each key and each bird is the same 16-point outline, so one morphs into
 // the other point by point: the key's long sides become the wings. White keys become cream birds, black keys ink
@@ -90,6 +92,9 @@ const tangent = (p, t) => {
 // Default flight: up and to the right, leaving past the top of the canvas.
 const upAndRight = (x, y, w, h, r) => [Math.min(x + w * (0.12 + r() * 0.42), w + 60), -40 - r() * 60];
 
+// A key pressed by hand plays like a played note (lib/tone.js has the press).
+const now = () => performance.now() / 1000;
+
 export function createFlight(canvas, options = {}) {
   const o = { from: 0.55, every: [0.9, 2.2], burst: 12, life: [3.4, 5.6], reach: upAndRight, seed: 7, ...options };
   const ctx = canvas.getContext('2d');
@@ -98,6 +103,7 @@ export function createFlight(canvas, options = {}) {
   let H = 0;
   let dpr = 1;
   let keys = [];
+  const taps = new Map(); // key → when it was pressed by hand (s)
   let fliers = [];
   let clock = 0;
   let next = 0;
@@ -124,6 +130,7 @@ export function createFlight(canvas, options = {}) {
   // the middle of the piano, so the notes most music is played in are on it.
   function build() {
     keys = [];
+    taps.clear();
     byNote = new Map();
     fliers.forEach(f => (f.key = null)); // birds already up fly on; their keys are rebuilt whole
     if (!o.keybed) {
@@ -167,6 +174,11 @@ export function createFlight(canvas, options = {}) {
   // or more in, on a key it has; a key that has flown is skipped.
   function listen() {
     keys.forEach(k => (k.press = 0));
+    const t0 = now();
+    taps.forEach((at, k) => {
+      if (t0 - at > TAP_LIFE || k.state !== 'rest') taps.delete(k);
+      else k.press = tapPress(t0 - at);
+    });
     const p = o.play?.();
     if (!p) return;
     const { t, notes } = p;
@@ -407,6 +419,14 @@ export function createFlight(canvas, options = {}) {
     resize() {
       resize();
       if (!raf) draw();
+    },
+    // A press at (px, py): the key under it goes down, as if played (only while the keyboard is moving). Returns its
+    // note and the middle of its top edge, or null.
+    tap(px, py) {
+      const hit = [...keys].reverse().find(k => k.state === 'rest' && px >= k.x && px <= k.x + k.w && py >= k.y && py <= k.y + k.h);
+      if (!hit) return null;
+      if (raf) taps.set(hit, now());
+      return { note: hit.note, x: hit.x + hit.w / 2, y: hit.y };
     },
     // The pointer over the keyboard sends the key under it up.
     poke(px, py) {

@@ -96,7 +96,8 @@ rivet) stands level across the sheet's foot, over the ink below, and opens from 
 into view; every leaf and black key is its own small SVG turned by a CSS transform, so it opens without redrawing.
 Its keys can be played: pressing one dips and lights it, sounds its note (a soft synthesised tone, `src/lib/tone.js`;
 the leaves run from C3 at the left to C6 at the right, the black keys between) and sends three notes up off its tip.
-Nothing sounds until a key is pressed.
+While *Hear me play* is on, the fan plays along with her, as the hero's keys and the stairs do: each key goes down with
+the note she plays on it (folded into its three octaves) and a note flies off it as the note begins.
 Music notes leave its rim and fly away up the page, past her words, as the birds leave the hero's keyboard (the client
 asked for notes, though the design system leaves out note icons). [2] *Six years at the piano*: five pictures on the
 ink stage that slide in from the right together, as one strip, as the row comes up the screen. [3] *Where she has played*:
@@ -139,6 +140,19 @@ from (`public/media/cutouts/selin-grand-photo.webp`, same crop) to its left and 
 halfway and follows the mouse's position across the whole page, held at the picture's edges, so the mouse need not be
 over the picture; the chevron points at the side with more to give. Phones show the silhouette until a tap or drag;
 keyboards use the slider (arrow keys).
+
+## Every keyboard can be played
+
+Each keyboard on the site answers a press (mouse or touch) as a played key: it goes down and lights for a moment
+(`tapPress` in `src/lib/tone.js`, the same everywhere), sounds its own note as a soft synthesised tone (`strike`, Web
+Audio, started inside the press, so nothing sounds unasked) and lets music notes fly up off it (`letNotes` in
+`src/lib/notes.js`: one fixed layer under the nav; the Biography fan draws its own so they scroll with it). The keys
+keep their pitches: the hero keyboard its piano's (A0 upward, a key per note), the stairs their piece's flight, the
+footer's hanging keys round middle C, the Biography city's keys and towers round middle C at the centre, the
+Repertoire divider an octave's five black keys, the 404's 88 bars a whole piano (press and run along them). On the
+hero, only a fast sweep of the mouse sends keys up as birds now, so a key can be reached and played. The canvases
+(`lib/flight.js`, `lib/stairs.js`, `lib/marionette.js`) each have a `tap(x, y)` that finds and presses the key under a
+point and gives its note; their press joins the one the music drives.
 
 ## Run
 

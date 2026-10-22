@@ -7,7 +7,10 @@
 // createMarionette(canvas, options) draws on a 2D canvas the size of its CSS box:
 //   text: 'Selin Incekara'
 //   play: () => { t, notes } | null    the music, as lib/sound.jsx's playhead
-// It returns { start, stop, still, resize, lower(), poke(x, y, vx), destroy }. still() draws the letters at rest.
+// It returns { start, stop, still, resize, lower(), poke(x, y, vx), tap(x, y), destroy }. still() draws the letters at
+// rest; tap presses the key at a point, as if played (its letters dip and swing), and gives its note.
+
+import { tapPress, TAP_LIFE } from './tone';
 
 const CREAM = '#F4E9D8';
 const CREAM_RGB = [244, 233, 216];
@@ -26,6 +29,7 @@ const KEYS = { pitch: 0.52, height: [0.72, 1], notch: 0.3, depth: 0.56, lean: 3.
 // hard a played key tugs; and how they are lowered: from how high (share of the threads), how springy, how far apart.
 const SWING = { stiff: 9, damp: 1.3, sway: 0.11, rate: 1.1, poke: 0.00035, tug: 1.6, spring: [70, 9], from: 0.8, stagger: 0.07 };
 const PRESS = { down: 0.035, up: 0.14 };
+const now = () => performance.now() / 1000;
 
 const WHITE_OF = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
 const STEPS = [0, 2, 4, 5, 7, 9, 11];
@@ -60,6 +64,7 @@ export function createMarionette(canvas, options = {}) {
   let dpr = 1;
   let keys = [];
   let letters = [];
+  const taps = new Map(); // key → when it was pressed by hand (s)
   let low = 60;
   let high = 72;
   let clock = 0;
@@ -114,6 +119,7 @@ export function createMarionette(canvas, options = {}) {
       return {
         note: whiteNote(first + i),
         x: kw * (i + 0.5),
+        half,
         bottom,
         h,
         shape,
@@ -153,6 +159,11 @@ export function createMarionette(canvas, options = {}) {
   // black key's note goes to the white key below it.
   function listen() {
     keys.forEach(k => (k.press = 0));
+    const t0 = now();
+    taps.forEach((at, k) => {
+      if (t0 - at > TAP_LIFE || !keys.includes(k)) taps.delete(k);
+      else k.press = tapPress(t0 - at);
+    });
     const p = !o.still && o.play?.();
     if (!p) return;
     const { t, notes } = p;
@@ -299,6 +310,14 @@ export function createMarionette(canvas, options = {}) {
     // Lower the letters into place on their strings (once, when the footer first comes into view).
     lower() {
       if (lowering < 0) lowering = clock + 0.15;
+    },
+    // A press at (x, y): the key there goes down, as if played, and tugs its letters (only while the scene is moving).
+    // Returns its note and the middle of its foot, or null.
+    tap(x, y) {
+      const k = keys.find(key => Math.abs(x - key.x) <= key.half && y >= key.bottom + key.dip - key.h && y <= key.bottom + key.dip + 4);
+      if (!k) return null;
+      if (raf) taps.set(k, now());
+      return { note: k.note, x: k.x, y: k.bottom + k.dip };
     },
     // The mouse passing through a letter at (x, y), moving vx px/s, sets it swinging.
     poke(x, y, vx) {

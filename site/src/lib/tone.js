@@ -42,3 +42,21 @@ export function strike(midi) {
     osc.stop(end + 0.05);
   });
 }
+
+// A key pressed by hand, as how far down it is `age` seconds after the press (0..1): down quickly, held a moment, back
+// up. Every keyboard on the site uses the same, so they all feel alike. TAP_LIFE is when it is back up.
+export const TAP_LIFE = 0.4;
+export function tapPress(age) {
+  if (age < 0 || age > TAP_LIFE) return 0;
+  const down = Math.min(1, age / 0.035);
+  const up = age < 0.16 ? 0 : (age - 0.16) / (TAP_LIFE - 0.16);
+  return down * (1 - up * up * (3 - 2 * up));
+}
+
+// A note brought into a keyboard's range, an octave at a time.
+export function fold(m, low, high) {
+  let n = m;
+  while (n < low) n += 12;
+  while (n > high) n -= 12;
+  return n;
+}

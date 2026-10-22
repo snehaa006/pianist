@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useScrub } from '../lib/hooks';
-import { strike } from '../lib/tone';
+import { useReducedMotion, useScrub } from '../lib/hooks';
+import { useSound } from '../lib/sound.jsx';
+import { fold, strike, tapPress, TAP_LIFE } from '../lib/tone';
+import { NOTE_KINDS, NOTE_SHAPES } from '../lib/notes';
 
 // A painted hand fan of piano keys, after the client's picture of one: paper leaves, one white key each, pleated so
 // the rim steps in and out, with a red border between cream lines along it and a red filigree where each leaf meets its
@@ -17,7 +19,9 @@ import { strike } from '../lib/tone';
 // staff, arcs) and the notes come in as it opens. With reduced motion it is open and the notes rest above the rim.
 //
 // The keys can be played: pressing one (white or black) dips it toward the pivot and lights it, sounds its note
-// (lib/tone.js; the leaves run from C3 at the left to C6 at the right) and lets a few notes fly up from its tip.
+// (lib/tone.js; the leaves run from C3 at the left to C6 at the right) and lets a few notes fly up from its tip. While
+// "Hear me play" is on, the keys play along with her: each goes down with the note she plays on it (folded into the
+// fan's three octaves), and a note flies off it as the note begins.
 const CX = 600;
 const CY = 600; // the pivot, in the viewBox
 const R = 470; // the rim (alternate leaves stand a little in, the pleat)
@@ -31,6 +35,13 @@ const HORIZON = 497; // where the cream sheet meets the ink below it (site.css h
 const BLACK_AFTER = [0, 1, 3, 4, 5]; // white keys (C=0 … B=6) followed by a black key
 const WHITE_STEPS = [0, 2, 4, 5, 7, 9, 11]; // semitones of C D E F G A B
 const whiteMidi = i => 48 + 12 * Math.floor(i / 7) + WHITE_STEPS[i % 7]; // leaf 0 is C3
+const LOW = 48;
+const HIGH = 84; // C3 to C6, the fan's range
+const PLAYED = { down: 0.035, up: 0.14 }; // a played note's key goes down and comes back up over these (s), as elsewhere
+const smooth = (a, b, v) => {
+  const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+};
 
 const pt = (r, deg) => {
   const t = (deg * Math.PI) / 180;
@@ -95,7 +106,7 @@ const boxStyle = b => ({
 const viewBox = b => `${b.x} ${b.y} ${b.w} ${b.h}`;
 const SCALLOP = Array.from({ length: 11 }, (_, i) => 180 + (i - 5) * 11);
 
-const NOTES = ['q', 'e', 'b', 's'];
+const NOTES = NOTE_KINDS;
 const TONES = ['ink', 'ink', 'red', 'ink', 'felt'];
 // Each note leaves the rim at its own angle and flies away up the page, out a little to its side and swaying, slow off
 // the rim and quicker as it climbs, like the hero's birds; then another leaves. They climb --climb (set from the
@@ -124,22 +135,15 @@ const FLIGHT = Array.from({ length: 22 }, (_, i) => {
 });
 
 function Note({ kind }) {
-  const head = (cx, cy) => <ellipse cx={cx} cy={cy} rx="7.4" ry="5.2" transform={`rotate(-22 ${cx} ${cy})`} />;
-  if (kind === 'b') {
-    return (
-      <svg viewBox="0 0 36 46">
-        {head(8, 38)}
-        {head(25, 34)}
-        <path d="M13.4 10.5h2.2V38h-2.2zM30.4 6.5h2.2V34h-2.2zM13.4 10.5L32.6 6.5v5.4L13.4 16z" />
-      </svg>
-    );
-  }
+  const { box, heads, paths } = NOTE_SHAPES[kind];
   return (
-    <svg viewBox="0 0 32 44">
-      {head(10, 36)}
-      <path d="M15.6 6h2.2v30h-2.2z" />
-      {kind !== 'q' && <path d="M17.8 6c.2 7 9.2 9 7.2 20-1-7-4-10-7.2-11z" />}
-      {kind === 's' && <path d="M17.8 13c.2 7 9.2 9 7.2 20-1-7-4-10-7.2-11z" />}
+    <svg viewBox={`0 0 ${box[0]} ${box[1]}`}>
+      {heads.map(([x, y]) => (
+        <ellipse key={x} cx={x} cy={y} rx="7.4" ry="5.2" transform={`rotate(-22 ${x} ${y})`} />
+      ))}
+      {paths.map(d => (
+        <path key={d} d={d} />
+      ))}
     </svg>
   );
 }
@@ -150,22 +154,26 @@ const opening = (r, vh) => (vh * 0.95 - r.top) / (vh * 0.5);
 export default function KeyFan({ className = '' }) {
   const ref = useRef(null);
   const count = useRef(0);
+  const blades = useRef(new Map()); // each key's note → { el, angle }
+  const taps = useRef(new Map()); // note → when its key was pressed by hand (s)
+  const kick = useRef(() => {});
+  const burstRef = useRef(null);
+  const onScreen = useRef(false);
   const [bursts, setBursts] = useState([]);
+  const { playhead, playing } = useSound();
+  const playingRef = useRef(playing);
+  playingRef.current = playing;
+  const reduced = useReducedMotion();
   useScrub(ref, opening, '--open');
 
-  // A key pressed: it dips and lights for a moment, sounds, and sends three notes up from its tip, wherever the fan
-  // stands in its opening.
-  const play = (angle, midi) => e => {
-    strike(midi);
-    const blade = e.currentTarget.closest('svg');
-    blade.classList.add('is-down');
-    setTimeout(() => blade.classList.remove('is-down'), 220);
+  // Notes off a key's tip, wherever the fan stands in its opening: `count` of them, the first red.
+  const burst = (angle, midi, howMany = 3, size = 1) => {
     const open = parseFloat(getComputedStyle(ref.current).getPropertyValue('--open'));
     const t = ((angle * (Number.isNaN(open) ? 1 : open)) * Math.PI) / 180;
     const x = ((CX + (R + 10) * Math.sin(t)) / 1200) * 100;
     const y = ((CY - (R + 10) * Math.cos(t)) / 700) * 100;
     const id = (count.current += 1);
-    const notes = [0, 1, 2].map(k => ({
+    const notes = Array.from({ length: howMany }, (_, k) => ({
       key: `${id}-${k}`,
       x,
       y,
@@ -175,18 +183,82 @@ export default function KeyFan({ className = '' }) {
       rise: 260 + Math.random() * 300,
       r0: (Math.random() - 0.5) * 40,
       r1: (Math.random() - 0.5) * 70,
-      size: 0.9 + Math.random() * 0.5,
+      size: (0.9 + Math.random() * 0.5) * size,
       dur: 2.4 + Math.random() * 1.1,
       delay: k * 0.09
     }));
     setBursts(b => [...b.slice(-24), ...notes]);
   };
+  burstRef.current = burst;
+
+  // A key pressed by hand: it sounds, goes down for a moment, and lets three notes go.
+  const play = (angle, midi) => () => {
+    strike(midi);
+    taps.current.set(midi, performance.now() / 1000);
+    kick.current();
+    burst(angle, midi);
+  };
+
+  // How far down each key is (--press on its SVG: it dips and lights), from the presses by hand and, while the piano
+  // plays, from her notes; a note flies off a key as one of hers begins on it (at most one every 80 ms, so a chord
+  // lets one go). Runs while anything is moving and the fan is on screen.
+  useEffect(() => {
+    let raf = 0;
+    let heard = null; // where the music was last frame (s)
+    let lastBurst = 0;
+    const lit = new Map();
+    const tick = () => {
+      raf = 0;
+      const now = performance.now() / 1000;
+      const press = new Map();
+      taps.current.forEach((at, m) => {
+        if (now - at > TAP_LIFE) taps.current.delete(m);
+        else press.set(m, tapPress(now - at));
+      });
+      const p = reduced ? null : playhead();
+      if (p) {
+        for (const [start, end, note, velocity] of p.notes) {
+          if (start - PLAYED.down > p.t) break;
+          if (end + PLAYED.up < p.t) continue;
+          const m = fold(note, LOW, HIGH);
+          const key = blades.current.get(m);
+          if (!key) continue;
+          const down = smooth(start - PLAYED.down, start, p.t) * (1 - smooth(end, end + PLAYED.up, p.t));
+          press.set(m, Math.max(press.get(m) || 0, down * (0.6 + 0.4 * velocity)));
+          if (heard !== null && start > heard && start <= p.t && now - lastBurst > 0.08 && onScreen.current) {
+            lastBurst = now;
+            burstRef.current(key.angle, m, 1, 0.8 + 0.4 * velocity);
+          }
+        }
+        heard = p.t;
+      } else heard = null;
+      let any = false;
+      blades.current.forEach(({ el }, m) => {
+        const v = Math.round((press.get(m) || 0) * 100) / 100;
+        if (v) any = true;
+        if (lit.get(m) !== v) {
+          lit.set(m, v);
+          el.style.setProperty('--press', v);
+        }
+      });
+      if (taps.current.size || any || (playingRef.current && onScreen.current)) raf = requestAnimationFrame(tick);
+    };
+    kick.current = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    kick.current();
+    return () => cancelAnimationFrame(raf);
+  }, [playing, playhead, reduced]);
   const done = key => setBursts(b => b.filter(n => n.key !== key));
   // The notes fly only while the fan is on screen, and climb as high as the section above it (her words) reaches.
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) return undefined;
-    const io = new IntersectionObserver(([e]) => el.classList.toggle('is-on', e.isIntersecting));
+    const io = new IntersectionObserver(([e]) => {
+      el.classList.toggle('is-on', e.isIntersecting);
+      onScreen.current = e.isIntersecting;
+      kick.current();
+    });
     io.observe(el);
     const measure = () => {
       const above = el.previousElementSibling;
@@ -259,7 +331,13 @@ export default function KeyFan({ className = '' }) {
       {angles.map((a, i) => {
         const L = LEAVES[i % 2];
         return (
-          <svg key={`l${i}`} className="keyfan__blade" viewBox={viewBox(LEAF_BOX)} style={{ ...boxStyle(LEAF_BOX), '--a': `${a}deg` }}>
+          <svg
+            key={`l${i}`}
+            ref={el => el && blades.current.set(whiteMidi(i), { el, angle: a })}
+            className="keyfan__blade"
+            viewBox={viewBox(LEAF_BOX)}
+            style={{ ...boxStyle(LEAF_BOX), '--a': `${a}deg` }}
+          >
             <path className="keyfan__hub" d={HUB} />
             <path className="keyfan__grain" d={GRAIN} />
             <path className="keyfan__ring" d={RING} />
@@ -267,6 +345,7 @@ export default function KeyFan({ className = '' }) {
             <path className="keyfan__stick" d={STICK} />
             <g className="keyfan__press" onPointerDown={play(a, whiteMidi(i))}>
               <path className="keyfan__paper" d={L.paper} fill={i % 2 ? 'url(#kf-paper-shade)' : 'url(#kf-paper)'} />
+              <path className="keyfan__lit" d={L.paper} />
               <path className="keyfan__fold" d={FOLDS} />
               <path className="keyfan__filigree" d={FILIGREE} />
               <path className="keyfan__band" d={L.band} />
@@ -278,13 +357,20 @@ export default function KeyFan({ className = '' }) {
       })}
 
       {blacks.map(({ a, midi }) => (
-        <svg key={`b${a}`} className="keyfan__blade" viewBox={viewBox(KEY_BOX)} style={{ ...boxStyle(KEY_BOX), '--a': `${a}deg` }}>
+        <svg
+          key={`b${a}`}
+          ref={el => el && blades.current.set(midi, { el, angle: a })}
+          className="keyfan__blade"
+          viewBox={viewBox(KEY_BOX)}
+          style={{ ...boxStyle(KEY_BOX), '--a': `${a}deg` }}
+        >
           <path className="keyfan__shadow" d={BLACK.body} transform="translate(4 6)" />
           <g className="keyfan__press" onPointerDown={play(a, midi)}>
             <path className="keyfan__bk" d={BLACK.body} />
             <path className="keyfan__bk-face" d={BLACK.face} fill="url(#kf-black)" />
             <path className="keyfan__bk-front" d={BLACK.front} />
             <path className="keyfan__bk-glint" d={BLACK.glint} />
+            <path className="keyfan__bk-lit" d={BLACK.body} />
           </g>
         </svg>
       ))}

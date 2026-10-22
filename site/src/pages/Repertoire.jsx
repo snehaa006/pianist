@@ -79,7 +79,7 @@ export default function Repertoire() {
           )}
 
           <div className="divider">
-            <Keys />
+            <Keys playable />
           </div>
           <ul className="programme">
             {groups.map((g, i) => (
