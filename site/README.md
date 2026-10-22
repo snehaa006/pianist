@@ -96,7 +96,9 @@ red and gold tracery at each key's foot; black keys lying on the leaves; dark st
 handle, engraved in gold with a red jewel, lying along the right edge from a jewelled rivet; behind it, a staff with
 notes written on it and two gold arcs) stands across the sheet's foot, over the ink below. It opens from
 a single upright key on its hanging handle as it scrolls into view, the handle swinging up to the right; every leaf,
-black key and the handle is its own small SVG turned by a CSS transform, so it opens without redrawing.
+black key and the handle is its own small SVG, and each frame's turn is written straight onto it as a transform, so it
+opens without redrawing and the browser restyles only those pieces (a CSS variable on the whole fan made it restyle
+every part of it every frame, and the page stuttered).
 Its keys can be played: pressing one dips and lights it, sounds its note (a soft synthesised tone, `src/lib/tone.js`;
 the leaves run from C2 at the left to B5 at the right, middle C at the top, the black keys between) and sends three
 notes up off its tip. While *Hear me play* is on, the fan plays along with her, as the hero's keys and the stairs do:
@@ -106,8 +108,10 @@ Music notes leave its rim and fly away up the page, past her words, as the birds
 asked for notes, though the design system leaves out note icons). [2] *Six years at the piano*: five pictures on the
 ink stage that slide in from the right together, as one strip, as the row comes up the screen. [3] *Where she has played*:
 cards that stack under the nav, each opening its film. Scroll-linked motion is eased toward the scroll each frame
-(`useScrub` in `src/lib/hooks.js`), so wheel steps glide and scrolling back plays it in reverse; with reduced motion
-nothing moves, the text is at full, the fan is open and the notes rest above it.
+(`useScrub` in `src/lib/hooks.js`, by time rather than frames), so wheel steps glide and scrolling back plays it in
+reverse. All the scroll-linked effects share one frame loop that measures everything before it writes anything, so
+none of them makes the browser restyle the page for another. With reduced motion nothing moves, the text is at full,
+the fan is open and the notes rest above it.
 
 The Biography page ends on a keyboard that turns into a city (`src/components/Skyline.jsx`, after a poster the client
 supplied): under the footer's wordmark the keys run toward you in perspective, and at their far end every white key

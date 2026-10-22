@@ -15,12 +15,14 @@ import { NOTE_KINDS, NOTE_SHAPES } from '../lib/notes';
 // leaves overhang the line where the cream sheet meets the ink, as the fan in the picture does. Music notes leave the rim and fly away up the
 // page, past her words, as the birds leave the hero's keyboard.
 //
-// It opens as it scrolls into view and shuts again when scrolled back: --open (0 shut, 1 open) is eased toward where
-// the fan stands on the screen (useScrub), and turns each leaf and black key about the pivot from straight up to its
-// place, while the handle swings up from hanging straight down to lie along the right edge; shut, it is a single key
-// standing on its handle. Every leaf, black key and the handle is its own small SVG, turned by a CSS transform, so the
-// browser moves them as layers and never redraws them while the fan opens. The ground (staff, arcs) and the notes come
-// in as it opens. With reduced motion it is open and the flying notes rest above the rim.
+// It opens as it scrolls into view and shuts again when scrolled back: how open it is (0 shut, 1 open) is eased toward
+// where the fan stands on the screen (useScrub), and turns each leaf and black key about the pivot from straight up to
+// its place, while the handle swings up from hanging straight down to lie along the right edge; shut, it is a single
+// key standing on its handle. Every leaf, black key and the handle is its own small SVG, turned by a transform written
+// straight onto it each frame, so the browser moves them as layers, never redraws them, and restyles only those
+// elements (a CSS variable on the fan would make it restyle every part of every leaf, every frame). The ground (staff,
+// arcs) and the notes fade in as it opens, also as layers. With reduced motion it is open and the flying notes rest
+// above the rim.
 //
 // The keys can be played: pressing one (white or black) dips it toward the pivot and lights it, sounds its note
 // (lib/tone.js; the leaves run from C2 at the left to B5 at the right, middle C at the top) and lets a few notes fly up
@@ -231,13 +233,17 @@ function Note({ kind }) {
   );
 }
 
-// --open: 0 while the fan's top is near the foot of the screen, 1 once it has risen half a screen.
+// How open: 0 while the fan's top is near the foot of the screen, 1 once it has risen half a screen.
 const opening = (r, vh) => (vh * 0.95 - r.top) / (vh * 0.5);
 
 export default function KeyFan({ className = '' }) {
   const ref = useRef(null);
   const count = useRef(0);
   const blades = useRef(new Map()); // each key's note → { el, angle }
+  const guard = useRef(null);
+  const ground = useRef(null);
+  const flock = useRef(null);
+  const open = useRef(1);
   const taps = useRef(new Map()); // note → when its key was pressed by hand (s)
   const kick = useRef(() => {});
   const burstRef = useRef(null);
@@ -247,12 +253,23 @@ export default function KeyFan({ className = '' }) {
   const playingRef = useRef(playing);
   playingRef.current = playing;
   const reduced = useReducedMotion();
-  useScrub(ref, opening, '--open');
+  // Each frame of the opening: turn every key and the handle, fade in the ground and the notes (null: back to the CSS,
+  // which has it open).
+  const setOpen = v => {
+    open.current = v === null ? 1 : v;
+    const turn = a => (v === null ? '' : `rotate(${(a * v).toFixed(3)}deg)`);
+    blades.current.forEach(({ el, angle }) => {
+      el.style.transform = turn(angle);
+    });
+    if (guard.current) guard.current.style.transform = v === null ? '' : `rotate(${(180 + (GUARD - 180) * v).toFixed(3)}deg)`;
+    if (ground.current) ground.current.style.opacity = v === null ? '' : v.toFixed(3);
+    if (flock.current) flock.current.style.opacity = v === null ? '' : Math.min(1, Math.max(0, (v - 0.5) * 2.5)).toFixed(3);
+  };
+  useScrub(ref, opening, setOpen);
 
   // Notes off a key's tip, wherever the fan stands in its opening: `count` of them, the first red.
   const burst = (angle, midi, howMany = 3, size = 1) => {
-    const open = parseFloat(getComputedStyle(ref.current).getPropertyValue('--open'));
-    const t = ((angle * (Number.isNaN(open) ? 1 : open)) * Math.PI) / 180;
+    const t = (angle * open.current * Math.PI) / 180;
     const x = ((CX + (R + 10) * Math.sin(t)) / 1200) * 100;
     const y = ((CY - (R + 10) * Math.cos(t)) / 700) * 100;
     const id = (count.current += 1);
@@ -375,6 +392,24 @@ export default function KeyFan({ className = '' }) {
 
   return (
     <div ref={ref} className={`keyfan ${className}`} aria-hidden="true">
+      <svg ref={ground} className="keyfan__ground" viewBox="0 0 1200 700">
+        <g clipPath="url(#kf-sky)">
+          <path className="keyfan__staff" d={STAFF.map(r => arc(r, -100, 100)).join('')} />
+          {GILT_ARCS.map((r, k) => (
+            <path key={r} className={`keyfan__arc keyfan__arc--${k}`} d={arc(r, -100, 100)} />
+          ))}
+        </g>
+        <g className="keyfan__written">
+          {WRITTEN.map(([a, line, kind]) => {
+            const s = 0.9;
+            return (
+              <g key={a} transform={`rotate(${a} ${CX} ${CY}) translate(${CX - 10 * s} ${CY - staffR(line) - 36 * s}) scale(${s})`}>
+                <Glyph kind={kind} />
+              </g>
+            );
+          })}
+        </g>
+      </svg>
       <svg className="keyfan__back" viewBox="0 0 1200 700">
         <defs>
           <clipPath id="kf-sky">
@@ -418,24 +453,6 @@ export default function KeyFan({ className = '' }) {
             <feGaussianBlur stdDeviation="3" />
           </filter>
         </defs>
-        <g className="keyfan__ground">
-          <g clipPath="url(#kf-sky)">
-            <path className="keyfan__staff" d={STAFF.map(r => arc(r, -100, 100)).join('')} />
-            {GILT_ARCS.map((r, k) => (
-              <path key={r} className={`keyfan__arc keyfan__arc--${k}`} d={arc(r, -100, 100)} />
-            ))}
-          </g>
-          <g className="keyfan__written">
-            {WRITTEN.map(([a, line, kind]) => {
-              const s = 0.9;
-              return (
-                <g key={a} transform={`rotate(${a} ${CX} ${CY}) translate(${CX - 10 * s} ${CY - staffR(line) - 36 * s}) scale(${s})`}>
-                  <Glyph kind={kind} />
-                </g>
-              );
-            })}
-          </g>
-        </g>
         <g className="keyfan__shell">
           <path className="keyfan__shell-body" d={SHELL.body} />
           <path className="keyfan__shell-ribs" d={SHELL.ribs} />
@@ -499,7 +516,7 @@ export default function KeyFan({ className = '' }) {
         </svg>
       ))}
 
-      <svg className="keyfan__blade keyfan__guard" viewBox={viewBox(HANDLE_BOX)} style={{ ...boxStyle(HANDLE_BOX), '--a': `${GUARD}deg` }}>
+      <svg ref={guard} className="keyfan__blade keyfan__guard" viewBox={viewBox(HANDLE_BOX)} style={{ ...boxStyle(HANDLE_BOX), '--a': `${GUARD}deg` }}>
         <path className="keyfan__handle" d={HANDLE.body} fill="url(#kf-handle)" />
         <path className="keyfan__handle-grain" d={HANDLE.grain} />
         <path className="keyfan__handle-edge" d={HANDLE.edge(-1)} />
@@ -515,7 +532,7 @@ export default function KeyFan({ className = '' }) {
         <circle className="keyfan__pearl" cx={CX - 1.2} cy={CY - 1.2} r="1.1" />
       </svg>
 
-      <div className="keyfan__notes">
+      <div ref={flock} className="keyfan__notes">
         {FLIGHT.map((n, i) => (
           <span
             key={i}
