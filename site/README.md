@@ -145,17 +145,12 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 
 ## The hero and sound
 
-The landing page is a still poster on the red after a piano-lessons flyer the client supplied (`src/components/Hero.jsx`):
-a full keyboard runs the width of the screen and a black grand piano case stands on it as wide
-(`src/components/PianoCase.jsx`), square at the top left under the nav, its bentside sweeping down the right in an S
-round a red bay. The case runs on down behind the keys, so the gaps between them are black. On the case: the supplied
-photograph of her at the piano in the Austrian Master Classes hall (`posters/portrait*.webp`, in its original colour)
-and, below the bay, one fact and one action: "Filmed in concert at the Austrian Master Classes, [Year]." and *Watch the
-performance* (a crimson pill, as on the ink stages), which opens that concert's film. Her name stands in the bay in
-ink, each letter rising into place. The case is an SVG drawn from where the name and the photograph are, again on
-every resize, so the bay always clears the name and the tail the photograph. Keys on the right of the keyboard fly off
-as birds (above). On phones the name comes first, on the red, then the case begins, its bentside reaching the right
-edge above the photograph, the line, the button and the keyboard. There is no hero film any more
+The landing page is a still poster on the red (`src/components/Hero.jsx`): the supplied photograph of her at the
+piano in the Austrian Master Classes hall (`posters/portrait*.webp`, in its original colour) stands on a full
+keyboard that runs the width of the screen, and her name fills the column beside it in ink, each letter rising into
+place. One fact and one action: "Filmed in concert at the Austrian Master Classes, [Year]." and *Watch the
+performance*, which opens that concert's film. Keys on the right of the keyboard fly off as birds (above). On phones
+the name comes first, then the photograph, the line, the button and the keyboard. There is no hero film any more
 (the old one can still be cut with `../montage/scripts/hero-film.py`).
 
 Nothing plays on arrival. The nav's *Hear me play* pill (`src/components/SoundToggle.jsx`) starts her at-home grand
