@@ -90,14 +90,18 @@ phones it stands above the photograph). Two stills from the films lie on it as p
 bio in steps down the sheet beside a photo-booth strip; it is read as the page moves: every word starts faded and comes
 up to full as the lines pass up the screen, and fades back when scrolled back (`src/components/ScrubText.jsx`), with a
 few of her phrases picked out in crimson, set heavier (her words are never changed). The section leads further down
-do the same. A painted fan of piano keys (`src/components/KeyFan.jsx`, after the client's picture of one: paper
-leaves, a red border, black keys lying on the leaves, wooden sticks, the handle hanging straight down from a jewelled
-rivet) stands level across the sheet's foot, over the ink below, and opens from a single upright key as it scrolls
-into view; every leaf and black key is its own small SVG turned by a CSS transform, so it opens without redrawing.
+do the same. A painted fan of piano keys (`src/components/KeyFan.jsx`, drawn after the client's picture of one, to its
+measurements and colours: 28 aged paper leaves, cream and tan by turns, under a deep red border between gold lines;
+red and gold tracery at each key's foot; black keys lying on the leaves; dark sticks between cream, a ribbed hub; the
+handle, engraved in gold with a red jewel, lying along the right edge from a jewelled rivet; behind it, rays of light,
+a staff with notes written on it and two gold arcs) stands across the sheet's foot, over the ink below. It opens from
+a single upright key on its hanging handle as it scrolls into view, the handle swinging up to the right; every leaf,
+black key and the handle is its own small SVG turned by a CSS transform, so it opens without redrawing.
 Its keys can be played: pressing one dips and lights it, sounds its note (a soft synthesised tone, `src/lib/tone.js`;
-the leaves run from C3 at the left to C6 at the right, the black keys between) and sends three notes up off its tip.
-While *Hear me play* is on, the fan plays along with her, as the hero's keys and the stairs do: each key goes down with
-the note she plays on it (folded into its three octaves) and a note flies off it as the note begins.
+the leaves run from C2 at the left to B5 at the right, middle C at the top, the black keys between) and sends three
+notes up off its tip. While *Hear me play* is on, the fan plays along with her, as the hero's keys and the stairs do:
+each key goes down with the note she plays on it (folded into its four octaves) and a note flies off it as the note
+begins.
 Music notes leave its rim and fly away up the page, past her words, as the birds leave the hero's keyboard (the client
 asked for notes, though the design system leaves out note icons). [2] *Six years at the piano*: five pictures on the
 ink stage that slide in from the right together, as one strip, as the row comes up the screen. [3] *Where she has played*:
