@@ -5,12 +5,14 @@ import { useDrift } from '../lib/hooks';
 // the rim steps in and out, with a red border between cream lines along it and a red filigree where each leaf meets its
 // stick; black keys lie on the leaves, lit from the top left. Below the leaves the sticks show, cream between dark
 // wood, then close into the dark hub round a jewelled rivet; the guard stick runs out to the right as the handle.
-// Behind it, rays of light, five staff lines and two red arcs; music notes leave the rim and fly up off it.
+// Behind it, rays of light, five staff lines and two red arcs; music notes leave the rim and fly away up the page,
+// as the birds leave the hero's keyboard.
 // Colours are the site's own: cream paper, crimson, ink and lacquer, dust where the picture has gold.
 //
-// It opens as it scrolls into view: --open (0 shut, 1 open, from useDrift's --p, see site.css) turns each leaf about
-// the pivot from the handle to its place, so shut it is a single stick lying along the handle. The ground (rays,
-// staff, arcs) and the notes come in as it opens. With reduced motion it is open and the notes rest on the staff.
+// It opens as it scrolls into view: --open (0 shut, 1 open, from useDrift's --p, see site.css) turns each leaf and the
+// handle about the pivot from straight up to its place, so shut it is a single key standing on the pivot. Shadows are
+// drawn shapes, not filters, so nothing is re-rendered as it turns. The ground (rays, staff, arcs) and the notes come
+// in as it opens. With reduced motion it is open and the notes rest on the staff.
 const CX = 600;
 const CY = 600; // the pivot, in the viewBox
 const R = 470; // the rim (alternate leaves stand a little in, the pleat)
@@ -21,7 +23,7 @@ const A0 = -84;
 const A1 = 89; // the span, degrees from straight up
 const N = 22; // leaves: three octaves of white keys and a C
 const W = (A1 - A0) / N;
-const GUARD = 93; // the handle; shut, every leaf lies along it
+const GUARD = 93; // the handle
 const HORIZON = 497; // where the cream sheet meets the ink below it (site.css hangs the fan so)
 const BLACK_AFTER = [0, 1, 3, 4, 5]; // white keys (C=0 … B=6) followed by a black key
 
@@ -78,16 +80,17 @@ const SCALLOP = Array.from({ length: 11 }, (_, i) => 180 + (i - 5) * 11);
 
 const NOTES = ['q', 'e', 'b', 's'];
 const TONES = ['ink', 'ink', 'red', 'ink', 'felt'];
-// Each note leaves the rim at its own angle and flies out and up off it, swaying, in a loop; the delays are negative
-// so the flight is already under way when the fan opens. Distances are in viewBox units, turned into cqw.
-const FLIGHT = Array.from({ length: 16 }, (_, i) => {
+// Each note leaves the rim at its own angle and flies away up the page, out a little to its side and swaying, slow off
+// the rim and quicker as it climbs, like the hero's birds; then another leaves. The delays are negative so the flight
+// is already under way when the fan opens. Distances are in viewBox units, turned into cqw.
+const FLIGHT = Array.from({ length: 18 }, (_, i) => {
   const j = Math.sin(i * 12.9898) * 43758.5453;
   const r = j - Math.floor(j); // a fixed scatter, 0..1
-  const a = -70 + (140 * i) / 15 + (r - 0.5) * 6;
+  const a = -72 + (144 * i) / 17 + (r - 0.5) * 6;
   const t = (a * Math.PI) / 180;
   const start = R + 14;
-  const out = 70 + r * 90;
-  const up = 50 + ((i * 37) % 70);
+  const out = 120 + r * 160;
+  const up = 900 + ((i * 137) % 500);
   return {
     kind: NOTES[i % 4],
     tone: TONES[i % 5],
@@ -98,8 +101,8 @@ const FLIGHT = Array.from({ length: 16 }, (_, i) => {
     r0: (r - 0.5) * 30,
     r1: (r - 0.5) * -50 + (a > 0 ? 18 : -18),
     size: 0.9 + ((i * 7) % 5) / 10,
-    dur: 6.5 + ((i * 5) % 7) * 0.5,
-    delay: -((i * 2.3) % 9)
+    dur: 9 + ((i * 5) % 7) * 0.8,
+    delay: -((i * 2.9) % 14)
   };
 });
 
@@ -139,7 +142,7 @@ export default function KeyFan({ className = '' }) {
   const angles = Array.from({ length: N }, (_, i) => A0 + W * (i + 0.5));
   const blacks = [];
   for (let i = 0; i < N - 1; i++) if (BLACK_AFTER.includes(i % 7)) blacks.push(A0 + W * (i + 1));
-  const leafStyle = a => ({ '--a': `${a}deg`, '--g': `${GUARD}deg` });
+  const leafStyle = a => ({ '--a': `${a}deg` });
 
   return (
     <div ref={ref} className={`keyfan ${className}`} aria-hidden="true">
@@ -173,9 +176,6 @@ export default function KeyFan({ className = '' }) {
             <stop offset="0.45" stopColor="var(--color-lacquer)" />
             <stop offset="1" stopColor="var(--color-ink)" />
           </linearGradient>
-          <filter id="kf-shadow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="4" dy="5" stdDeviation="3" floodColor="#0E0A0A" floodOpacity="0.4" />
-          </filter>
         </defs>
 
         <g className="keyfan__ground" clipPath="url(#kf-sky)">
@@ -214,9 +214,10 @@ export default function KeyFan({ className = '' }) {
           );
         })}
 
-        <g filter="url(#kf-shadow)">
+        <g>
           {blacks.map(a => (
             <g key={`b${a}`} className="keyfan__k" style={leafStyle(a)}>
+              <path className="keyfan__shadow" d={BLACK.body} transform="translate(4 6)" />
               <path className="keyfan__bk" d={BLACK.body} />
               <path d={BLACK.face} fill="url(#kf-black)" />
               <path className="keyfan__bk-front" d={BLACK.front} />
@@ -225,7 +226,8 @@ export default function KeyFan({ className = '' }) {
           ))}
         </g>
 
-        <g transform={`rotate(${GUARD} ${CX} ${CY})`} filter="url(#kf-shadow)">
+        <g className="keyfan__k" style={leafStyle(GUARD)}>
+          <path className="keyfan__shadow" d={HANDLE.body} transform="translate(-6 4)" />
           <path d={HANDLE.body} fill="url(#kf-wood)" className="keyfan__handle" />
           <path className="keyfan__inlay" d={HANDLE.inlay} />
           <path className="keyfan__curl" d={HANDLE.curl} />

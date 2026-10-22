@@ -246,87 +246,70 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* ---- Biography (pages/About.jsx) ----------------------------------------
    Sections that drift get --p from useDrift (0 when the section's middle is at the viewport's middle, 1 a screen
    further on; unset with reduced motion), and things move by it with `translate`, which leaves `transform` to the
-   reveals and `rotate` to the tilt. After the dark cover, her words lie on a cream sheet on the red (the red shows
-   round it), and the fan hangs over the sheet's foot into the ink below it. --fw is the fan's width. */
+   reveals and `rotate` to the tilt. The cover and her words lie on a cream sheet on the red (the red shows at its
+   sides), and the fan hangs over the sheet's foot into the ink below it. --fw is the fan's width. */
 .bio { --sheet-gap: clamp(10px, 2.4vw, 40px); --fw: min(calc(100vw - 2 * var(--sheet-gap) - 2 * var(--page-margin)), 1080px); }
-.bio-sheet { position: relative; margin: var(--sheet-gap) var(--sheet-gap) 0; overflow-x: clip;
-  background-color: var(--bg); background-image: var(--grain); }
+.bio-sheet { --print-mat: var(--color-ink); position: relative; margin: calc(var(--nav-height) + var(--sheet-gap)) var(--sheet-gap) 0;
+  overflow-x: clip; background-color: var(--bg); background-image: var(--grain); }
 .bio-sheet .screen { background: transparent; }
+@media (max-width: 899px) { .bio-sheet { margin-top: calc(64px + var(--sheet-gap)); } }
 
-/* A printed photograph: a cream mat, deeper at the foot, a slight tilt, and a drift of its own (--speed px a screen). */
+/* A printed photograph: a mat (cream on the red, ink on the sheet), deeper at the foot, a slight tilt, and a drift of
+   its own (--speed px a screen). */
 .print { --mat: clamp(5px, 0.55vw, 9px); margin: 0; padding: var(--mat) var(--mat) calc(var(--mat) * 3.4); box-sizing: border-box;
-  background: var(--color-ivory); rotate: var(--tilt, 0deg); translate: 0 calc(var(--p, 0) * var(--speed, 0) * -1px); }
+  background: var(--print-mat, var(--color-ivory)); rotate: var(--tilt, 0deg); translate: 0 calc(var(--p, 0) * var(--speed, 0) * -1px); }
 .print img { display: block; width: 100%; height: auto; object-fit: cover; }
 @media (max-width: 899px) { .print { translate: none; } } /* phones: the prints sit close to the text, so they hold still */
 
-/* The cover, after a portfolio cover: wine-dark stage, the page's name across the top in rose, her at the grand in
-   front of it (her head over the letters, the cut-out standing on the cover's foot, the piano fading into the dark),
-   her name and facts at the left, a line of hers and a list at the right, a turning badge in the corner. --h is the
-   cut-out's height (it is 1.917 times as wide); her head is 0.224 --h from its left edge, so `left` puts her head at
-   40% of the screen, the grand running off to the right. The scarlet light sits behind the piano, and a scarlet rim
-   round the cut-out keeps the black lacquer from melting into the ink. The
-   cut-out comes in two layers, the whole of it behind the word and her alone in front (the figure makes no stacking
-   context of its own, so the word's z-index falls between them). */
-.bio-hero { --h: min(71svh, 700px); --glow: 60% 62%; position: relative; overflow: hidden; box-sizing: border-box;
-  height: max(100svh, 680px); padding-top: calc(var(--nav-height) + var(--space-4));
-  background: var(--grain), radial-gradient(42% 58% at var(--glow), color-mix(in srgb, var(--color-scarlet) 34%, var(--color-ink)),
-    color-mix(in srgb, var(--color-scarlet) 10%, var(--color-ink)) 55%, var(--color-ink) 100%); }
-.bio-hero__top { position: relative; z-index: 3; display: flex; justify-content: space-between; gap: var(--space-5); color: var(--fg-muted); }
-.bio-hero__word { position: relative; z-index: 1; margin: 0; text-align: center; white-space: nowrap;
-  font-size: calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) / 3.33); line-height: 0.92; letter-spacing: -0.01em;
-  color: var(--fg-display); animation: from-ink var(--dur-largo) var(--ease-legato) both; }
-.bio-hero__her { position: absolute; bottom: 0; left: calc(40% - var(--h) * 0.224); height: var(--h); aspect-ratio: 2392 / 1248;
-  pointer-events: none; }
-.bio-hero__her img { position: absolute; inset: 0; width: 100%; height: 100%; animation: bio-rise var(--dur-largo) var(--ease-legato) 200ms both; }
-.bio-hero__back { z-index: 0; filter: drop-shadow(0 0 1px color-mix(in srgb, var(--color-scarlet) 70%, transparent))
-  drop-shadow(0 0 28px color-mix(in srgb, var(--color-scarlet) 35%, transparent)); }
-.bio-hero__front { z-index: 2; }
-@keyframes bio-rise { from { opacity: 0; translate: 0 48px; } }
-.bio-hero__grid { position: absolute; z-index: 3; left: 0; right: 0; bottom: var(--space-8); display: flex;
-  justify-content: space-between; align-items: flex-end; gap: var(--space-6); pointer-events: none; }
-.bio-hero__grid > * { pointer-events: auto; }
-.bio-hero__who { max-width: 21rem; }
-.bio-hero__name { margin: 0; font-size: var(--text-h1); line-height: 0.9; color: var(--fg-display); }
-.bio-hero__name span { display: block; }
-.bio-hero__role { margin-top: var(--space-4); color: var(--fg-muted); }
-.bio-hero__rule { display: block; width: 56px; height: 1px; margin: var(--space-5) 0; background: var(--color-scarlet); }
-.bio-hero__lead { max-width: 24ch; }
-.bio-hero__who .actions { margin-top: var(--space-5); }
-.bio-hero__what { max-width: 17rem; }
-.bio-hero__line { margin: 0 0 var(--space-4); font-size: var(--text-h4); line-height: 1.05; color: var(--fg-accent); }
-.bio-hero__keys { display: flex; align-items: flex-start; gap: 4px; height: 16px; margin-bottom: var(--space-4); }
-.bio-hero__keys i { width: 5px; height: 100%; background: var(--fg-muted); }
-.bio-hero__keys b { width: 6px; }
-.bio-hero__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-3); color: var(--fg); }
-.bio-hero__badge { position: absolute; z-index: 3; right: calc(var(--page-margin) + 17rem + var(--space-6)); bottom: var(--space-8);
-  width: 140px; height: 140px; }
-.bio-hero__badge .circular-text { width: 100%; height: 100%; margin: 0; }
-.bio-hero__badge .circular-text span { font-size: 13px; }
-.bio-hero__play { position: absolute; inset: 0; margin: auto; width: 64px; height: 64px; }
-.bio-hero__play svg { width: 22px; height: 22px; fill: currentColor; }
-@media (prefers-reduced-motion: reduce) { .bio-hero__word, .bio-hero__her img { animation: none; } }
+/* Cover: the photograph stands at the right; her name runs from the left into it, behind the people (the same
+   picture masked by their matte lies over the name) and drifts out from behind them as the page scrolls. The name
+   is sized so INCEKARA ends a little over a third into the photograph, and never taller than the photograph. */
+.bio-cover { overflow: hidden; padding-block: var(--space-7) var(--space-9); }
+.bio-cover__top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-5); }
+.bio-cover__top .opus { margin-bottom: 0; }
+.bio-cover__stage { --ph: clamp(400px, 60svh, 760px); --pw: calc(var(--ph) * 0.8); --pr: 6cqw;
+  container-type: inline-size; position: relative; height: var(--ph); margin-top: var(--space-5); }
+.bio-cover__photo, .bio-cover__front { position: absolute; top: 0; right: var(--pr); width: var(--pw); height: var(--ph); }
+.bio-cover__photo { background: var(--color-oxblood); }
+.bio-cover__photo img, .bio-cover__front img { display: block; width: 100%; height: 100%; object-fit: cover; color: transparent; }
+.bio-cover__front { z-index: 3; pointer-events: none;
+  -webkit-mask: url('/media/cutouts/portrait-matte.webp') 0 0 / 100% 100% no-repeat;
+  mask: url('/media/cutouts/portrait-matte.webp') 0 0 / 100% 100% no-repeat; }
+.bio-cover__name { position: absolute; z-index: 2; left: 0; bottom: calc(var(--ph) * 0.07); margin: 0 0 0 -0.03em;
+  font-size: min(calc((100cqw - var(--pr) - var(--pw) * 0.62) / 2.9), calc(var(--ph) / 1.78));
+  line-height: 0.8; letter-spacing: var(--tracking-wordmark); white-space: nowrap; color: var(--fg-accent);
+  translate: calc(var(--p, 0) * -9cqw) 0; }
+.bio-cover__line { display: block; }
+.bio-cover__print { position: absolute; z-index: 4; }
+.bio-cover__print--a { width: clamp(120px, 12cqw, 190px); top: calc(var(--ph) * 0.04); right: calc(var(--pr) + var(--pw) - 2.5cqw); }
+.bio-cover__print--b { width: clamp(130px, 13cqw, 210px); top: calc(var(--ph) * 0.56); right: calc(var(--pr) - 4cqw); }
+.bio-cover__rule { display: flex; align-items: center; gap: var(--space-4); margin-top: var(--space-8); }
+.bio-cover__rule i { flex: 1; height: 1px; background: currentColor; opacity: 0.55; }
+.bio-cover__foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: var(--space-5) var(--space-8);
+  margin-top: var(--space-5); }
+.bio-cover__foot .lead, .bio-cover__foot .actions { margin: 0; }
+.bio-cover__lead { max-width: 34ch; }
 @media (max-width: 899px) {
-  /* Phones: the word, then her (pulled up so her head is over it, the cut-out fading out at the foot), then the text. */
-  .bio-hero { height: auto; padding-bottom: var(--space-9); padding-top: calc(64px + var(--space-4)); }
-  .bio-hero__word { margin-top: var(--space-3); }
-  .bio-hero__her { position: relative; width: 160vw; height: auto; left: auto; bottom: auto; margin: -15vw 0 0 16vw; }
-  .bio-hero__her img { -webkit-mask-image: linear-gradient(to top, transparent, #000 18%); mask-image: linear-gradient(to top, transparent, #000 18%); }
-  .bio-hero__grid { position: relative; bottom: auto; flex-direction: column; align-items: stretch; gap: var(--space-7);
-    margin-top: var(--space-4); }
-  .bio-hero__what { margin-bottom: 0; }
-  .bio-hero { --glow: 50% 30%; }
-  .bio-hero__badge { position: relative; right: auto; bottom: auto; width: 112px; height: 112px; margin: var(--space-7) 0 0 auto;
-    margin-right: var(--page-margin); }
+  .bio-cover__stage { height: auto; display: flex; flex-direction: column; margin-top: var(--space-5); }
+  .bio-cover__name { position: relative; order: -1; bottom: auto; margin-bottom: var(--space-5); font-size: calc(100cqw / 2.95);
+    translate: none; }
+  .bio-cover__photo { position: relative; right: auto; width: 100%; max-width: 560px; height: auto; aspect-ratio: 4 / 5; }
+  .bio-cover__front { display: none; }
+  .bio-cover__rule { margin-top: var(--space-9); }
+  /* The name above takes 1.6em at 100cqw / 2.95, plus its margin: the first print sits on the photograph's top corner. */
+  .bio-cover__print--a { width: 30cqw; top: calc(54.3cqw + var(--space-5) + 4cqw); right: -1cqw; }
+  .bio-cover__print--b { width: 32cqw; top: auto; bottom: -5%; right: auto; left: -1cqw; }
 }
 
-/* The fan (KeyFan.jsx): each leaf turns about the pivot from the handle (--g) to its place (--a) as --open goes from 0
+/* The fan (KeyFan.jsx): each leaf turns about the pivot from straight up to its place (--a) as --open goes from 0
    to 1, which follows the fan's --p, so it opens on the way to the middle of the screen. The pivot sits a fifth of the
    rim's radius below the sheet's foot, as the fan in the client's picture sits on the line between light and dark. */
-.bio-fan { --open: clamp(0, calc((var(--p, 1) + 0.6) * 1.7), 1); position: relative; z-index: 2; width: var(--fw);
+.bio-fan { --open: clamp(0, calc((var(--p, 1) + 0.75) * 1.8), 1); position: relative; z-index: 2; width: var(--fw);
   margin: var(--space-6) auto calc(var(--fw) * -0.169); container-type: inline-size; }
 .keyfan svg { display: block; width: 100%; height: auto; overflow: visible; }
-.keyfan__k { transform-box: view-box; transform-origin: 600px 600px;
-  transform: rotate(calc(var(--g) + (var(--a) - var(--g)) * var(--open, 1))); }
+.keyfan__k { transform-box: view-box; transform-origin: 600px 600px; transform: rotate(calc(var(--a) * var(--open, 1)));
+  transition: transform var(--dur-allegro) var(--ease-legato); } /* glides between scroll steps instead of jumping */
+.keyfan__shadow { fill: var(--color-ink); opacity: 0.3; }
 .keyfan__ground { opacity: var(--open, 1); }
 .keyfan__ray--0 { fill: var(--color-paper); opacity: 0.6; }
 .keyfan__ray--1 { fill: var(--color-felt); opacity: 0.08; }
@@ -354,11 +337,11 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .keyfan__jewel { fill: var(--color-crimson); stroke: var(--color-dust); stroke-width: 1.5; }
 .keyfan__pearl { fill: var(--color-ivory); }
 .keyfan__rivet { fill: var(--color-lacquer); stroke: var(--color-dust); stroke-width: 1.5; }
-/* Notes leave the rim and fly up off it, swaying, while the fan is open and on screen (.is-on). With reduced motion
-   they rest on the staff. */
-.keyfan__notes { position: absolute; inset: 0; pointer-events: none; opacity: clamp(0, calc((var(--open, 1) - 0.85) * 6.7), 1); }
+/* Notes leave the rim and fly away up the page, swaying, while the fan is open and on screen (.is-on): slow off the
+   rim, quicker as they climb, fading only near the end. With reduced motion they rest on the staff. */
+.keyfan__notes { position: absolute; inset: 0; pointer-events: none; opacity: clamp(0, calc((var(--open, 1) - 0.5) * 2.5), 1); }
 .keyfan__note { position: absolute; width: calc(2.3cqw * var(--size)); translate: -50% -50%; opacity: 0;
-  animation: note-fly var(--dur) cubic-bezier(0.3, 0.1, 0.5, 1) var(--delay) infinite paused; }
+  animation: note-fly var(--dur) cubic-bezier(0.45, 0, 0.75, 0.6) var(--delay) infinite paused; }
 .keyfan.is-on .keyfan__note { animation-play-state: running; }
 .keyfan__note svg { display: block; width: 100%; height: auto; fill: currentColor;
   animation: note-sway 1.8s var(--ease-rubato) infinite alternate; }
@@ -367,13 +350,13 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .keyfan__note--felt { color: var(--color-felt); }
 @keyframes note-fly {
   0% { opacity: 0; transform: translate(0, 0) rotate(var(--r0)) scale(0.7); }
-  14% { opacity: 0.85; }
-  68% { opacity: 0.7; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r1)) scale(1); }
+  6% { opacity: 0.9; }
+  80% { opacity: 0.75; }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r1)) scale(1.15); }
 }
 @keyframes note-sway { from { translate: -4px 0; } to { translate: 4px 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .keyfan__note { animation: none; opacity: 0.55; transform: translate(calc(var(--dx) * 0.45), calc(var(--dy) * 0.45)) rotate(var(--r0)); }
+  .keyfan__note { animation: none; opacity: 0.55; transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.05)) rotate(var(--r0)); }
   .keyfan__note svg { animation: none; }
 }
 
@@ -389,7 +372,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .bio-words__para--2 { grid-column: 5 / span 5; grid-row: 3; margin-top: var(--space-7); }
 .bio-words__sign { grid-column: 7 / span 3; grid-row: 4; margin-top: var(--space-5); }
 .bio-words__booth { grid-column: 10 / span 3; grid-row: 1 / span 4; align-self: center; }
-.booth { list-style: none; display: grid; gap: 10px; max-width: 170px; margin: 0 auto; padding: 10px 10px 40px;
+.booth { list-style: none; display: grid; gap: 10px; max-width: 200px; margin: 0 auto; padding: 10px 10px 40px;
   background: var(--color-ink); rotate: 2.5deg; }
 .booth img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
 @media (max-width: 899px) {
@@ -397,7 +380,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .bio-words__mark { justify-self: start; height: 0.42em; }
   .bio-words__para--2 { margin-top: var(--space-5); }
   .bio-words__booth { margin-top: var(--space-7); }
-  .booth { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 340px; padding: 8px 8px 28px; gap: 8px; rotate: -1.5deg; }
+  .booth { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 520px; padding: 8px 8px 28px; gap: 8px; rotate: -1.5deg; }
 }
 
 /* Six years: five pictures on the ink stage, her name in red behind them, cut by the foot of the screen and
