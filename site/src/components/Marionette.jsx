@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { createMarionette } from '../lib/marionette';
 import { useReducedMotion } from '../lib/hooks';
 import { useSound } from '../lib/sound.jsx';
+import { strike } from '../lib/tone';
+import { letNotes } from '../lib/notes';
 
 // Her name hanging on strings from a row of piano keys (lib/marionette.js), on a canvas that fills its box. Runs only
 // while on screen and the tab is visible; the letters are lowered into place the first time it comes into view; the
@@ -46,12 +48,22 @@ export default function Marionette({ className = '', text }) {
       scene.poke(e.clientX - box.left, e.clientY - box.top, vx);
     };
     if (!reduced) el.addEventListener('pointermove', onMove);
+    // A press on a key plays it: its note sounds, it goes down tugging its letters, and notes fly up off it.
+    const onDown = e => {
+      const box = el.getBoundingClientRect();
+      const hit = scene.tap(e.clientX - box.left, e.clientY - box.top);
+      if (!hit) return;
+      strike(hit.note);
+      letNotes(box.left + hit.x, box.top + hit.y, { tones: ['ivory', 'scarlet'], seed: hit.note });
+    };
+    el.addEventListener('pointerdown', onDown);
 
     return () => {
       ro.disconnect();
       io.disconnect();
       document.removeEventListener('visibilitychange', run);
       el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerdown', onDown);
       scene.destroy();
     };
   }, [reduced, playhead, text]);

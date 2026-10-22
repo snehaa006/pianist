@@ -312,13 +312,12 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .keyfan__blade { position: absolute; overflow: visible; transform-origin: 50% 100%; will-change: transform;
   transform: rotate(calc(var(--a) * var(--open, 1))); pointer-events: none; }
 .keyfan__back, .keyfan__front, .keyfan__bursts { pointer-events: none; }
-/* Playing the keys: only the keys themselves take the press. A pressed key dips toward the pivot and lights (rose on
-   the paper, graphite on a black key), as the hero's and the stairs' keys do. */
+/* Playing the keys: only the keys themselves take the press. A key down (--press 0..1, by hand or with the music) dips
+   toward the pivot and lights, rose over the paper and graphite over a black key, as the other keyboards' keys do. */
 .keyfan__press { pointer-events: visiblePainted; cursor: pointer; transform-box: view-box; transform-origin: 600px 600px;
-  transition: transform var(--dur-presto) var(--ease-legato); -webkit-tap-highlight-color: transparent; }
-.keyfan__blade.is-down .keyfan__press { transform: scale(0.975); }
-.keyfan__blade.is-down .keyfan__paper { fill: var(--color-rose); }
-.keyfan__blade.is-down .keyfan__bk, .keyfan__blade.is-down .keyfan__bk-face { fill: var(--color-graphite); }
+  transform: scale(calc(1 - var(--press, 0) * 0.03)); -webkit-tap-highlight-color: transparent; }
+.keyfan__lit { fill: var(--color-rose); opacity: calc(var(--press, 0) * 0.9); pointer-events: none; }
+.keyfan__bk-lit { fill: var(--color-graphite); opacity: calc(var(--press, 0) * 0.85); pointer-events: none; }
 /* The notes a pressed key lets go: they rise quickly off its tip, spread, and fade. */
 .keyfan__bursts { position: absolute; inset: 0; }
 .keyfan__burst { position: absolute; width: calc(2.6cqw * var(--size)); translate: -50% -50%; opacity: 0;
@@ -510,6 +509,10 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .keyboard88 { display: flex; align-items: flex-start; gap: 2px; height: 40px; margin-bottom: var(--space-8); max-width: 100%; }
 .keyboard88 span { flex: 0 1 2px; min-width: 1px; height: 24px; background: var(--color-graphite); }
 .keyboard88 span.is-black { height: 40px; background: var(--color-scarlet); }
+/* Played (NotFound.jsx): a bar lights for a moment. The whole row takes the press; drag along it to run the keys. */
+.keyboard88 { cursor: pointer; touch-action: none; padding-block: var(--space-2); }
+.keyboard88 span { transition: background-color var(--dur-presto) var(--ease-legato); }
+.keyboard88 span.is-down { background: var(--color-ivory); }
 
 /* ---- Footer --------------------------------------------------------------- */
 .footer__links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; }
@@ -540,6 +543,11 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 /* Phones: a lower city, so more keys fit across; the sky above takes the rest. */
 @media (max-width: 899px) { .skyline { max-height: 360px; margin-top: auto; } }
 .skyline.reveal { opacity: 1; transform: none; }
+/* Playing the city: every key and tower takes a press (Skyline.jsx); a pressed one lights for a moment. */
+.skyline__key, .skyline__black, .skyline__tower { cursor: pointer; }
+.skyline__black { fill: var(--color-ink); }
+.skyline__key.is-down, .skyline__tower.is-down { fill: var(--color-rose); }
+.skyline__black.is-down { fill: var(--color-graphite); }
 .skyline__tower { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0);
   transition: transform var(--dur-largo) var(--ease-legato) var(--d, 0ms); }
 .skyline.is-in .skyline__tower { transform: none; }
@@ -694,3 +702,16 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @media (max-width: 899px) { .nav__sound { margin-right: var(--space-3); } }
 /* Phones: the bars alone (the button keeps its spoken label) */
 @media (max-width: 639px) { .sound-toggle__text { display: none; } .sound-toggle__pill { padding: 0 12px; } }
+
+/* The 2–3 rhythm, playable (Motifs.jsx): each bar a black key, lit while pressed; the box round it makes the target. */
+.keys--play .keys__key { position: relative; cursor: pointer; transition: background-color var(--dur-presto) var(--ease-legato); }
+.keys--play .keys__key::after { content: ''; position: absolute; inset: -6px -3px; }
+.keys--play .keys__key.is-down { background: var(--color-ink); }
+.stage .keys--play .keys__key.is-down { background: var(--color-ivory); }
+
+/* Notes let go by a played key anywhere but the fan (lib/notes.js): one fixed layer under the nav; each rises off its
+   key, spreads and fades, and removes itself. */
+.note-layer { position: fixed; inset: 0; z-index: 45; overflow: hidden; pointer-events: none; }
+.note-flight { position: absolute; width: calc(26px * var(--size)); translate: -50% -50%; opacity: 0;
+  animation: note-burst var(--dur) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay) both; }
+.note-flight svg { display: block; width: 100%; height: auto; fill: currentColor; }

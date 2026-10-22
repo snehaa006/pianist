@@ -18,7 +18,10 @@
 //   play: () => { t, notes, track } | null   the music, as lib/sound.jsx's playhead; keys play along only while it
 //                          is the piece on the stairs
 //   still: true            reduced motion: the keys never move with the music
-// It returns { setPiece(id, notes), grow(), start, stop, resize, destroy }.
+// It returns { setPiece(id, notes), grow(), tap(x, y), start, stop, resize, destroy }; tap presses the key at a point,
+// as if played, and gives its note.
+
+import { tapPress, TAP_LIFE } from './tone';
 
 const CREAM = '#F4E9D8';
 const INK = '#0E0A0A';
@@ -54,6 +57,7 @@ const smooth = (a, b, v) => {
   return t * t * (3 - 2 * t);
 };
 const legato = t => 1 - (1 - t) ** 3;
+const now = () => performance.now() / 1000;
 const lerp = (a, b, t) => a + (b - a) * t;
 
 // Small seeded generator, so each flight is cut the same way every time.
@@ -103,6 +107,8 @@ export function createStairs(canvas, options = {}) {
   let own = grown ? 1 : 0; // how built the stairs are by themselves, 0..1 (folding and building between pieces)
   let aim = own; // where `own` is heading
   let press = new Map(); // key (white index, or white index + 0.5 for the black key above it) → 0..1
+  const taps = new Map(); // key → when it was pressed by hand (s)
+  let hits = []; // where each key was last drawn, black keys first: { key, note, x0, x1, y0, y1 }
   let raf = 0;
   let last = 0;
   let drawn = ''; // what the last frame showed, so an unchanged frame is not drawn again
@@ -126,6 +132,11 @@ export function createStairs(canvas, options = {}) {
   // The notes sounding now, as how far each key is in. A note beyond the flight is played an octave or more in.
   function listen() {
     press = new Map();
+    const t0 = now();
+    taps.forEach((at, key) => {
+      if (t0 - at > TAP_LIFE) taps.delete(key);
+      else press.set(key, tapPress(t0 - at));
+    });
     const p = !o.still && o.play?.();
     if (!p || p.track !== piece.id) return;
     const { t, notes } = p;
@@ -220,7 +231,10 @@ export function createStairs(canvas, options = {}) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
     const { n, lo } = piece;
-    if (!W || !H || built <= 0 || own <= 0) return;
+    if (!W || !H || built <= 0 || own <= 0) {
+      hits = [];
+      return;
+    }
     if (laid !== `${W}x${H} ${piece.id}`) lay();
     const { steps, specks, outline } = flight;
 
@@ -236,10 +250,13 @@ export function createStairs(canvas, options = {}) {
     // The steps, bottom up: each a cream slab under the shadow of the step above, both cut square at its front, so the
     // fronts climb the S as a staircase.
     let reached = -1; // the highest step out of the wall at all
+    const whites = [];
+    const blacks = [];
     for (let i = 0; i < n; i++) {
       if (shown(i) <= 0) break;
       reached = i;
       const st = steps[i];
+      whites.push({ key: lo + i, note: whiteNote(lo + i), x0: st.back, x1: front(i), y0: st.top, y1: st.bottom });
       const line = Math.max(2, st.h * FLIGHT.line);
       const k = press.get(lo + i) || 0;
       const band = (from, to) => ctx.fillRect(st.back - 8, from, front(i) - st.back + 8, to - from);
@@ -248,6 +265,7 @@ export function createStairs(canvas, options = {}) {
       ctx.fillStyle = INK;
       band(st.top, st.top + line);
     }
+    hits = whites;
     if (reached < 0) return;
 
     // The wall, rising with the steps, its edge cut rough over their back ends; then its specks.
@@ -285,6 +303,7 @@ export function createStairs(canvas, options = {}) {
       const len = (outline(below.top) - above.back) * FLIGHT.black[0];
       const x = above.back + len * e - (press.get(key) || 0) * above.h * PRESS.travel;
       const k = press.get(key) || 0;
+      blacks.push({ key, note: whiteNote(lo + i) + 1, x0: 0, x1: x, y0: below.top - th / 2, y1: below.top + th / 2 });
       ctx.fillStyle = k ? mix(INK_RGB, PRESS.black, k * PRESS.blackMix) : INK;
       ctx.beginPath();
       ctx.moveTo(0, below.top - th / 2);
@@ -294,6 +313,7 @@ export function createStairs(canvas, options = {}) {
       ctx.closePath();
       ctx.fill();
     }
+    hits = [...blacks, ...whites];
   }
 
   function frame(now) {
@@ -324,6 +344,14 @@ export function createStairs(canvas, options = {}) {
       step(0);
       drawn = '';
       if (!raf) draw();
+    },
+    // A press at (x, y): the key there goes in, as if played (not with reduced motion). Returns its note and the middle
+    // of its front edge, or null.
+    tap(x, y) {
+      const hit = hits.find(h => x >= h.x0 && x <= h.x1 && y >= h.y0 && y <= h.y1);
+      if (!hit) return null;
+      if (!o.still) taps.set(hit.key, now());
+      return { note: hit.note, x: hit.x1, y: (hit.y0 + hit.y1) / 2 };
     },
     // Build the stairs from the floor (once they come into view, when nothing outside drives them).
     grow() {

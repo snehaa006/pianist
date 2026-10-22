@@ -4,6 +4,11 @@
 // grow up out of the keys as it comes into view (`reveal`, see .skyline in site.css). It is sized by its height (the
 // room the footer leaves it): the drawing runs a screen's width further on either side, so wider boxes see more keys
 // and narrower ones the middle.
+//
+// The keys can be played: a press on a white key, or on the tower it rises into, sounds its note, lights both and lets
+// notes go off the top of the tower; a black key the same, from where it was pressed. Middle C is the key that lands at the centre of the stretch.
+import { strike, fold } from '../lib/tone';
+import { letNotes } from '../lib/notes';
 
 const W = 1440; // the middle stretch, where the keyboard's perspective is centred
 const H = 620;
@@ -15,6 +20,12 @@ const GAP = 3; // the line between two white keys there
 const BLACK = 0.58; // a black key's width (share of PITCH) and its length (share of the keys' depth)
 const BLACK_AFTER = [true, true, false, true, true, true, false]; // white keys a black key follows, from C
 const SHADE = '#D3C7B7'; // the cream in the shadow where the towers meet the keys
+const STEPS = [0, 2, 4, 5, 7, 9, 11]; // C D E F G A B
+const MIDDLE_C = 14; // the white key at the centre of the middle stretch (i * PITCH reaches CX)
+const noteOf = i => {
+  const j = i - MIDDLE_C;
+  return fold(60 + 12 * Math.floor(j / 7) + STEPS[((j % 7) + 7) % 7], 36, 96);
+};
 
 // Seeded, so the city is the same on every visit.
 function random(seed) {
@@ -87,23 +98,44 @@ function build() {
   for (let i = first; i <= last; i++) {
     const l = i * PITCH;
     const rt = l + PITCH;
-    keys.push(quad(l + GAP / 2, rt - GAP / 2, BACK, front));
-    if (i < last && hasBlack(i)) blacks.push(quad(rt - bw / 2, rt + bw / 2, BACK, blackEnd));
+    keys.push({ i, d: quad(l + GAP / 2, rt - GAP / 2, BACK, front), note: noteOf(i) });
+    if (i < last && hasBlack(i)) blacks.push({ i, d: quad(rt - bw / 2, rt + bw / 2, BACK, blackEnd), note: fold(noteOf(i) + 1, 36, 96) });
     // The tower stands on the part of the key the black keys leave free.
     const x0 = hasBlack(i - 1) ? l + bw / 2 : l + GAP / 2;
     const x1 = hasBlack(i) ? rt - bw / 2 : rt - GAP / 2;
     const h = 70 + 140 * r() ** 0.85;
     // They rise from the middle outward.
-    towers.push({ d: tower(x0, x1, h, r), delay: Math.round((Math.abs(l + PITCH / 2 - CX) / PITCH) * 30 + r() * 120) });
+    towers.push({ i, note: noteOf(i), d: tower(x0, x1, h, r), delay: Math.round((Math.abs(l + PITCH / 2 - CX) / PITCH) * 30 + r() * 120) });
   }
-  return { keys: keys.join(''), blacks: blacks.join(''), towers };
+  return { keys, blacks, towers };
 }
 
 const CITY = build();
 
+// A key (or its tower) pressed: it sounds and lights for a moment, and notes rise off its tower (a white key) or the
+// press (a black key).
+function play(e) {
+  const key = e.target.closest('[data-note]');
+  if (!key) return;
+  strike(Number(key.dataset.note));
+  const pair = key.dataset.tower ? [...e.currentTarget.querySelectorAll(`[data-tower="${key.dataset.tower}"]`)] : [key];
+  pair.forEach(el => el.classList.add('is-down'));
+  setTimeout(() => pair.forEach(el => el.classList.remove('is-down')), 220);
+  const tower = pair.find(el => el.classList.contains('skyline__tower'));
+  const box = tower?.getBoundingClientRect();
+  const [x, y] = box ? [box.left + box.width / 2, box.top] : [e.clientX, e.clientY];
+  letNotes(x, y, { tones: ['ivory', 'scarlet'], seed: Number(key.dataset.note) });
+}
+
 export default function Skyline({ className = '' }) {
   return (
-    <svg className={`skyline reveal ${className}`} viewBox={`${-W} 0 ${3 * W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+    <svg
+      className={`skyline reveal ${className}`}
+      viewBox={`${-W} 0 ${3 * W} ${H}`}
+      preserveAspectRatio="xMidYMax slice"
+      aria-hidden="true"
+      onPointerDown={play}
+    >
       <defs>
         <linearGradient id="skyline-tower" gradientUnits="userSpaceOnUse" x1="0" y1={BACK - 34} x2="0" y2={BACK}>
           <stop offset="0" style={{ stopColor: 'var(--color-ivory)' }} />
@@ -114,10 +146,22 @@ export default function Skyline({ className = '' }) {
           <stop offset="1" style={{ stopColor: 'var(--color-ivory)' }} />
         </linearGradient>
       </defs>
-      <path d={CITY.keys} fill="url(#skyline-key)" />
-      <path d={CITY.blacks} style={{ fill: 'var(--color-ink)' }} />
+      {CITY.keys.map(k => (
+        <path key={k.i} className="skyline__key" d={k.d} fill="url(#skyline-key)" data-note={k.note} data-tower={k.i} />
+      ))}
+      {CITY.blacks.map(k => (
+        <path key={k.i} className="skyline__black" d={k.d} data-note={k.note} />
+      ))}
       {CITY.towers.map((t, i) => (
-        <path key={i} className="skyline__tower" d={t.d} fill="url(#skyline-tower)" style={{ '--d': `${t.delay}ms` }} />
+        <path
+          key={i}
+          className="skyline__tower"
+          d={t.d}
+          fill="url(#skyline-tower)"
+          data-note={t.note}
+          data-tower={t.i}
+          style={{ '--d': `${t.delay}ms` }}
+        />
       ))}
     </svg>
   );

@@ -7,6 +7,8 @@ import { isPlaceholder } from '../data/site';
 import { useSound } from '../lib/sound.jsx';
 import { loadNotes } from '../lib/tracks';
 import { createStairs } from '../lib/stairs';
+import { strike } from '../lib/tone';
+import { letNotes } from '../lib/notes';
 import { useFx, useReducedMotion } from '../lib/hooks';
 
 // The pieces are named by their work once it is known, otherwise by where they were filmed (as on the Repertoire dial).
@@ -53,8 +55,20 @@ export default function Stairs({ build }) {
     );
     io.observe(root.current);
     document.addEventListener('visibilitychange', run);
+    // A press on a step or a black key plays it: its note sounds, it goes in, and notes fly off its front. Heard at the
+    // window, because in the films reel the canvas lies under layers that let presses through to the films.
+    const onDown = e => {
+      if (!visible || e.target.closest('a, button, input, select, [role="slider"], [role="listbox"]')) return;
+      const box = el.getBoundingClientRect();
+      const hit = stairs.tap(e.clientX - box.left, e.clientY - box.top);
+      if (!hit) return;
+      strike(hit.note);
+      letNotes(box.left + hit.x, box.top + hit.y, { tones: ['ink', 'ivory'], seed: hit.note });
+    };
+    window.addEventListener('pointerdown', onDown);
     return () => {
       live = false;
+      window.removeEventListener('pointerdown', onDown);
       ro.disconnect();
       io.disconnect();
       document.removeEventListener('visibilitychange', run);
