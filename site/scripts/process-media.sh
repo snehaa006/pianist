@@ -101,10 +101,8 @@ ABOUT=(
   "smile-grade-1|WhatsApp Video 2026-10-06 at 14.23.31.mp4|114|432:540:200:20"
   "score|WhatsApp Video 2026-10-06 at 14.23.31.mp4|111|432:576:120:0"
   "amc-lift|WhatsApp Video 2026-10-06 at 14.23.41.mp4|88|400:480:0:0"
-  "amc-stand|WhatsApp Video 2026-10-06 at 14.23.41.mp4|1|720:480:40:0"
   "grand-up|WhatsApp Video 2026-10-06 at 14.22.50.mp4|91.5|348:464:40:0"
   "stage-arms|WhatsApp Video 2026-10-06 at 14.22.40.mp4|65.5|348:464:220:0"
-  "stage-bow|WhatsApp Video 2026-10-06 at 14.22.40.mp4|6.5|372:464:320:0"
 )
 about() {
   for row in "${ABOUT[@]}"; do

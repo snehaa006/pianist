@@ -82,19 +82,24 @@ Nothing sounds until a piece is chosen or *Play the piece* is pressed. On phones
 the list scrolls beneath them, so a chosen piece is seen playing. With reduced motion the stairs stand still, built,
 and the keys don't move with the music.
 
-The Biography page (`src/pages/About.jsx`) opens on a cover after a portfolio cover the client supplied: BIOGRAPHY
-across the top, and her in front of it at the black grand on the Austrian Master Classes stage, cut out of the concert
-film (`public/media/cutouts/selin-stage*.webp`, below). The cut-out comes in two layers, so the word passes behind her
-and over the piano. The stage is ink, lit scarlet behind the piano, with a scarlet rim round the cut-out so the black
-lacquer reads; her name and facts at the left, a line of hers and a list at the right, and a turning badge that plays
-her piano. Then her words on a cream sheet laid on the red, as on a flamenco poster the client supplied, beside a
-photo-booth strip, and a painted fan of piano keys (`src/components/KeyFan.jsx`, after the client's picture of one:
-paper leaves, a red border, black keys lying on the leaves, wooden sticks, a jewelled handle) hanging over the sheet's
-foot. It opens as it scrolls into view, and music notes fly up off its rim (the client asked for notes, though the
-design system leaves out note icons). [2] *Six years at the piano*: five pictures on the ink stage, her name in red
-behind them. Then one line of hers among scattered prints, and [3] *Where she has played*: cards that stack under the
-nav, each opening its film. Things move by the section's `--p` (`useDrift` in `src/lib/hooks.js`); with reduced
-motion nothing moves, the fan is open and the notes rest on the staff.
+The Biography page (`src/pages/About.jsx`) is laid out after a flamenco poster the client supplied. The cover and her
+words are a cream sheet laid on the red, the red showing at its sides. On the cover her name, in crimson, runs from the
+left toward the supplied photograph, behind the people in it where they meet (the same photograph, masked by their
+matte, `public/media/cutouts/portrait-matte.webp`, lies over the name), drifting a little as the page scrolls (on
+phones it stands above the photograph). Two stills from the films lie on it as prints. [1] *In her own words* sets her
+bio in steps down the sheet beside a photo-booth strip; it is read as the page moves: every word starts faded and comes
+up to full as the lines pass up the screen, and fades back when scrolled back (`src/components/ScrubText.jsx`), with a
+few of her phrases picked out in crimson, set heavier (her words are never changed). The section leads further down
+do the same. A painted fan of piano keys (`src/components/KeyFan.jsx`, after the client's picture of one: paper
+leaves, a red border, black keys lying on the leaves, wooden sticks, the handle hanging straight down from a jewelled
+rivet) stands level across the sheet's foot, over the ink below, and opens from a single upright key as it scrolls
+into view; every leaf and black key is its own small SVG turned by a CSS transform, so it opens without redrawing.
+Music notes leave its rim and fly away up the page, past her words, as the birds leave the hero's keyboard (the client
+asked for notes, though the design system leaves out note icons). [2] *Six years at the piano*: five pictures on the
+ink stage that slide in from the right one after another as the row comes up the screen. [3] *Where she has played*:
+cards that stack under the nav, each opening its film. Scroll-linked motion is eased toward the scroll each frame
+(`useScrub` in `src/lib/hooks.js`), so wheel steps glide and scrolling back plays it in reverse; with reduced motion
+nothing moves, the text is at full, the fan is open and the notes rest above it.
 
 The Biography page ends on a keyboard that turns into a city (`src/components/Skyline.jsx`, after a poster the client
 supplied): under the footer's wordmark the keys run toward you in perspective, and at their far end every white key
@@ -191,8 +196,8 @@ npm run media -- --about   # the Biography stills only
 | `public/media/posters/portrait{,-600}.webp` | The supplied photograph, cropped 4:5, in its original colour (1200 and 600 wide): the hero and Biography |
 | `public/media/cutouts/selin-grand.webp` | Her at the grand piano at home, cut out of the film with alpha (606×464): the films ring's hologram, and the About silhouette (as a CSS mask over ink). Made by `python3 -I scripts/cutout.py <dist>`, see the script for the model |
 | `public/media/cutouts/selin-grand-photo.webp` | The same frame, untouched, in the same crop (606×464): the photograph the About silhouette wipes to. Written by the same script |
-| `public/media/cutouts/selin-stage{,-720}.webp`, `selin-stage-front{,-720}.webp` | Her playing the black grand on the Austrian Master Classes stage, cut out of a 4x upscaled frame of the concert film (15 s in): the whole of it, and her alone with the bench, in one canvas (2392×1248 and half). The Biography cover. Made by `scripts/upscale.mjs` (Real-ESRGAN) then `python3 -I scripts/cutout.py <dist> stage <frame>`; see both scripts |
-| `public/media/about/*.webp` | Biography stills, warm monochrome, each cut from its film at its own time and crop (faces to camera from the exam introductions, the end of a piece, the bow): the photo-booth strip, the row of five and the scattered prints. Times and crops are in `scripts/process-media.sh` (`ABOUT`) |
+| `public/media/cutouts/portrait-matte.webp` | The people in the supplied photograph as an alpha matte, in the portrait's 4:5 crop (1200×1500): the Biography cover masks the portrait with it so her name passes behind them. Made by `python3 -I scripts/cutout.py <dist> portrait` |
+| `public/media/about/*.webp` | Biography stills, warm monochrome, each cut from its film at its own time and crop (faces to camera from the exam introductions, the end of a piece): the cover prints, the photo-booth strip and the row of five. Times and crops are in `scripts/process-media.sh` (`ABOUT`) |
 | `public/media/og/selin-incekara-share.jpg` | 1200×630 share image: her silhouette on the red, her name in ink |
 | `public/media/audio/<slug>.webm/.m4a` | Each piece as audio only, cut to the music, -20 LUFS (Opus 96k + AAC 128k): the site sound and the stairs (`--audio` encodes these alone) |
 | `public/media/audio/<slug>.notes.json` | The notes she plays in each piece, for the keys that play along. Made by `python3 -I scripts/notes.py [slug …]`, see the script for the model |

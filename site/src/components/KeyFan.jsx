@@ -1,27 +1,28 @@
 import { useEffect, useRef } from 'react';
-import { useDrift } from '../lib/hooks';
+import { useScrub } from '../lib/hooks';
 
 // A painted hand fan of piano keys, after the client's picture of one: paper leaves, one white key each, pleated so
 // the rim steps in and out, with a red border between cream lines along it and a red filigree where each leaf meets its
 // stick; black keys lie on the leaves, lit from the top left. Below the leaves the sticks show, cream between dark
-// wood, then close into the dark hub round a jewelled rivet; the guard stick runs out to the right as the handle.
-// Behind it, rays of light, five staff lines and two red arcs; music notes leave the rim and fly up off it.
+// wood, then close into the dark hub round a jewelled rivet; the handle hangs straight down from it, so the fan stands
+// level. Behind it, rays of light, five staff lines and two red arcs; music notes leave the rim and fly away up the
+// page, past her words, as the birds leave the hero's keyboard.
 // Colours are the site's own: cream paper, crimson, ink and lacquer, dust where the picture has gold.
 //
-// It opens as it scrolls into view: --open (0 shut, 1 open, from useDrift's --p, see site.css) turns each leaf about
-// the pivot from the handle to its place, so shut it is a single stick lying along the handle. The ground (rays,
-// staff, arcs) and the notes come in as it opens. With reduced motion it is open and the notes rest on the staff.
+// It opens as it scrolls into view and shuts again when scrolled back: --open (0 shut, 1 open) is eased toward where
+// the fan stands on the screen (useScrub), and turns each leaf and black key about the pivot from straight up to its
+// place; shut, it is a single key standing on its handle. Every leaf and black key is its own small SVG, turned by a
+// CSS transform, so the browser moves them as layers and never redraws them while the fan opens. The ground (rays,
+// staff, arcs) and the notes come in as it opens. With reduced motion it is open and the notes rest above the rim.
 const CX = 600;
 const CY = 600; // the pivot, in the viewBox
 const R = 470; // the rim (alternate leaves stand a little in, the pleat)
 const RIN = 285; // where the paper begins
 const RH = 150; // the dark hub, where the sticks close together
 const BAND = 20; // the red border
-const A0 = -84;
-const A1 = 89; // the span, degrees from straight up
+const SPAN = 88; // the leaves run from -SPAN to +SPAN degrees, level either side
 const N = 22; // leaves: three octaves of white keys and a C
-const W = (A1 - A0) / N;
-const GUARD = 93; // the handle; shut, every leaf lies along it
+const W = (2 * SPAN) / N;
 const HORIZON = 497; // where the cream sheet meets the ink below it (site.css hangs the fan so)
 const BLACK_AFTER = [0, 1, 3, 4, 5]; // white keys (C=0 … B=6) followed by a black key
 
@@ -67,39 +68,52 @@ const BLACK = {
   glint: `M${CX - BK.w + 5} ${BK.top + 6}V${bkBottom - 16}`
 };
 
-// The guard stick, as the handle: lacquered wood with an inlaid line, two jewels and a curl.
-const tip = CY - R - 74;
+// The handle, hanging straight down from the pivot: lacquered wood with an inlaid line, a curl and a jewel at its end.
+const END = CY + 190;
 const HANDLE = {
-  body: `M${CX - 22} ${CY + 34}L${CX + 22} ${CY + 34}L${CX + 16} ${tip + 16}Q${CX} ${tip - 8} ${CX - 16} ${tip + 16}Z`,
-  inlay: `M${CX} ${CY - 40}V${tip + 22}`,
-  curl: `M${CX} ${CY - R + 30}c-8 -10 -8 -22 0 -30c8 -8 8 -20 0 -30M${CX} ${CY - R + 30}c8 -10 8 -22 0 -30`
+  body: `M${CX - 20} ${CY - 20}L${CX + 20} ${CY - 20}L${CX + 15} ${END - 16}Q${CX} ${END + 8} ${CX - 15} ${END - 16}Z`,
+  inlay: `M${CX} ${CY + 34}V${END - 34}`,
+  curl: `M${CX} ${CY + 60}c-8 10 -8 22 0 30c8 8 8 20 0 30M${CX} ${CY + 60}c8 10 8 22 0 30`
 };
+
+// Each leaf and each black key is drawn pointing straight up in its own SVG, whose box ends at the pivot (so it turns
+// about its bottom centre); the viewBox crops the shared drawing to that box.
+const LEAF_BOX = { x: CX - 42, y: CY - R - 8, w: 84, h: R + 8 };
+const KEY_BOX = { x: CX - 26, y: CY - (R - BAND - 6) - 4, w: 52, h: R - BAND - 6 + 4 };
+const boxStyle = b => ({
+  left: `${(b.x / 1200) * 100}%`,
+  top: `${(b.y / 700) * 100}%`,
+  width: `${(b.w / 1200) * 100}%`,
+  height: `${(b.h / 700) * 100}%`
+});
+const viewBox = b => `${b.x} ${b.y} ${b.w} ${b.h}`;
 const SCALLOP = Array.from({ length: 11 }, (_, i) => 180 + (i - 5) * 11);
 
 const NOTES = ['q', 'e', 'b', 's'];
 const TONES = ['ink', 'ink', 'red', 'ink', 'felt'];
-// Each note leaves the rim at its own angle and flies out and up off it, swaying, in a loop; the delays are negative
-// so the flight is already under way when the fan opens. Distances are in viewBox units, turned into cqw.
-const FLIGHT = Array.from({ length: 16 }, (_, i) => {
+// Each note leaves the rim at its own angle and flies away up the page, out a little to its side and swaying, slow off
+// the rim and quicker as it climbs, like the hero's birds; then another leaves. They climb --climb (set from the
+// layout: up to the top of her words) times their own share, so the flock spreads up the whole text. The delays are
+// negative so the flight is already under way when the fan opens. Sideways distances are in viewBox units, as cqw.
+const FLIGHT = Array.from({ length: 22 }, (_, i) => {
   const j = Math.sin(i * 12.9898) * 43758.5453;
   const r = j - Math.floor(j); // a fixed scatter, 0..1
-  const a = -70 + (140 * i) / 15 + (r - 0.5) * 6;
+  const a = -76 + (152 * i) / 21 + (r - 0.5) * 6;
   const t = (a * Math.PI) / 180;
   const start = R + 14;
-  const out = 70 + r * 90;
-  const up = 50 + ((i * 37) % 70);
+  const out = 120 + r * 180;
   return {
     kind: NOTES[i % 4],
     tone: TONES[i % 5],
     x: ((CX + start * Math.sin(t)) / 1200) * 100,
     y: ((CY - start * Math.cos(t)) / 700) * 100,
     dx: (out * Math.sin(t)) / 12,
-    dy: (-out * Math.cos(t) - up) / 12,
+    rise: 0.7 + ((i * 37) % 31) / 100, // share of --climb
     r0: (r - 0.5) * 30,
     r1: (r - 0.5) * -50 + (a > 0 ? 18 : -18),
     size: 0.9 + ((i * 7) % 5) / 10,
-    dur: 6.5 + ((i * 5) % 7) * 0.5,
-    delay: -((i * 2.3) % 9)
+    dur: 11 + ((i * 5) % 7) * 0.9,
+    delay: -((i * 2.9) % 17)
   };
 });
 
@@ -124,26 +138,39 @@ function Note({ kind }) {
   );
 }
 
+// --open: 0 while the fan's top is near the foot of the screen, 1 once it has risen half a screen.
+const opening = (r, vh) => (vh * 0.95 - r.top) / (vh * 0.5);
+
 export default function KeyFan({ className = '' }) {
   const ref = useRef(null);
-  useDrift(ref);
-  // The notes fly only while the fan is on screen.
+  useScrub(ref, opening, '--open');
+  // The notes fly only while the fan is on screen, and climb as high as the section above it (her words) reaches.
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) return undefined;
     const io = new IntersectionObserver(([e]) => el.classList.toggle('is-on', e.isIntersecting));
     io.observe(el);
-    return () => io.disconnect();
+    const measure = () => {
+      const above = el.previousElementSibling;
+      const climb = above ? el.offsetTop - above.offsetTop + el.offsetHeight * 0.3 : window.innerHeight;
+      el.style.setProperty('--climb', `${Math.round(climb)}px`);
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el.parentElement);
+    return () => {
+      io.disconnect();
+      ro.disconnect();
+    };
   }, []);
 
-  const angles = Array.from({ length: N }, (_, i) => A0 + W * (i + 0.5));
+  const angles = Array.from({ length: N }, (_, i) => -SPAN + W * (i + 0.5));
   const blacks = [];
-  for (let i = 0; i < N - 1; i++) if (BLACK_AFTER.includes(i % 7)) blacks.push(A0 + W * (i + 1));
-  const leafStyle = a => ({ '--a': `${a}deg`, '--g': `${GUARD}deg` });
+  for (let i = 0; i < N - 1; i++) if (BLACK_AFTER.includes(i % 7)) blacks.push(-SPAN + W * (i + 1));
 
   return (
     <div ref={ref} className={`keyfan ${className}`} aria-hidden="true">
-      <svg viewBox="0 0 1200 700">
+      <svg className="keyfan__back" viewBox="0 0 1200 700">
         <defs>
           <clipPath id="kf-sky">
             <rect width="1200" height={HORIZON} />
@@ -173,67 +200,60 @@ export default function KeyFan({ className = '' }) {
             <stop offset="0.45" stopColor="var(--color-lacquer)" />
             <stop offset="1" stopColor="var(--color-ink)" />
           </linearGradient>
-          <filter id="kf-shadow" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="4" dy="5" stdDeviation="3" floodColor="#0E0A0A" floodOpacity="0.4" />
-          </filter>
         </defs>
-
         <g className="keyfan__ground" clipPath="url(#kf-sky)">
           <g mask="url(#kf-rays-mask)">
-            {Array.from({ length: 20 }, (_, i) => (
-              <path key={i} className={`keyfan__ray keyfan__ray--${i % 2}`} d={wedge(0, 900, 4.6)} transform={`rotate(${-95 + i * 10} ${CX} ${CY})`} />
+            {Array.from({ length: 19 }, (_, i) => (
+              <path key={i} className={`keyfan__ray keyfan__ray--${i % 2}`} d={wedge(0, 900, 4.6)} transform={`rotate(${-90 + i * 10} ${CX} ${CY})`} />
             ))}
           </g>
           <path className="keyfan__staff" d={[0, 1, 2, 3, 4].map(k => arc(R + 40 + k * 11, -100, 100)).join('')} />
           <path className="keyfan__arc" d={arc(R + 98, -100, 100)} />
           <path className="keyfan__arc keyfan__arc--thin" d={arc(R + 110, -100, 100)} />
         </g>
-
         <g className="keyfan__scallop">
           {SCALLOP.map(a => (
             <path key={a} d={wedge(0, 48, 5)} transform={`rotate(${a} ${CX} ${CY})`} />
           ))}
         </g>
+      </svg>
 
-        {angles.map((a, i) => {
-          const L = LEAVES[i % 2];
-          return (
-            <g key={`l${i}`} className="keyfan__k" style={leafStyle(a)}>
-              <path className="keyfan__hub" d={HUB} />
-              <path className="keyfan__grain" d={GRAIN} />
-              <path className="keyfan__ring" d={RING} />
-              <path className="keyfan__pins" d={PINS} />
-              <path className="keyfan__stick" d={STICK} />
-              <path className="keyfan__paper" d={L.paper} fill={i % 2 ? 'url(#kf-paper-shade)' : 'url(#kf-paper)'} />
-              <path className="keyfan__fold" d={FOLDS} />
-              <path className="keyfan__filigree" d={FILIGREE} />
-              <path className="keyfan__band" d={L.band} />
-              <path className="keyfan__stripes" d={L.stripes} />
-              <path className="keyfan__rim" d={L.rim} />
-            </g>
-          );
-        })}
+      {angles.map((a, i) => {
+        const L = LEAVES[i % 2];
+        return (
+          <svg key={`l${i}`} className="keyfan__blade" viewBox={viewBox(LEAF_BOX)} style={{ ...boxStyle(LEAF_BOX), '--a': `${a}deg` }}>
+            <path className="keyfan__hub" d={HUB} />
+            <path className="keyfan__grain" d={GRAIN} />
+            <path className="keyfan__ring" d={RING} />
+            <path className="keyfan__pins" d={PINS} />
+            <path className="keyfan__stick" d={STICK} />
+            <path className="keyfan__paper" d={L.paper} fill={i % 2 ? 'url(#kf-paper-shade)' : 'url(#kf-paper)'} />
+            <path className="keyfan__fold" d={FOLDS} />
+            <path className="keyfan__filigree" d={FILIGREE} />
+            <path className="keyfan__band" d={L.band} />
+            <path className="keyfan__stripes" d={L.stripes} />
+            <path className="keyfan__rim" d={L.rim} />
+          </svg>
+        );
+      })}
 
-        <g filter="url(#kf-shadow)">
-          {blacks.map(a => (
-            <g key={`b${a}`} className="keyfan__k" style={leafStyle(a)}>
-              <path className="keyfan__bk" d={BLACK.body} />
-              <path d={BLACK.face} fill="url(#kf-black)" />
-              <path className="keyfan__bk-front" d={BLACK.front} />
-              <path className="keyfan__bk-glint" d={BLACK.glint} />
-            </g>
-          ))}
-        </g>
+      {blacks.map(a => (
+        <svg key={`b${a}`} className="keyfan__blade" viewBox={viewBox(KEY_BOX)} style={{ ...boxStyle(KEY_BOX), '--a': `${a}deg` }}>
+          <path className="keyfan__shadow" d={BLACK.body} transform="translate(4 6)" />
+          <path className="keyfan__bk" d={BLACK.body} />
+          <path d={BLACK.face} fill="url(#kf-black)" />
+          <path className="keyfan__bk-front" d={BLACK.front} />
+          <path className="keyfan__bk-glint" d={BLACK.glint} />
+        </svg>
+      ))}
 
-        <g transform={`rotate(${GUARD} ${CX} ${CY})`} filter="url(#kf-shadow)">
-          <path d={HANDLE.body} fill="url(#kf-wood)" className="keyfan__handle" />
-          <path className="keyfan__inlay" d={HANDLE.inlay} />
-          <path className="keyfan__curl" d={HANDLE.curl} />
-          <circle className="keyfan__jewel" cx={CX} cy={tip + 30} r="8.5" />
-          <circle className="keyfan__pearl" cx={CX} cy={tip + 30} r="2.8" />
-          <circle className="keyfan__jewel" cx={CX} cy={CY - R + 70} r="5.5" />
-        </g>
-
+      <svg className="keyfan__front" viewBox="0 0 1200 700">
+        <path className="keyfan__shadow" d={HANDLE.body} transform="translate(6 4)" />
+        <path d={HANDLE.body} fill="url(#kf-wood)" className="keyfan__handle" />
+        <path className="keyfan__inlay" d={HANDLE.inlay} />
+        <path className="keyfan__curl" d={HANDLE.curl} />
+        <circle className="keyfan__jewel" cx={CX} cy={END - 26} r="8.5" />
+        <circle className="keyfan__pearl" cx={CX} cy={END - 26} r="2.8" />
         <circle className="keyfan__rivet" cx={CX} cy={CY} r="24" />
         <circle className="keyfan__jewel" cx={CX} cy={CY} r="14" />
         <circle className="keyfan__pearl" cx={CX} cy={CY} r="6" />
@@ -248,7 +268,7 @@ export default function KeyFan({ className = '' }) {
               left: `${n.x}%`,
               top: `${n.y}%`,
               '--dx': `${n.dx}cqw`,
-              '--dy': `${n.dy}cqw`,
+              '--rise': n.rise,
               '--r0': `${n.r0}deg`,
               '--r1': `${n.r1}deg`,
               '--size': n.size,
