@@ -1,18 +1,13 @@
 // A grand piano seen from above, as a frame, after the client's piano-lessons flyer: the case is a dark brown shape,
 // straight along the left and the top, its bentside sweeping down the right in an S from the tail to the treble cheek,
-// with a row of cream keys along its foot whose black keys are the case's own brown. The picture (children) fills the
-// lid inside a rim of even width: the bentside's inner edge is the outline offset inward, sampled. Colours are the
-// site's own: ivory keys, and the case in mahogany (oxblood darkened with ink, see tokens.css).
+// open at its foot, where it stands on a keyboard drawn elsewhere (the hero's: site.css runs the case on down behind
+// those keys). The picture (children) fills the lid inside a rim of even width: the bentside's inner edge is the
+// outline offset inward, sampled. The case is mahogany, the site's oxblood darkened with ink (see tokens.css).
 const W = 800;
 const RIM = 20;
-const WIN = { w: W - 2 * RIM, h: 920 }; // the picture, about 4:5
-const RAIL = 22; // case between the picture and the keys
-const KEYS = 150;
-const TOP = RIM + WIN.h + RAIL; // where the keys begin
-const H = TOP + KEYS + RIM;
-const N = 21; // white keys: three octaves from C
-const GAP = 3;
-const BLACK_AFTER = [0, 1, 3, 4, 5]; // white keys (C=0 … B=6) followed by a black key
+const WIN = { w: W - 2 * RIM, h: 950 }; // the picture, 4:5
+const RAIL = 28; // case between the picture and the keys
+const H = RIM + WIN.h + RAIL;
 
 // The bentside, from the tail at the top to the cheek at the right: cubic segments [from, control, control, to].
 const BENT = [
@@ -42,13 +37,6 @@ const inset = ([p0, c1, c2, p1], steps = 24) =>
 const WINDOW =
   `M${RIM} ${RIM}L` + BENT.flatMap((s, i) => inset(s).slice(i ? 1 : 0)).join('L') + `L${CHEEK[0] - RIM} ${RIM + WIN.h}H${RIM}Z`;
 
-const kw = (W - 2 * RIM) / N;
-const WHITE = Array.from({ length: N }, (_, i) => n(RIM + i * kw + GAP / 2));
-const BLACK = WHITE.slice(0, -1)
-  .map((_, i) => i)
-  .filter(i => BLACK_AFTER.includes(i % 7))
-  .map(i => n(RIM + (i + 1) * kw - kw * 0.28));
-
 const pct = (v, of) => `${(v / of) * 100}%`;
 
 export default function PianoFrame({ id = 'piano-window', className = '', children }) {
@@ -61,12 +49,6 @@ export default function PianoFrame({ id = 'piano-window', className = '', childr
           </clipPath>
         </defs>
         <path className="piano__case" d={CASE} />
-        {WHITE.map(x => (
-          <rect key={x} className="piano__white" x={x} y={TOP} width={n(kw - GAP)} height={KEYS} />
-        ))}
-        {BLACK.map(x => (
-          <rect key={x} className="piano__black" x={x} y={TOP} width={n(kw * 0.56)} height={KEYS * 0.6} />
-        ))}
       </svg>
       <div
         className="piano__window"

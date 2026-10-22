@@ -149,8 +149,9 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 The landing page is a still poster on the red (`src/components/Hero.jsx`): the supplied photograph of her at the
 piano in the Austrian Master Classes hall (`posters/portrait*.webp`, in its original colour), framed in a grand piano
 seen from above (`src/components/PianoFrame.jsx`, after a piano-lessons flyer the client supplied: a mahogany case,
-straight on the left and the top, its bentside sweeping down the right in an S, a row of cream keys along its foot,
-the photograph in the lid), stands over a full keyboard that runs the width of the screen, and her name fills the column beside it in ink, each letter rising into
+straight on the left and the top, its bentside sweeping down the right in an S, the photograph in the lid), stands on
+a full keyboard that runs the width of the screen, the keys under it its own (the case runs on down behind them; on
+phones, where the line and the button come between, the case stands alone), and her name fills the column beside it in ink, each letter rising into
 place. One fact and one action: "Filmed in concert at the Austrian Master Classes, [Year]." and *Watch the
 performance*, which opens that concert's film. Keys on the right of the keyboard fly off as birds (above). On phones
 the name comes first, then the photograph, the line, the button and the keyboard. There is no hero film any more

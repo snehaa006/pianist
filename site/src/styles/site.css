@@ -50,26 +50,27 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @media (prefers-reduced-motion: reduce) { .menu__item { opacity: 1; transform: none; animation: none; } }
 
 /* ---- The piano frame (PianoFrame.jsx) ------------------------------------
-   A grand seen from above: the mahogany case, its keys along the foot, the picture in the lid. Sized by its
-   aspect-ratio (set inline); the case is drawn in the SVG and the picture is clipped to the lid's window. */
+   A grand seen from above: the mahogany case with the picture in the lid, standing on a keyboard. Sized by its
+   aspect-ratio (set inline); the case is drawn in the SVG and the picture is clipped to the lid's window. The case
+   runs on down behind the keys it stands on for --piano-foot (none where it stands alone). */
 .piano { position: relative; margin: 0; }
 .piano svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
-.piano__case, .piano__black { fill: var(--color-mahogany); }
-.piano__white { fill: var(--color-ivory); }
+.piano::after { content: ''; position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: calc(var(--piano-foot, 0px) + 1px);
+  background: var(--color-mahogany); }
+.piano__case { fill: var(--color-mahogany); }
 .piano__window { position: absolute; }
 .piano__window img { display: block; width: 100%; height: 100%; object-fit: cover; color: transparent; }
 
 /* ---- Hero: a poster on the red ------------------------------------------
-   Her photograph, framed in a grand piano, stands over a full-width keyboard (drawn by Flight in .hero__keys); her name fills the column
+   Her photograph, framed in a grand piano, stands on a full-width keyboard (drawn by Flight in .hero__keys); her name fills the column
    beside it. The canvas lies over everything, so the birds cross the name; it never takes the pointer. */
 .hero { position: relative; overflow: hidden; }
 .hero--poster { --keys-h: clamp(72px, 13vh, 132px); min-height: 100svh; box-sizing: border-box; display: flex;
   flex-direction: column; padding-top: calc(var(--nav-height) + var(--space-6)); }
 .hero__stage { flex: 1; position: relative; z-index: 1; display: grid; grid-template-columns: auto minmax(0, 1fr);
   gap: var(--space-8); align-items: end; }
-/* The photograph's piano stands a little clear of the keyboard below, so its own keys read apart from those. */
-.hero__photo { height: calc(100svh - var(--nav-height) - var(--space-6) - var(--keys-h) - var(--space-5)); max-height: 980px;
-  margin-bottom: var(--space-5); animation: from-ink var(--dur-largo) var(--ease-legato) both; }
+.hero__photo { --piano-foot: var(--keys-h); height: calc(100svh - var(--nav-height) - var(--space-6) - var(--keys-h));
+  max-height: 980px; animation: from-ink var(--dur-largo) var(--ease-legato) both; }
 @keyframes from-ink { from { opacity: 0; } to { opacity: 1; } }
 .hero__text { container-type: inline-size; align-self: stretch; min-width: 0; display: flex; flex-direction: column;
   justify-content: space-between; gap: var(--space-6); padding-bottom: var(--space-6); }
@@ -84,7 +85,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .hero__stage { grid-template-columns: minmax(0, 1fr); gap: var(--space-5); align-items: start; }
   .hero__text { display: contents; }
   .hero__name { order: -1; font-size: calc((100vw - 2 * var(--page-margin)) * 0.335); }
-  .hero__photo { height: auto; width: 100%; max-width: 520px; margin-bottom: 0; }
+  /* Here the line and the button come between the photograph and the keyboard, so its piano stands alone. */
+  .hero__photo { --piano-foot: 0px; height: auto; width: 100%; max-width: 520px; }
   .hero__foot { padding-bottom: var(--space-7); }
   /* The photo takes the full width here: the birds keep to the lower part and fade out before reaching it. */
   .hero__flight { top: auto; bottom: 0; height: 42%;
