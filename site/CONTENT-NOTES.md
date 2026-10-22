@@ -16,8 +16,13 @@ from the at-home film), which turns into that film's frame under the pointer. Th
 **Bio**, in her own words: two paragraphs, kept exactly as she wrote them in `src/data/bio.js` (first person, her
 spelling "İncekara", her punctuation). Never edit or rewrite them; `scripts/check-copy.mjs` skips that file because it
 is her text, not site copy. Where it appears:
-- Biography: both paragraphs, under the heading.
+- Biography: both paragraphs as *[1] In her own words*, and one sentence of the second ("Every time I play, I feel
+  like I can tell a story through music.") on its own, at poster size, as a quote.
 - Home: the first paragraph on the About screen, the second as "A note from Selin Incekara".
+
+The Biography cover's line, "Selin Incekara is 11, lives in Istanbul and has played the piano for six years.", is
+taken from that bio (October 2026); change her age and years with it (`src/pages/About.jsx`). Every other picture on
+Biography is a still from her films (`public/media/about/`), named for the moment in its alt text.
 
 Still to confirm: who is standing behind her in the photo (the alt text reads `[Name]`).
 

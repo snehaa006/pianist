@@ -3,9 +3,13 @@
 # (a CSS mask, so the one file serves both). The same frame, untouched and in the same crop, is written beside it
 # (selin-grand-photo.webp): the About screen wipes from the silhouette to it.
 #
+# It also writes the matte of the people in the supplied photograph (cutouts/portrait-matte.webp), in the 4:5 crop of
+# posters/portrait.webp: the Biography cover masks the portrait with it, so the photograph's own pixels stand in front
+# of her name and the name passes behind her.
+#
 # The matte comes from the ISNet model that ships inside the @imgly/background-removal-node npm package:
 #   npm pack @imgly/background-removal-node@1.4.5 && tar xzf imgly-background-removal-node-1.4.5.tgz
-#   python3 -I scripts/cutout.py package/dist
+#   python3 -I scripts/cutout.py package/dist [grand | portrait]   (both when left out)
 # Needs ffmpeg, numpy, Pillow and onnxruntime.
 import json, os, subprocess, sys, tempfile
 from collections import deque
@@ -18,6 +22,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 VIDEO = os.path.join(HERE, '..', '..', 'videos', 'WhatsApp Video 2026-10-06 at 14.22.50.mp4')
 AT = '34'  # seconds in: both hands on the keys, head bowed, the lid up
 OUT = os.path.join(HERE, '..', 'public', 'media', 'cutouts')
+PHOTO = os.path.join(HERE, '..', '..', 'photos', 'selin-incekara-austrian-master-classes.jpg')
+PORTRAIT = (0, 100, 1200, 1600)  # posters/portrait.webp's crop of PHOTO (process-media.sh: crop=1200:1500:0:100)
 
 
 def matte(dist, rgb):
@@ -58,8 +64,8 @@ def largest(mask):
     return keep
 
 
-def main():
-    dist = sys.argv[1]
+def grand(dist):
+    """Her at the grand piano at home, cut out of the film, and the same frame untouched."""
     with tempfile.TemporaryDirectory() as tmp:
         frame = os.path.join(tmp, 'frame.png')
         subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', AT, '-i', VIDEO, '-frames:v', '1', frame], check=True)
@@ -97,6 +103,34 @@ def main():
     photo = os.path.join(OUT, 'selin-grand-photo.webp')
     Image.fromarray(rgb[y0:y1, x0:x1]).save(photo, 'WEBP', quality=92, method=6)
     print(photo)
+
+
+def portrait(dist):
+    """The people in the supplied photograph as an alpha matte (black, opaque where they are), in the portrait's crop."""
+    rgb = np.asarray(Image.open(PHOTO).convert('RGB'))
+    # The whole photograph: him and the piano's body come through firm; the faint lid drops out.
+    a = np.clip((matte(dist, rgb) - 0.15) / 0.45, 0, 1)
+    # Her and the bench, matted again from close crops at the model's own resolution: the whole-photo pass leaves
+    # her dotted dress and the bench half see-through, and the name would show through them.
+    for x0, y0, x1, y1 in ((120, 520, 760, 1480), (180, 560, 680, 1200)):
+        a[y0:y1, x0:x1] = np.maximum(a[y0:y1, x0:x1], matte(dist, rgb[y0:y1, x0:x1]))
+    x0, y0, x1, y1 = PORTRAIT
+    a = a[y0:y1, x0:x1]
+    rgba = np.zeros(a.shape + (4,), np.uint8)
+    rgba[..., 3] = np.clip(a * 255, 0, 255).astype(np.uint8)
+    os.makedirs(OUT, exist_ok=True)
+    out = os.path.join(OUT, 'portrait-matte.webp')
+    Image.fromarray(rgba, 'RGBA').save(out, 'WEBP', lossless=True, method=6)
+    print(out, rgba.shape[1], 'x', rgba.shape[0])
+
+
+def main():
+    dist = sys.argv[1]
+    which = sys.argv[2] if len(sys.argv) > 2 else 'all'
+    if which in ('portrait', 'all'):
+        portrait(dist)
+    if which in ('grand', 'all'):
+        grand(dist)
 
 
 if __name__ == '__main__':

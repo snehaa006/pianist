@@ -158,6 +158,25 @@
   color: var(--fg);
 }
 
+/* Cream "paper" sections: ink type on key cream (the Biography's letter and one of its cards) */
+[data-surface='paper'] {
+  --bg: var(--color-ivory);
+  --bg-alt: var(--color-paper);
+  --fg: var(--color-ink);
+  --fg-display: var(--color-ink);
+  --fg-muted: var(--color-felt);       /* 5.2:1 on ivory */
+  --fg-accent: var(--color-crimson);   /* 5.15:1 on ivory */
+  --rule: rgba(14, 10, 10, 0.2);
+  --rule-strong: var(--color-ink);
+  --action: var(--color-ink);
+  --action-hover: var(--color-oxblood);
+  --action-fg: var(--color-ivory);
+  --ornament: var(--color-crimson);
+  --focus: var(--color-crimson);
+  background: var(--bg);
+  color: var(--fg);
+}
+
 /* ---- Base ---------------------------------------------------------------- */
 html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
 body {
