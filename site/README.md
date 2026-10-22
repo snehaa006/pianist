@@ -93,8 +93,8 @@ few of her phrases picked out in crimson, set heavier (her words are never chang
 do the same. A painted fan of piano keys (`src/components/KeyFan.jsx`, drawn after the client's picture of one, to its
 measurements and colours: 28 aged paper leaves, cream and tan by turns, under a deep red border between gold lines;
 red and gold tracery at each key's foot; black keys lying on the leaves; dark sticks between cream, a ribbed hub; the
-handle, engraved in gold with a red jewel, lying along the right edge from a jewelled rivet; behind it, rays of light,
-a staff with notes written on it and two gold arcs) stands across the sheet's foot, over the ink below. It opens from
+handle, engraved in gold with a red jewel, lying along the right edge from a jewelled rivet; behind it, a staff with
+notes written on it and two gold arcs) stands across the sheet's foot, over the ink below. It opens from
 a single upright key on its hanging handle as it scrolls into view, the handle swinging up to the right; every leaf,
 black key and the handle is its own small SVG turned by a CSS transform, so it opens without redrawing.
 Its keys can be played: pressing one dips and lights it, sounds its note (a soft synthesised tone, `src/lib/tone.js`;

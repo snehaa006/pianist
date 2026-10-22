@@ -305,11 +305,11 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    leaf and black key, its own small SVG standing on the pivot, turns from straight up to its place (--a) by it, and the
    handle swings up from hanging straight down to lie along the right edge. They are layers (will-change), so the
    browser turns them without redrawing. The pivot sits a little under a quarter of the rim's radius below the sheet's
-   foot, as the fan in the picture sits on the line between light and dark. Its gold, tan and the shaded pleats' tan
-   are the picture's own, and are kept to the fan. */
+   foot, as the fan in the picture sits on the line between light and dark. Its gold and the shaded pleats' tan are the
+   picture's own, and are kept to the fan. */
 .bio-fan { position: relative; z-index: 2; width: var(--fw); margin: var(--space-6) auto calc(var(--fw) * -0.18);
   container-type: inline-size; }
-.keyfan { --kf-gilt: #B8935A; --kf-gilt-lit: #E3BF8A; --kf-tan: #CDB79A; --kf-pleat: #D8C5AB; --kf-pleat-deep: #CDB9A0;
+.keyfan { --kf-gilt: #B8935A; --kf-gilt-lit: #E3BF8A; --kf-pleat: #D8C5AB; --kf-pleat-deep: #CDB9A0;
   --kf-cream: #EADDC7; --kf-wood: #33231F; --kf-wood-lit: #5C433C; aspect-ratio: 1200 / 700; }
 .keyfan__back { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .keyfan__blade { position: absolute; overflow: visible; will-change: transform;
@@ -333,11 +333,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   70% { opacity: 0.85; }
   100% { opacity: 0; transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--r1)) scale(1.1); }
 }
-/* The ground: rays, staff and gold arcs, and the notes written on the staff. */
+/* The ground: staff and gold arcs, and the notes written on the staff. */
 .keyfan__ground { opacity: var(--open, 1); }
-.keyfan__rays { opacity: 0.9; }
-.keyfan__ray--0 { fill: var(--kf-tan); }
-.keyfan__ray--1 { fill: var(--color-paper); }
 .keyfan__staff { fill: none; stroke: var(--color-felt); stroke-width: 1.1; opacity: 0.85; }
 .keyfan__arc { fill: none; stroke: var(--kf-gilt); stroke-width: 2.8; }
 .keyfan__arc--1 { stroke-width: 1; opacity: 0.8; }

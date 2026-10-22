@@ -11,16 +11,16 @@ import { NOTE_KINDS, NOTE_SHAPES } from '../lib/notes';
 // the leaves as on a keyboard, lit from the top left. Below the paper the sticks show, dark wood between cream, then
 // close into a ribbed dark hub. The handle is the last stick: dark wood with gold engraving and a red jewel, lying
 // along the right edge past the rim, with a jewelled rivet at the pivot and the sticks' heads fanned below it. Behind
-// it all, rays of light, five staff lines with notes written on them and two gold arcs; the leaves overhang the line
-// where the cream sheet meets the ink, as the fan in the picture does. Music notes leave the rim and fly away up the
+// it, five staff lines with notes written on them and two gold arcs (the picture's rays of light are left out); the
+// leaves overhang the line where the cream sheet meets the ink, as the fan in the picture does. Music notes leave the rim and fly away up the
 // page, past her words, as the birds leave the hero's keyboard.
 //
 // It opens as it scrolls into view and shuts again when scrolled back: --open (0 shut, 1 open) is eased toward where
 // the fan stands on the screen (useScrub), and turns each leaf and black key about the pivot from straight up to its
 // place, while the handle swings up from hanging straight down to lie along the right edge; shut, it is a single key
 // standing on its handle. Every leaf, black key and the handle is its own small SVG, turned by a CSS transform, so the
-// browser moves them as layers and never redraws them while the fan opens. The ground (rays, staff, arcs) and the
-// notes come in as it opens. With reduced motion it is open and the flying notes rest above the rim.
+// browser moves them as layers and never redraws them while the fan opens. The ground (staff, arcs) and the notes come
+// in as it opens. With reduced motion it is open and the flying notes rest above the rim.
 //
 // The keys can be played: pressing one (white or black) dips it toward the pivot and lights it, sounds its note
 // (lib/tone.js; the leaves run from C2 at the left to B5 at the right, middle C at the top) and lets a few notes fly up
@@ -162,14 +162,8 @@ const boxStyle = b => ({
 });
 const viewBox = b => `${b.x} ${b.y} ${b.w} ${b.h}`;
 
-// The ground: rays of light from the pivot, broad tan bands and narrower pale shafts by turns; five staff lines just
-// past the rim with notes written on them where the picture has them; two gold arcs beyond.
-const RAYS = [];
-for (let a = -104, k = 0; a < 104; k++) {
-  const w = [5, 1.2, 3.5, 2.4, 6, 0.8, 4, 1.8, 2.6, 1.4][k % 10];
-  RAYS.push({ a: a + w / 2, h: w / 2, tone: k % 2, o: [0.7, 0.45, 0.9][k % 3] });
-  a += w;
-}
+// The ground: five staff lines just past the rim with notes written on them where the picture has them; two gold arcs
+// beyond.
 const STAFF = [510, 523, 536, 549, 562];
 const GILT_ARCS = [607, 617];
 const staffR = line => STAFF[0] + line * (STAFF[1] - STAFF[0]);
@@ -386,31 +380,6 @@ export default function KeyFan({ className = '' }) {
           <clipPath id="kf-sky">
             <rect x="-600" y="-300" width="2400" height={HORIZON + 300} />
           </clipPath>
-          <radialGradient
-            id="kf-rays-fade"
-            cx="0"
-            cy="0"
-            r="1"
-            gradientUnits="userSpaceOnUse"
-            gradientTransform={`translate(${CX} ${CY}) scale(680 900)`}
-          >
-            <stop offset="0.62" stopColor="#fff" stopOpacity="0" />
-            <stop offset="0.9" stopColor="#fff" stopOpacity="1" />
-          </radialGradient>
-          <mask id="kf-rays-mask" maskUnits="userSpaceOnUse" x="-600" y="-300" width="2400" height="1100">
-            <rect x="-600" y="-300" width="2400" height="1100" fill="url(#kf-rays-fade)" />
-          </mask>
-          <linearGradient id="kf-top-fade" x1="0" x2="0" y1="-80" y2="150" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#fff" stopOpacity="0" />
-            <stop offset="1" stopColor="#fff" stopOpacity="1" />
-          </linearGradient>
-          <mask id="kf-top-mask" maskUnits="userSpaceOnUse" x="-600" y="-300" width="2400" height="1100">
-            <rect x="-600" y="-300" width="2400" height="1100" fill="url(#kf-top-fade)" />
-          </mask>
-          <radialGradient id="kf-vignette" cx={CX} cy={CY} r="1050" gradientUnits="userSpaceOnUse">
-            <stop offset="0.45" stopColor="var(--kf-tan)" stopOpacity="0" />
-            <stop offset="1" stopColor="var(--kf-tan)" stopOpacity="0.9" />
-          </radialGradient>
           <linearGradient id="kf-paper" x1="0" x2="0" y1="0" y2="1">
             <stop offset="0" stopColor="var(--color-paper)" />
             <stop offset="1" stopColor="var(--color-ivory)" />
@@ -451,14 +420,6 @@ export default function KeyFan({ className = '' }) {
         </defs>
         <g className="keyfan__ground">
           <g clipPath="url(#kf-sky)">
-            <g mask="url(#kf-top-mask)">
-              <rect x="-600" y="-300" width="2400" height="1100" fill="url(#kf-vignette)" />
-              <g className="keyfan__rays" mask="url(#kf-rays-mask)">
-                {RAYS.map(({ a, h, tone, o }) => (
-                  <path key={a} className={`keyfan__ray keyfan__ray--${tone}`} d={wedge(0, 1500, h)} transform={`rotate(${a.toFixed(2)} ${CX} ${CY})`} style={{ opacity: o }} />
-                ))}
-              </g>
-            </g>
             <path className="keyfan__staff" d={STAFF.map(r => arc(r, -100, 100)).join('')} />
             {GILT_ARCS.map((r, k) => (
               <path key={r} className={`keyfan__arc keyfan__arc--${k}`} d={arc(r, -100, 100)} />
