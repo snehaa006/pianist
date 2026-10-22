@@ -301,17 +301,21 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .bio-cover__print--b { width: 32cqw; top: auto; bottom: -5%; right: auto; left: -1cqw; }
 }
 
-/* The fan (KeyFan.jsx): --open (0 shut, 1 open) is eased from the scroll by useScrub; each leaf and black key, its own
-   small SVG standing on the pivot, turns from straight up to its place (--a) by it. They are layers (will-change), so
-   the browser turns them without redrawing. The pivot sits a fifth of the rim's radius below the sheet's foot, as the
-   fan in the client's picture sits on the line between light and dark. */
-.bio-fan { position: relative; z-index: 2; width: var(--fw); margin: var(--space-6) auto calc(var(--fw) * -0.169);
+/* The fan (KeyFan.jsx), after the client's picture: --open (0 shut, 1 open) is eased from the scroll by useScrub; each
+   leaf and black key, its own small SVG standing on the pivot, turns from straight up to its place (--a) by it, and the
+   handle swings up from hanging straight down to lie along the right edge. They are layers (will-change), so the
+   browser turns them without redrawing. The pivot sits a little under a quarter of the rim's radius below the sheet's
+   foot, as the fan in the picture sits on the line between light and dark. Its gold and the shaded pleats' tan are the
+   picture's own, and are kept to the fan. */
+.bio-fan { position: relative; z-index: 2; width: var(--fw); margin: var(--space-6) auto calc(var(--fw) * -0.18);
   container-type: inline-size; }
-.keyfan { aspect-ratio: 1200 / 700; }
-.keyfan__back, .keyfan__front { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.keyfan__blade { position: absolute; overflow: visible; transform-origin: 50% 100%; will-change: transform;
+.keyfan { --kf-gilt: #B8935A; --kf-gilt-lit: #E3BF8A; --kf-pleat: #D8C5AB; --kf-pleat-deep: #CDB9A0;
+  --kf-cream: #EADDC7; --kf-wood: #33231F; --kf-wood-lit: #5C433C; aspect-ratio: 1200 / 700; }
+.keyfan__back { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.keyfan__blade { position: absolute; overflow: visible; will-change: transform;
   transform: rotate(calc(var(--a) * var(--open, 1))); pointer-events: none; }
-.keyfan__back, .keyfan__front, .keyfan__bursts { pointer-events: none; }
+.keyfan__guard { transform: rotate(calc(180deg + (var(--a) - 180deg) * var(--open, 1))); }
+.keyfan__bursts { pointer-events: none; }
 /* Playing the keys: only the keys themselves take the press. A key down (--press 0..1, by hand or with the music) dips
    toward the pivot and lights, rose over the paper and graphite over a black key, as the other keyboards' keys do. */
 .keyfan__press { pointer-events: visiblePainted; cursor: pointer; transform-box: view-box; transform-origin: 600px 600px;
@@ -329,35 +333,54 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   70% { opacity: 0.85; }
   100% { opacity: 0; transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--r1)) scale(1.1); }
 }
-.keyfan__shadow { fill: var(--color-ink); opacity: 0.3; }
+/* The ground: staff and gold arcs, and the notes written on the staff. */
 .keyfan__ground { opacity: var(--open, 1); }
-.keyfan__scallop { opacity: clamp(0, calc(var(--open, 1) * 2), 1); }
-.keyfan__ray--0 { fill: var(--color-paper); opacity: 0.6; }
-.keyfan__ray--1 { fill: var(--color-felt); opacity: 0.08; }
-.keyfan__staff { fill: none; stroke: var(--color-felt); stroke-width: 1.2; opacity: 0.45; }
-.keyfan__arc { fill: none; stroke: var(--color-crimson); stroke-width: 2; opacity: 0.7; }
-.keyfan__arc--thin { stroke-width: 1; }
-.keyfan__scallop path { fill: var(--color-lacquer); stroke: var(--color-graphite); stroke-width: 1; }
-.keyfan__hub { fill: var(--color-lacquer); stroke: var(--color-ink); stroke-width: 0.8; }
-.keyfan__grain { stroke: var(--color-graphite); stroke-width: 1.4; }
-.keyfan__ring { fill: var(--color-ivory); stroke: var(--color-ink); stroke-width: 0.8; }
-.keyfan__pins { stroke: var(--color-crimson); stroke-width: 1; opacity: 0.7; }
-.keyfan__stick { fill: var(--color-lacquer); }
-.keyfan__paper { stroke: var(--color-ink); stroke-width: 1.2; stroke-linejoin: round; }
-.keyfan__fold { stroke: var(--color-ink); stroke-width: 1; opacity: 0.22; }
-.keyfan__filigree { fill: none; stroke: var(--color-crimson); stroke-width: 1.3; opacity: 0.75; }
-.keyfan__band { fill: var(--color-crimson); }
-.keyfan__stripes { fill: none; stroke: var(--color-ivory); stroke-width: 1.6; }
+.keyfan__staff { fill: none; stroke: var(--color-felt); stroke-width: 1.1; opacity: 0.85; }
+.keyfan__arc { fill: none; stroke: var(--kf-gilt); stroke-width: 2.8; }
+.keyfan__arc--1 { stroke-width: 1; opacity: 0.8; }
+.keyfan__written { fill: var(--color-felt); opacity: 0.95; }
+.keyfan__shell-body { fill: var(--kf-wood); stroke: var(--color-ink); stroke-width: 1.2; }
+.keyfan__shell-ribs { stroke: var(--color-ink); stroke-width: 1.2; opacity: 0.7; }
+/* Below the paper: the hub, cream between the sticks, the sticks. */
+.keyfan__hub { fill: var(--kf-wood); }
+.keyfan__ribs { stroke: var(--kf-wood-lit); stroke-width: 1.2; }
+.keyfan__ring { fill: var(--kf-cream); }
+.keyfan__hub-edge { stroke: var(--color-ink); stroke-width: 1.4; }
+.keyfan__pin { stroke: var(--color-crimson-deep); stroke-width: 1; opacity: 0.8; }
+.keyfan__flourish { fill: none; stroke: var(--kf-gilt); stroke-width: 1; }
+/* A leaf: paper, its age, the fold's shade, the outline, tracery at the foot, the red border between gold lines. */
+.keyfan__age { opacity: 0.75; }
+.keyfan__shade { fill: var(--color-felt); opacity: 0.1; }
+.keyfan__outline { fill: none; stroke: var(--color-ink); stroke-width: 1.3; stroke-linejoin: round; }
+.keyfan__tracery { fill: none; stroke-linecap: round; }
+.keyfan__tracery--gilt { stroke: var(--kf-gilt); stroke-width: 0.8; opacity: 0.9; }
+.keyfan__tracery--red { stroke: var(--color-crimson-deep); stroke-width: 0.9; opacity: 0.85; }
+/* The border and its gold lines are deepest at the top and catch the light on the diagonals (--lift, 0..1), as in the
+   picture. */
+.keyfan__band { fill: color-mix(in srgb, var(--color-crimson) calc(var(--lift, 0) * 80%), var(--color-oxblood)); }
+.keyfan__gilt { fill: none; stroke: color-mix(in srgb, var(--kf-gilt-lit) calc(var(--lift, 0) * 100%), var(--kf-gilt));
+  stroke-width: 3.4; }
+.keyfan__band-edge { stroke: var(--color-ink); stroke-width: 1; }
 .keyfan__rim { stroke: var(--color-ink); stroke-width: 2.4; stroke-linecap: round; }
-.keyfan__bk { fill: var(--color-ink); }
+/* A black key: body, top face, gleam down its lit side, bevelled front with a lit lip, a soft shadow. */
+.keyfan__shadow { fill: var(--color-ink); opacity: 0.3; }
+.keyfan__bk { fill: var(--color-ink); stroke: var(--color-ink); stroke-width: 1.2; }
+.keyfan__bk-gleam { stroke: var(--color-dust); stroke-width: 1.2; stroke-linecap: round; opacity: 0.4; }
 .keyfan__bk-front { fill: var(--color-graphite); }
-.keyfan__bk-glint { stroke: var(--color-ivory); stroke-width: 1.2; stroke-linecap: round; opacity: 0.22; }
+.keyfan__bk-lip { stroke: var(--color-dust); stroke-width: 1; opacity: 0.35; }
+/* The handle: lacquered wood, grain, a lit edge, gold engraving, a red jewel, red scrolls round the gold rivet. */
 .keyfan__handle { stroke: var(--color-ink); stroke-width: 1.5; }
-.keyfan__inlay { stroke: var(--color-dust); stroke-width: 1.4; opacity: 0.7; }
-.keyfan__curl { fill: none; stroke: var(--color-dust); stroke-width: 1.4; }
-.keyfan__jewel { fill: var(--color-crimson); stroke: var(--color-dust); stroke-width: 1.5; }
-.keyfan__pearl { fill: var(--color-ivory); }
-.keyfan__rivet { fill: var(--color-lacquer); stroke: var(--color-dust); stroke-width: 1.5; }
+.keyfan__handle-grain { stroke: var(--color-ink); stroke-width: 1; opacity: 0.5; }
+.keyfan__handle-edge { stroke: var(--color-dust); stroke-width: 1.4; opacity: 0.55; }
+.keyfan__handle-edge--under { stroke: var(--color-felt); opacity: 0.6; }
+.keyfan__engraving { fill: none; stroke: var(--kf-gilt); stroke-width: 1.3; stroke-linecap: round; }
+.keyfan__jewel { fill: var(--color-crimson); stroke: var(--color-crimson-deep); stroke-width: 0.8; }
+.keyfan__scrolls { fill: none; stroke: var(--color-crimson); stroke-width: 1.5; stroke-linecap: round; }
+.keyfan__beads { fill: var(--color-crimson); }
+.keyfan__rivet-ring { fill: var(--color-crimson-deep); }
+.keyfan__rivet { fill: var(--kf-gilt); stroke: var(--color-ink); stroke-width: 0.8; }
+.keyfan__rivet-core { fill: var(--color-lacquer); }
+.keyfan__pearl { fill: var(--color-ivory); opacity: 0.8; }
 /* Notes leave the rim and fly away up the page, swaying, while the fan is open and on screen (.is-on): slow off the
    rim, quicker as they climb, fading only near the end. With reduced motion they rest on the staff. */
 .keyfan__notes { position: absolute; inset: 0; pointer-events: none; opacity: clamp(0, calc((var(--open, 1) - 0.5) * 2.5), 1); }
