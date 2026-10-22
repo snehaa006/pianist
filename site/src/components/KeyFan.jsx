@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useScrub } from '../lib/hooks';
+import { strike } from '../lib/tone';
 
 // A painted hand fan of piano keys, after the client's picture of one: paper leaves, one white key each, pleated so
 // the rim steps in and out, with a red border between cream lines along it and a red filigree where each leaf meets its
@@ -14,6 +15,9 @@ import { useScrub } from '../lib/hooks';
 // place; shut, it is a single key standing on its handle. Every leaf and black key is its own small SVG, turned by a
 // CSS transform, so the browser moves them as layers and never redraws them while the fan opens. The ground (rays,
 // staff, arcs) and the notes come in as it opens. With reduced motion it is open and the notes rest above the rim.
+//
+// The keys can be played: pressing one (white or black) dips it toward the pivot and lights it, sounds its note
+// (lib/tone.js; the leaves run from C3 at the left to C6 at the right) and lets a few notes fly up from its tip.
 const CX = 600;
 const CY = 600; // the pivot, in the viewBox
 const R = 470; // the rim (alternate leaves stand a little in, the pleat)
@@ -25,6 +29,8 @@ const N = 22; // leaves: three octaves of white keys and a C
 const W = (2 * SPAN) / N;
 const HORIZON = 497; // where the cream sheet meets the ink below it (site.css hangs the fan so)
 const BLACK_AFTER = [0, 1, 3, 4, 5]; // white keys (C=0 … B=6) followed by a black key
+const WHITE_STEPS = [0, 2, 4, 5, 7, 9, 11]; // semitones of C D E F G A B
+const whiteMidi = i => 48 + 12 * Math.floor(i / 7) + WHITE_STEPS[i % 7]; // leaf 0 is C3
 
 const pt = (r, deg) => {
   const t = (deg * Math.PI) / 180;
@@ -143,7 +149,39 @@ const opening = (r, vh) => (vh * 0.95 - r.top) / (vh * 0.5);
 
 export default function KeyFan({ className = '' }) {
   const ref = useRef(null);
+  const count = useRef(0);
+  const [bursts, setBursts] = useState([]);
   useScrub(ref, opening, '--open');
+
+  // A key pressed: it dips and lights for a moment, sounds, and sends three notes up from its tip, wherever the fan
+  // stands in its opening.
+  const play = (angle, midi) => e => {
+    strike(midi);
+    const blade = e.currentTarget.closest('svg');
+    blade.classList.add('is-down');
+    setTimeout(() => blade.classList.remove('is-down'), 220);
+    const open = parseFloat(getComputedStyle(ref.current).getPropertyValue('--open'));
+    const t = ((angle * (Number.isNaN(open) ? 1 : open)) * Math.PI) / 180;
+    const x = ((CX + (R + 10) * Math.sin(t)) / 1200) * 100;
+    const y = ((CY - (R + 10) * Math.cos(t)) / 700) * 100;
+    const id = (count.current += 1);
+    const notes = [0, 1, 2].map(k => ({
+      key: `${id}-${k}`,
+      x,
+      y,
+      kind: NOTES[(midi + k) % 4],
+      tone: k === 0 ? 'red' : 'ink',
+      dx: Math.sin(t) * 90 + (Math.random() - 0.5) * 170,
+      rise: 260 + Math.random() * 300,
+      r0: (Math.random() - 0.5) * 40,
+      r1: (Math.random() - 0.5) * 70,
+      size: 0.9 + Math.random() * 0.5,
+      dur: 2.4 + Math.random() * 1.1,
+      delay: k * 0.09
+    }));
+    setBursts(b => [...b.slice(-24), ...notes]);
+  };
+  const done = key => setBursts(b => b.filter(n => n.key !== key));
   // The notes fly only while the fan is on screen, and climb as high as the section above it (her words) reaches.
   useEffect(() => {
     const el = ref.current;
@@ -166,7 +204,7 @@ export default function KeyFan({ className = '' }) {
 
   const angles = Array.from({ length: N }, (_, i) => -SPAN + W * (i + 0.5));
   const blacks = [];
-  for (let i = 0; i < N - 1; i++) if (BLACK_AFTER.includes(i % 7)) blacks.push(-SPAN + W * (i + 1));
+  for (let i = 0; i < N - 1; i++) if (BLACK_AFTER.includes(i % 7)) blacks.push({ a: -SPAN + W * (i + 1), midi: whiteMidi(i) + 1 });
 
   return (
     <div ref={ref} className={`keyfan ${className}`} aria-hidden="true">
@@ -227,23 +265,27 @@ export default function KeyFan({ className = '' }) {
             <path className="keyfan__ring" d={RING} />
             <path className="keyfan__pins" d={PINS} />
             <path className="keyfan__stick" d={STICK} />
-            <path className="keyfan__paper" d={L.paper} fill={i % 2 ? 'url(#kf-paper-shade)' : 'url(#kf-paper)'} />
-            <path className="keyfan__fold" d={FOLDS} />
-            <path className="keyfan__filigree" d={FILIGREE} />
-            <path className="keyfan__band" d={L.band} />
-            <path className="keyfan__stripes" d={L.stripes} />
-            <path className="keyfan__rim" d={L.rim} />
+            <g className="keyfan__press" onPointerDown={play(a, whiteMidi(i))}>
+              <path className="keyfan__paper" d={L.paper} fill={i % 2 ? 'url(#kf-paper-shade)' : 'url(#kf-paper)'} />
+              <path className="keyfan__fold" d={FOLDS} />
+              <path className="keyfan__filigree" d={FILIGREE} />
+              <path className="keyfan__band" d={L.band} />
+              <path className="keyfan__stripes" d={L.stripes} />
+              <path className="keyfan__rim" d={L.rim} />
+            </g>
           </svg>
         );
       })}
 
-      {blacks.map(a => (
+      {blacks.map(({ a, midi }) => (
         <svg key={`b${a}`} className="keyfan__blade" viewBox={viewBox(KEY_BOX)} style={{ ...boxStyle(KEY_BOX), '--a': `${a}deg` }}>
           <path className="keyfan__shadow" d={BLACK.body} transform="translate(4 6)" />
-          <path className="keyfan__bk" d={BLACK.body} />
-          <path d={BLACK.face} fill="url(#kf-black)" />
-          <path className="keyfan__bk-front" d={BLACK.front} />
-          <path className="keyfan__bk-glint" d={BLACK.glint} />
+          <g className="keyfan__press" onPointerDown={play(a, midi)}>
+            <path className="keyfan__bk" d={BLACK.body} />
+            <path className="keyfan__bk-face" d={BLACK.face} fill="url(#kf-black)" />
+            <path className="keyfan__bk-front" d={BLACK.front} />
+            <path className="keyfan__bk-glint" d={BLACK.glint} />
+          </g>
         </svg>
       ))}
 
@@ -269,6 +311,29 @@ export default function KeyFan({ className = '' }) {
               top: `${n.y}%`,
               '--dx': `${n.dx}cqw`,
               '--rise': n.rise,
+              '--r0': `${n.r0}deg`,
+              '--r1': `${n.r1}deg`,
+              '--size': n.size,
+              '--dur': `${n.dur}s`,
+              '--delay': `${n.delay}s`
+            }}
+          >
+            <Note kind={n.kind} />
+          </span>
+        ))}
+      </div>
+
+      <div className="keyfan__bursts">
+        {bursts.map(n => (
+          <span
+            key={n.key}
+            className={`keyfan__burst keyfan__note--${n.tone}`}
+            onAnimationEnd={e => e.target === e.currentTarget && done(n.key)}
+            style={{
+              left: `${n.x}%`,
+              top: `${n.y}%`,
+              '--dx': `${n.dx}px`,
+              '--rise': `${n.rise}px`,
               '--r0': `${n.r0}deg`,
               '--r1': `${n.r1}deg`,
               '--size': n.size,

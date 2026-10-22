@@ -310,7 +310,26 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .keyfan { aspect-ratio: 1200 / 700; }
 .keyfan__back, .keyfan__front { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .keyfan__blade { position: absolute; overflow: visible; transform-origin: 50% 100%; will-change: transform;
-  transform: rotate(calc(var(--a) * var(--open, 1))); }
+  transform: rotate(calc(var(--a) * var(--open, 1))); pointer-events: none; }
+.keyfan__back, .keyfan__front, .keyfan__bursts { pointer-events: none; }
+/* Playing the keys: only the keys themselves take the press. A pressed key dips toward the pivot and lights (rose on
+   the paper, graphite on a black key), as the hero's and the stairs' keys do. */
+.keyfan__press { pointer-events: visiblePainted; cursor: pointer; transform-box: view-box; transform-origin: 600px 600px;
+  transition: transform var(--dur-presto) var(--ease-legato); -webkit-tap-highlight-color: transparent; }
+.keyfan__blade.is-down .keyfan__press { transform: scale(0.975); }
+.keyfan__blade.is-down .keyfan__paper { fill: var(--color-rose); }
+.keyfan__blade.is-down .keyfan__bk, .keyfan__blade.is-down .keyfan__bk-face { fill: var(--color-graphite); }
+/* The notes a pressed key lets go: they rise quickly off its tip, spread, and fade. */
+.keyfan__bursts { position: absolute; inset: 0; }
+.keyfan__burst { position: absolute; width: calc(2.6cqw * var(--size)); translate: -50% -50%; opacity: 0;
+  animation: note-burst var(--dur) cubic-bezier(0.2, 0.6, 0.4, 1) var(--delay) both; }
+.keyfan__burst svg { display: block; width: 100%; height: auto; fill: currentColor; }
+@keyframes note-burst {
+  0% { opacity: 0; transform: translate(0, 0) rotate(var(--r0)) scale(0.5); }
+  12% { opacity: 1; }
+  70% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--rise) * -1)) rotate(var(--r1)) scale(1.1); }
+}
 .keyfan__shadow { fill: var(--color-ink); opacity: 0.3; }
 .keyfan__ground { opacity: var(--open, 1); }
 .keyfan__scallop { opacity: clamp(0, calc(var(--open, 1) * 2), 1); }
@@ -393,17 +412,17 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .booth { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 520px; padding: 8px 8px 28px; gap: 8px; rotate: -1.5deg; }
 }
 
-/* Six years: five pictures on the ink stage. As the row comes up the screen (--t from useScrub) each picture slides in
-   from the right, one after another, the first first. Phones: the pictures are a rail that snaps, and hold still. */
+/* Six years: five pictures on the ink stage. As the row comes up the screen (--t from useScrub) the whole row slides in
+   from the right as one strip and comes to rest in its place. Phones: the pictures are a rail that snaps, and hold
+   still. */
 .bio-years { overflow: hidden; padding-top: calc(var(--section-y) + var(--fw) * 0.17); padding-bottom: clamp(56px, 6vw, 112px); }
 .bio-years__content { position: relative; z-index: 1; }
 .bio-years__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-5) var(--gutter); align-items: end; }
 .bio-years__head .lead { margin: 0; }
 .bio-years__row { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gutter);
-  align-items: start; margin: var(--space-8) 0 0; padding: 0; }
+  align-items: start; margin: var(--space-8) 0 0; padding: 0;
+  translate: calc((1 - var(--t, 1)) * 55vw) 0; will-change: translate; }
 .bio-years__item:nth-child(even) { margin-top: var(--space-8); }
-.bio-years__item { --q: clamp(0, calc((var(--t, 1) * 7 - var(--i)) / 3), 1); opacity: var(--q);
-  translate: calc((1 - var(--q)) * 70vw) 0; will-change: translate, opacity; }
 .bio-years__frame { aspect-ratio: 3 / 4; }
 .bio-years__frame--tint img { filter: grayscale(1) sepia(0.32) brightness(0.9) contrast(1.05); } /* the films' warm monochrome */
 .bio-years__frame::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
@@ -412,10 +431,10 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .bio-years__n { margin-right: var(--space-1); color: var(--color-dust); }
 @media (max-width: 899px) {
   .bio-years__head { grid-template-columns: minmax(0, 1fr); }
-  .bio-years__row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--page-margin);
+  .bio-years__row { translate: none; display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--page-margin);
     margin-inline: calc(-1 * var(--page-margin)); padding: 0 var(--page-margin) var(--space-3); scrollbar-width: none; }
   .bio-years__row::-webkit-scrollbar { display: none; }
-  .bio-years__item { flex: 0 0 min(62vw, 280px); scroll-snap-align: start; opacity: 1; translate: none; }
+  .bio-years__item { flex: 0 0 min(62vw, 280px); scroll-snap-align: start; }
   .bio-years__item:nth-child(even) { margin-top: var(--space-6); }
 }
 
