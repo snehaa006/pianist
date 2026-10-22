@@ -1,14 +1,14 @@
 import { useRef } from 'react';
 import Flight from './Flight.jsx';
-import PianoFrame from './PianoFrame.jsx';
+import PianoCase from './PianoCase.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { byId } from '../data/performances';
 import { site } from '../data/site';
 import { useSound } from '../lib/sound.jsx';
 
-// Screen 1, a poster on the red: her photograph at the piano in the Austrian Master Classes hall, framed in the case of
-// a grand seen from above (PianoFrame) and standing on a full keyboard that runs the width of the screen, and her name
-// in ink beside it. Keys on the right lift out of the
+// Screen 1, a poster on the red, after a piano-lessons flyer: a full keyboard runs the width of the screen and a black
+// grand piano case stands on it as wide (PianoCase), her photograph at the piano in the Austrian Master Classes hall
+// on the case, her name in ink in the red bay its bentside sweeps round. Keys on the right lift out of the
 // keyboard and fly off as birds (Flight); moving the mouse along the keys sends them up too. While "Hear me play" is on,
 // the keys play along: each one goes down with the note she plays on it. One fact, one action: the concert the
 // photograph was taken at, and its film.
@@ -24,12 +24,14 @@ export default function Hero() {
   const concert = byId('austrian-master-classes');
   const section = useRef(null);
   const keybed = useRef(null);
+  const name = useRef(null);
+  const photo = useRef(null);
   const { playhead } = useSound();
 
   return (
     <section ref={section} className="hero hero--poster" aria-labelledby="name">
       <div className="container hero__stage">
-        <PianoFrame className="hero__photo" id="hero-piano">
+        <figure ref={photo} className="hero__photo frame">
           <img
             src="/media/posters/portrait.webp"
             srcSet="/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w"
@@ -40,14 +42,14 @@ export default function Hero() {
             fetchPriority="high"
             decoding="async"
           />
-        </PianoFrame>
+        </figure>
         <div className="hero__text">
-          <h1 className="wordmark hero__name" id="name">
+          <h1 ref={name} className="wordmark hero__name" id="name">
             <span className="sr-only">Selin Incekara</span>
             <span className="wm-line" aria-hidden="true">{letters('Selin', 0)}</span>
             <span className="wm-line" aria-hidden="true">{letters('Incekara', 5)}</span>
           </h1>
-          <div className="hero__foot">
+          <div className="hero__foot" data-surface="ink">
             <p className="lead hero__lead hero-in" style={{ '--d': '700ms' }}>
               Filmed in concert at the Austrian Master Classes, {concert.year}.
             </p>
@@ -59,6 +61,8 @@ export default function Hero() {
           </div>
         </div>
       </div>
+      {/* After the stage, so its refs are set when the case is measured; it lies behind everything (site.css). */}
+      <PianoCase name={name} photo={photo} />
       <div ref={keybed} className="hero__keys" aria-hidden="true" />
       <Flight className="hero__flight" keybed={keybed} pokeRef={section} play={playhead} />
     </section>
