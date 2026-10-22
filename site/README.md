@@ -94,9 +94,12 @@ do the same. A painted fan of piano keys (`src/components/KeyFan.jsx`, after the
 leaves, a red border, black keys lying on the leaves, wooden sticks, the handle hanging straight down from a jewelled
 rivet) stands level across the sheet's foot, over the ink below, and opens from a single upright key as it scrolls
 into view; every leaf and black key is its own small SVG turned by a CSS transform, so it opens without redrawing.
+Its keys can be played: pressing one dips and lights it, sounds its note (a soft synthesised tone, `src/lib/tone.js`;
+the leaves run from C3 at the left to C6 at the right, the black keys between) and sends three notes up off its tip.
+Nothing sounds until a key is pressed.
 Music notes leave its rim and fly away up the page, past her words, as the birds leave the hero's keyboard (the client
 asked for notes, though the design system leaves out note icons). [2] *Six years at the piano*: five pictures on the
-ink stage that slide in from the right one after another as the row comes up the screen. [3] *Where she has played*:
+ink stage that slide in from the right together, as one strip, as the row comes up the screen. [3] *Where she has played*:
 cards that stack under the nav, each opening its film. Scroll-linked motion is eased toward the scroll each frame
 (`useScrub` in `src/lib/hooks.js`), so wheel steps glide and scrolling back plays it in reverse; with reduced motion
 nothing moves, the text is at full, the fan is open and the notes rest above it.

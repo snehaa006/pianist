@@ -159,8 +159,8 @@ function Words() {
   );
 }
 
-// Six years in five pictures, on the ink stage. As the row comes up the screen the pictures slide in from the right,
-// one after another, and slide back out when the page is scrolled back (useScrub; on phones they are a rail).
+// Six years in five pictures, on the ink stage. As the row comes up the screen it slides in from the right as one strip
+// and comes to rest, and slides back out when the page is scrolled back (useScrub; on phones it is a rail).
 const rowIn = (r, vh) => (vh - r.top) / (vh * 0.75);
 
 function Years() {
@@ -184,7 +184,7 @@ function Years() {
         </div>
         <ol ref={row} className="bio-years__row">
           {pictures.map(({ photo, caption }, i) => (
-            <li key={photo.src} className="bio-years__item" style={{ '--i': i }}>
+            <li key={photo.src} className="bio-years__item">
               <figure className={`frame bio-years__frame${photo.tint ? ' bio-years__frame--tint' : ''}`}>
                 <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
                 <figcaption className="label bio-years__caption">
