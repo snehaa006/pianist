@@ -275,8 +275,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .bio-cover__front { z-index: 3; pointer-events: none;
   -webkit-mask: url('/media/cutouts/portrait-matte.webp') 0 0 / 100% 100% no-repeat;
   mask: url('/media/cutouts/portrait-matte.webp') 0 0 / 100% 100% no-repeat; }
-.bio-cover__name { position: absolute; z-index: 2; left: 0; bottom: calc(var(--ph) * 0.07); margin: 0 0 0 -0.03em;
-  font-size: min(calc((100cqw - var(--pr) - var(--pw) * 0.62) / 2.9), calc(var(--ph) / 1.78));
+.bio-cover__name { position: absolute; z-index: 2; left: -2.5cqw; bottom: calc(var(--ph) * 0.07); margin: 0 0 0 -0.03em;
+  font-size: calc(min(calc((100cqw - var(--pr) - var(--pw) * 0.62) / 2.9), calc(var(--ph) / 1.78)) * 0.86);
   line-height: 0.8; letter-spacing: var(--tracking-wordmark); white-space: nowrap; color: var(--fg-accent);
   translate: calc(var(--p, 0) * -9cqw) 0; }
 .bio-cover__line { display: block; }
@@ -291,7 +291,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .bio-cover__lead { max-width: 34ch; }
 @media (max-width: 899px) {
   .bio-cover__stage { height: auto; display: flex; flex-direction: column; margin-top: var(--space-5); }
-  .bio-cover__name { position: relative; order: -1; bottom: auto; margin-bottom: var(--space-5); font-size: calc(100cqw / 2.95);
+  .bio-cover__name { position: relative; order: -1; left: 0; bottom: auto; margin-bottom: var(--space-5); font-size: calc(100cqw / 2.95);
     translate: none; }
   .bio-cover__photo { position: relative; right: auto; width: 100%; max-width: 560px; height: auto; aspect-ratio: 4 / 5; }
   .bio-cover__front { display: none; }
@@ -301,16 +301,19 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .bio-cover__print--b { width: 32cqw; top: auto; bottom: -5%; right: auto; left: -1cqw; }
 }
 
-/* The fan (KeyFan.jsx): each leaf turns about the pivot from straight up to its place (--a) as --open goes from 0
-   to 1, which follows the fan's --p, so it opens on the way to the middle of the screen. The pivot sits a fifth of the
-   rim's radius below the sheet's foot, as the fan in the client's picture sits on the line between light and dark. */
-.bio-fan { --open: clamp(0, calc((var(--p, 1) + 0.75) * 1.8), 1); position: relative; z-index: 2; width: var(--fw);
-  margin: var(--space-6) auto calc(var(--fw) * -0.169); container-type: inline-size; }
-.keyfan svg { display: block; width: 100%; height: auto; overflow: visible; }
-.keyfan__k { transform-box: view-box; transform-origin: 600px 600px; transform: rotate(calc(var(--a) * var(--open, 1)));
-  transition: transform var(--dur-allegro) var(--ease-legato); } /* glides between scroll steps instead of jumping */
+/* The fan (KeyFan.jsx): --open (0 shut, 1 open) is eased from the scroll by useScrub; each leaf and black key, its own
+   small SVG standing on the pivot, turns from straight up to its place (--a) by it. They are layers (will-change), so
+   the browser turns them without redrawing. The pivot sits a fifth of the rim's radius below the sheet's foot, as the
+   fan in the client's picture sits on the line between light and dark. */
+.bio-fan { position: relative; z-index: 2; width: var(--fw); margin: var(--space-6) auto calc(var(--fw) * -0.169);
+  container-type: inline-size; }
+.keyfan { aspect-ratio: 1200 / 700; }
+.keyfan__back, .keyfan__front { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.keyfan__blade { position: absolute; overflow: visible; transform-origin: 50% 100%; will-change: transform;
+  transform: rotate(calc(var(--a) * var(--open, 1))); }
 .keyfan__shadow { fill: var(--color-ink); opacity: 0.3; }
 .keyfan__ground { opacity: var(--open, 1); }
+.keyfan__scallop { opacity: clamp(0, calc(var(--open, 1) * 2), 1); }
 .keyfan__ray--0 { fill: var(--color-paper); opacity: 0.6; }
 .keyfan__ray--1 { fill: var(--color-felt); opacity: 0.08; }
 .keyfan__staff { fill: none; stroke: var(--color-felt); stroke-width: 1.2; opacity: 0.45; }
@@ -341,7 +344,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    rim, quicker as they climb, fading only near the end. With reduced motion they rest on the staff. */
 .keyfan__notes { position: absolute; inset: 0; pointer-events: none; opacity: clamp(0, calc((var(--open, 1) - 0.5) * 2.5), 1); }
 .keyfan__note { position: absolute; width: calc(2.3cqw * var(--size)); translate: -50% -50%; opacity: 0;
-  animation: note-fly var(--dur) cubic-bezier(0.45, 0, 0.75, 0.6) var(--delay) infinite paused; }
+  will-change: transform, opacity;
+  animation: note-fly var(--dur) cubic-bezier(0.4, 0, 0.7, 0.7) var(--delay) infinite paused; }
 .keyfan.is-on .keyfan__note { animation-play-state: running; }
 .keyfan__note svg { display: block; width: 100%; height: auto; fill: currentColor;
   animation: note-sway 1.8s var(--ease-rubato) infinite alternate; }
@@ -352,13 +356,19 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   0% { opacity: 0; transform: translate(0, 0) rotate(var(--r0)) scale(0.7); }
   6% { opacity: 0.9; }
   80% { opacity: 0.75; }
-  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--r1)) scale(1.15); }
+  100% { opacity: 0; transform: translate(var(--dx), calc(var(--climb, 900px) * var(--rise) * -1)) rotate(var(--r1)) scale(1.15); }
 }
 @keyframes note-sway { from { translate: -4px 0; } to { translate: 4px 0; } }
 @media (prefers-reduced-motion: reduce) {
-  .keyfan__note { animation: none; opacity: 0.55; transform: translate(calc(var(--dx) * 0.2), calc(var(--dy) * 0.05)) rotate(var(--r0)); }
+  .keyfan__note { animation: none; opacity: 0.55; transform: translate(calc(var(--dx) * 0.2), -3cqw) rotate(var(--r0)); }
   .keyfan__note svg { animation: none; }
 }
+
+/* Text read as the page moves (ScrubText.jsx): each word comes up from faded as --t passes it (--i of --n words), and
+   fades back when the page is scrolled back. Picked-out phrases take the accent colour, set heavier with a stroke of
+   their own colour (Bebas has one weight). With reduced motion --t is unset and every word is at full. */
+.scrub__w { opacity: clamp(0.14, calc((var(--t, 1) * (var(--n) + 10) - var(--i)) / 10), 1); }
+.scrub__w--accent { color: var(--fg-accent); -webkit-text-stroke: 0.03em currentColor; }
 
 /* In her own words: her bio as she wrote it, set in steps down the sheet like a poster's text, a drop quote mark
    beside the first step, and a photo-booth strip at the right. */
@@ -383,18 +393,17 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .booth { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 520px; padding: 8px 8px 28px; gap: 8px; rotate: -1.5deg; }
 }
 
-/* Six years: five pictures on the ink stage, her name in red behind them, cut by the foot of the screen and
-   sliding sideways with the scroll. Phones: the pictures become a rail that snaps. */
+/* Six years: five pictures on the ink stage. As the row comes up the screen (--t from useScrub) each picture slides in
+   from the right, one after another, the first first. Phones: the pictures are a rail that snaps, and hold still. */
 .bio-years { overflow: hidden; padding-top: calc(var(--section-y) + var(--fw) * 0.17); padding-bottom: clamp(56px, 6vw, 112px); }
-.bio-years__name { position: absolute; left: -20vw; bottom: -0.2em; z-index: 0; margin: 0; pointer-events: none;
-  font-size: clamp(7rem, 24vw, 26rem); line-height: 0.8; white-space: nowrap; color: var(--color-crimson);
-  translate: calc(var(--p, 0) * -18vw) 0; }
 .bio-years__content { position: relative; z-index: 1; }
 .bio-years__head { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: var(--space-5) var(--gutter); align-items: end; }
 .bio-years__head .lead { margin: 0; }
 .bio-years__row { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--gutter);
   align-items: start; margin: var(--space-8) 0 0; padding: 0; }
 .bio-years__item:nth-child(even) { margin-top: var(--space-8); }
+.bio-years__item { --q: clamp(0, calc((var(--t, 1) * 7 - var(--i)) / 3), 1); opacity: var(--q);
+  translate: calc((1 - var(--q)) * 70vw) 0; will-change: translate, opacity; }
 .bio-years__frame { aspect-ratio: 3 / 4; }
 .bio-years__frame--tint img { filter: grayscale(1) sepia(0.32) brightness(0.9) contrast(1.05); } /* the films' warm monochrome */
 .bio-years__frame::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
@@ -406,40 +415,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   .bio-years__row { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--page-margin);
     margin-inline: calc(-1 * var(--page-margin)); padding: 0 var(--page-margin) var(--space-3); scrollbar-width: none; }
   .bio-years__row::-webkit-scrollbar { display: none; }
-  .bio-years__item { flex: 0 0 min(62vw, 280px); scroll-snap-align: start; }
+  .bio-years__item { flex: 0 0 min(62vw, 280px); scroll-snap-align: start; opacity: 1; translate: none; }
   .bio-years__item:nth-child(even) { margin-top: var(--space-6); }
-}
-
-/* One line of hers among scattered prints, each print cropped to its own shape. */
-.bio-quote { overflow-x: clip; }
-.bio-quote__board { position: relative; display: grid; place-items: center; min-height: clamp(720px, 112svh, 1080px); }
-.bio-quote__figure { position: relative; z-index: 1; max-width: 14ch; margin: 0; text-align: center;
-  font-size: clamp(3rem, 7vw, 7.5rem); line-height: 0.88; }
-.bio-quote__text { margin: 0; color: var(--fg-display); }
-.bio-quote__by { display: inline-block; margin-top: var(--space-6); }
-.bio-quote__print { position: absolute; z-index: 2; }
-.bio-quote__print--1 { width: 20%; left: 0; top: 3%; }
-.bio-quote__print--2 { width: 15%; right: 2%; top: 0; }
-.bio-quote__print--2 img { aspect-ratio: 1; object-position: 35% 50%; }
-.bio-quote__print--3 { width: 13%; left: 4%; top: 50%; }
-.bio-quote__print--4 { width: 14%; right: 0; top: 42%; }
-.bio-quote__print--4 img { aspect-ratio: 4 / 5; object-position: 68% 50%; }
-.bio-quote__print--5 { width: 15%; left: 22%; bottom: 1%; }
-.bio-quote__print--5 img { aspect-ratio: 1; object-position: 32% 50%; }
-.bio-quote__print--6 { width: 14%; right: 17%; bottom: 3%; }
-.bio-quote__print--6 img { aspect-ratio: 4 / 5; object-position: 70% 50%; }
-@media (max-width: 899px) {
-  .bio-quote__board { min-height: 0; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-5) var(--space-4);
-    place-items: start stretch; }
-  .bio-quote__figure { grid-column: 1 / -1; grid-row: 2; max-width: none; margin-block: var(--space-6); text-align: left;
-    font-size: clamp(2.75rem, 12vw, 4.5rem); }
-  .bio-quote__print { position: relative; inset: auto; width: auto; }
-  .bio-quote__print--1 { grid-row: 1; grid-column: 1 / span 4; }
-  .bio-quote__print--2 { grid-row: 1; grid-column: 5 / span 2; margin-top: var(--space-7); }
-  .bio-quote__print--3 { grid-row: 3; grid-column: 1 / span 2; }
-  .bio-quote__print--4 { grid-row: 3; grid-column: 3 / span 2; margin-top: var(--space-6); }
-  .bio-quote__print--5 { grid-row: 3; grid-column: 5 / span 2; }
-  .bio-quote__print--6 { display: none; }
 }
 
 /* Where she has played: cards that stick under the nav one after another, each leaving its tab showing, so the

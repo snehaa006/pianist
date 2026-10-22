@@ -3,11 +3,12 @@ import { Link } from 'react-router-dom';
 import Headline from '../components/Headline.jsx';
 import Opus from '../components/Opus.jsx';
 import KeyFan from '../components/KeyFan.jsx';
+import ScrubText from '../components/ScrubText.jsx';
 import { useLightbox } from '../components/Lightbox.jsx';
 import { site, isPlaceholder } from '../data/site';
-import { bio } from '../data/bio';
+import { bio, bioAccents } from '../data/bio';
 import { byId, examFilms, inWords, performances, titleOf } from '../data/performances';
-import { useDrift, usePageTitle, useReveals } from '../lib/hooks';
+import { useDrift, usePageTitle, useReveals, useScrub } from '../lib/hooks';
 
 const Arrow = () => (
   <span className="arrow" aria-hidden="true">
@@ -17,7 +18,6 @@ const Arrow = () => (
 
 // Stills from the films (public/media/about, cut by `npm run media -- --about`), warm monochrome.
 const still = (slug, alt, width, height) => ({ src: `/media/about/${slug}.webp`, alt, width, height });
-const poster = (id, alt, width, height) => ({ src: `/media/posters/${id}.webp`, alt, width, height });
 const photos = {
   smileGrade1: still('smile-grade-1', 'Selin Incekara at the piano at home, smiling sideways after her Grade 1 piece.', 432, 540),
   amcLift: still('amc-lift', 'Selin Incekara lifting both hands from the keys at the Austrian Master Classes concert.', 400, 480),
@@ -28,12 +28,6 @@ const photos = {
   score: still('score', 'Selin Incekara in profile at the piano, reading from the score.', 432, 576),
   smileHungry: still('smile-hungry', 'Selin Incekara smiling at the camera beside her piano, before playing Dog Hungry.', 432, 540),
   stageArms: still('stage-arms', 'Selin Incekara alone at a grand piano on a dark stage.', 348, 464),
-  amcStand: still('amc-stand', 'Selin Incekara standing beside the grand piano on the stage of the Austrian Master Classes hall.', 720, 480),
-  stageBow: still('stage-bow', 'Selin Incekara bowing to the audience on a dark stage, beside the grand piano.', 372, 464),
-  atHome: poster('at-home-grand', 'Selin Incekara in profile at the grand piano at home, by a window.', 832, 464),
-  dogHungry: poster('dog-hungry', 'Selin Incekara at her piano, seen over her shoulder, both hands on the keys.', 1024, 576),
-  twilight: poster('song-of-twilight', 'Selin Incekara at her piano, seen from behind, mid-phrase.', 1024, 576),
-  andante: poster('andante', 'Selin Incekara at the piano with the score open, playing from the music.', 832, 464),
   // The supplied photograph, toned to the films' warm monochrome where it stands among them (tint).
   portrait: { src: '/media/posters/portrait-600.webp', alt: site.portraitAlt, width: 600, height: 750, tint: true }
 };
@@ -50,8 +44,8 @@ function Print({ photo, className = '', tilt = 0, speed = 0, i = 0 }) {
 
 // Biography, after the client's references, a flamenco poster above all: the cover and her words are a cream sheet
 // laid on the red, her name running behind her in the photograph, and a painted fan of piano keys across the sheet's
-// foot that sends music notes flying up the page. Then a name behind a row of photographs, a quote among scattered
-// prints, and stacked cards. Her supplied photograph is the cover; every other picture is a moment from her films.
+// foot that sends music notes flying up the page. Then a row of photographs that come in from the right, and stacked
+// cards. Her supplied photograph is the cover; every other picture is a moment from her films.
 // Her bio stays exactly as she wrote it (src/data/bio.js).
 export default function About() {
   usePageTitle('Biography');
@@ -65,7 +59,6 @@ export default function About() {
         <KeyFan className="bio-fan" />
       </div>
       <Years />
-      <Quote />
       <Stages />
     </div>
   );
@@ -132,8 +125,9 @@ function Cover() {
   );
 }
 
-// Her own words, as she wrote them, set in steps down the sheet like a poster's text, beside a photo-booth strip of
-// her smiling at the piano before three exam pieces.
+// Her own words, as she wrote them, set in steps down the sheet like a poster's text and read as the page moves (each
+// word comes up from faded, ScrubText), beside a photo-booth strip of her smiling at the piano before three exam
+// pieces.
 function Words() {
   const strip = [photos.smileTwilight, photos.smileTechnical, photos.smileAndante];
   return (
@@ -146,9 +140,7 @@ function Words() {
           “
         </span>
         {bio.map((paragraph, i) => (
-          <p key={i} className={`bio-words__para bio-words__para--${i + 1} reveal`} style={{ '--i': i + 1 }}>
-            {paragraph}
-          </p>
+          <ScrubText key={i} text={paragraph} accents={bioAccents[i]} className={`bio-words__para bio-words__para--${i + 1}`} />
         ))}
         <p className="label muted bio-words__sign reveal" style={{ '--i': 3 }}>
           — Selin Incekara
@@ -167,11 +159,14 @@ function Words() {
   );
 }
 
-// Six years in five pictures, on the ink stage, her name in red running behind them and sliding as the page scrolls.
+// Six years in five pictures, on the ink stage. As the row comes up the screen the pictures slide in from the right,
+// one after another, and slide back out when the page is scrolled back (useScrub; on phones they are a rail).
+const rowIn = (r, vh) => (vh - r.top) / (vh * 0.75);
+
 function Years() {
-  const ref = useRef(null);
-  useDrift(ref);
-  const row = [
+  const row = useRef(null);
+  useScrub(row, rowIn);
+  const pictures = [
     { photo: photos.grandUp, caption: 'At home' },
     { photo: photos.score, caption: 'Grade 1 exam' },
     { photo: photos.portrait, caption: 'Austrian Master Classes' },
@@ -179,20 +174,17 @@ function Years() {
     { photo: photos.stageArms, caption: 'On stage' }
   ];
   return (
-    <section ref={ref} className="stage screen bio-years" aria-labelledby="years-h">
-      <p className="bio-years__name" aria-hidden="true">
-        Selin Incekara · Selin Incekara
-      </p>
+    <section className="stage screen bio-years" aria-labelledby="years-h">
       <div className="container bio-years__content">
         <div className="bio-years__head">
           <Headline id="years-h" hinge="left" accent="Six">
             [2] Six years at the piano
           </Headline>
-          <p className="lead muted reveal reveal--rise">From her piano at home to the stage of the Austrian Master Classes.</p>
+          <ScrubText className="lead muted" text="From her piano at home to the stage of the Austrian Master Classes." />
         </div>
-        <ol className="bio-years__row">
-          {row.map(({ photo, caption }, i) => (
-            <li key={photo.src} className="bio-years__item reveal" style={{ '--i': i }}>
+        <ol ref={row} className="bio-years__row">
+          {pictures.map(({ photo, caption }, i) => (
+            <li key={photo.src} className="bio-years__item" style={{ '--i': i }}>
               <figure className={`frame bio-years__frame${photo.tint ? ' bio-years__frame--tint' : ''}`}>
                 <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
                 <figcaption className="label bio-years__caption">
@@ -202,37 +194,6 @@ function Years() {
             </li>
           ))}
         </ol>
-      </div>
-    </section>
-  );
-}
-
-// One line of hers, at poster size, among scattered prints that drift at their own speeds.
-function Quote() {
-  const ref = useRef(null);
-  useDrift(ref);
-  const prints = [
-    { photo: photos.amcStand, tilt: -5, speed: 90 },
-    { photo: photos.atHome, tilt: 4, speed: -60 },
-    { photo: photos.stageBow, tilt: 3, speed: 130 },
-    { photo: photos.dogHungry, tilt: -3, speed: 40 },
-    { photo: photos.andante, tilt: -2, speed: -90 },
-    { photo: photos.twilight, tilt: 5, speed: 110 }
-  ];
-  return (
-    <section ref={ref} className="screen bio-quote" aria-label="Why she plays, in her words">
-      <div className="container">
-        <div className="bio-quote__board">
-          <figure className="bio-quote__figure">
-            <blockquote className="bio-quote__text reveal reveal--rise">
-              <p>“Every time I play, I feel like I can tell a story through music.”</p>
-            </blockquote>
-            <figcaption className="label bio-quote__by reveal reveal--wipe">— Selin Incekara</figcaption>
-          </figure>
-          {prints.map((p, i) => (
-            <Print key={p.photo.src} photo={p.photo} className={`bio-quote__print bio-quote__print--${i + 1}`} tilt={p.tilt} speed={p.speed} i={i} />
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -292,9 +253,10 @@ function Stages() {
         <Headline id="stages-h" hinge="right">
           [3] Where she has played
         </Headline>
-        <p className="lead muted reveal reveal--rise">
-          {inWords(performances.length, true)} films so far, {inWords(onStage)} on stage and {inWords(atHome)} at home.
-        </p>
+        <ScrubText
+          className="lead muted"
+          text={`${inWords(performances.length, true)} films so far, ${inWords(onStage)} on stage and ${inWords(atHome)} at home.`}
+        />
         <ol className="cards">
           {cards.map((c, i) => (
             <li key={c.title} className={`card card--${c.surface}`} data-surface={c.surface} style={{ '--i': i }}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { allowFx } from '../components/fx/presets';
 
 export function useMedia(query) {
@@ -101,4 +101,51 @@ export function useDrift(ref) {
       el.style.removeProperty('--p');
     };
   }, [ref, reduced]);
+}
+
+// Scrub: sets a CSS variable (0..1, `--t` unless named) on the element from where it stands in the viewport, eased
+// toward that target every frame so wheel steps glide instead of jumping; scrolling back plays it in reverse.
+// `progress(rect, viewportHeight)` gives the target (clamped to 0..1). Runs only while the element is near the screen;
+// with reduced motion the variable stays unset and CSS falls back to the finished state.
+export function useScrub(ref, progress, name = '--t') {
+  const reduced = useReducedMotion();
+  const fn = useRef(progress);
+  fn.current = progress;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || reduced || !('IntersectionObserver' in window)) return undefined;
+    let frame = 0;
+    let near = false;
+    let now = null;
+    const target = () => Math.min(1, Math.max(0, fn.current(el.getBoundingClientRect(), window.innerHeight)));
+    const tick = () => {
+      frame = 0;
+      const to = target();
+      now = now === null ? to : now + (to - now) * 0.12;
+      if (Math.abs(to - now) < 0.0015) now = to;
+      el.style.setProperty(name, now.toFixed(4));
+      if (near && now !== to) frame = requestAnimationFrame(tick);
+    };
+    const kick = () => {
+      if (near && !frame) frame = requestAnimationFrame(tick);
+    };
+    el.style.setProperty(name, target().toFixed(4)); // the starting state, before the first frame
+    const io = new IntersectionObserver(
+      ([e]) => {
+        near = e.isIntersecting;
+        kick();
+      },
+      { rootMargin: '25% 0px' }
+    );
+    io.observe(el);
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('resize', kick);
+    return () => {
+      io.disconnect();
+      cancelAnimationFrame(frame);
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('resize', kick);
+      el.style.removeProperty(name);
+    };
+  }, [ref, reduced, name]);
 }
