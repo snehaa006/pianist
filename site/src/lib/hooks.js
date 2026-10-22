@@ -68,6 +68,22 @@ export function usePageTitle(title) {
   }, [title]);
 }
 
+// One frame loop for every scroll-linked effect (useDrift, useScrub): each frame all of them measure first, then all of
+// them write. A write between two measures would make the browser restyle the page just to answer the second measure,
+// once per effect per frame; batched, it restyles once. A job's `read` measures and returns its write.
+const jobs = new Set();
+let loop = 0;
+const runJobs = () => {
+  loop = 0;
+  const due = [...jobs];
+  jobs.clear();
+  due.map(job => job.read()).forEach(write => write());
+};
+const schedule = job => {
+  jobs.add(job);
+  if (!loop) loop = requestAnimationFrame(runJobs);
+};
+
 // Drift: sets --p on the element while it is on screen, its distance scrolled past the middle of the viewport in
 // screens (0 when its middle is at the viewport's middle, 1 a screen further down the page). CSS moves things by it
 // (prints at their own --speed, a name sliding sideways); with reduced motion --p stays unset and nothing moves.
@@ -76,15 +92,16 @@ export function useDrift(ref) {
   useEffect(() => {
     const el = ref.current;
     if (!el || reduced || !('IntersectionObserver' in window)) return undefined;
-    let frame = 0;
     let visible = false;
-    const update = () => {
-      frame = 0;
-      const r = el.getBoundingClientRect();
-      el.style.setProperty('--p', ((window.innerHeight / 2 - (r.top + r.height / 2)) / window.innerHeight).toFixed(4));
+    const job = {
+      read: () => {
+        const r = el.getBoundingClientRect();
+        const p = ((window.innerHeight / 2 - (r.top + r.height / 2)) / window.innerHeight).toFixed(4);
+        return () => el.style.setProperty('--p', p);
+      }
     };
     const onScroll = () => {
-      if (visible && !frame) frame = requestAnimationFrame(update);
+      if (visible) schedule(job);
     };
     const io = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
@@ -95,7 +112,7 @@ export function useDrift(ref) {
     window.addEventListener('resize', onScroll);
     return () => {
       io.disconnect();
-      cancelAnimationFrame(frame);
+      jobs.delete(job);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       el.style.removeProperty('--p');
@@ -104,32 +121,47 @@ export function useDrift(ref) {
 }
 
 // Scrub: sets a CSS variable (0..1, `--t` unless named) on the element from where it stands in the viewport, eased
-// toward that target every frame so wheel steps glide instead of jumping; scrolling back plays it in reverse.
+// toward that target every frame so wheel steps glide instead of jumping; scrolling back plays it in reverse. The
+// easing goes by time, not frames, so it keeps its pace when frames come slower or faster.
 // `progress(rect, viewportHeight)` gives the target (clamped to 0..1). Runs only while the element is near the screen;
-// with reduced motion the variable stays unset and CSS falls back to the finished state.
+// with reduced motion the variable stays unset and CSS falls back to the finished state. `name` can instead be a
+// function, given each value to apply itself (and null when the scrub stops), for an element whose variable would make
+// the browser restyle too much of the page every frame.
 export function useScrub(ref, progress, name = '--t') {
   const reduced = useReducedMotion();
   const fn = useRef(progress);
   fn.current = progress;
+  const apply = useRef(name);
+  apply.current = name;
+  const custom = typeof name === 'function';
   useEffect(() => {
     const el = ref.current;
     if (!el || reduced || !('IntersectionObserver' in window)) return undefined;
-    let frame = 0;
+    const set = v => (custom ? apply.current(v) : el.style.setProperty(name, v.toFixed(4)));
     let near = false;
     let now = null;
+    let last = 0;
     const target = () => Math.min(1, Math.max(0, fn.current(el.getBoundingClientRect(), window.innerHeight)));
-    const tick = () => {
-      frame = 0;
-      const to = target();
-      now = now === null ? to : now + (to - now) * 0.12;
-      if (Math.abs(to - now) < 0.0015) now = to;
-      el.style.setProperty(name, now.toFixed(4));
-      if (near && now !== to) frame = requestAnimationFrame(tick);
+    const job = {
+      read: () => {
+        const to = target();
+        const at = performance.now();
+        const step = 1 - 0.88 ** (Math.min(100, at - (last || at - 16.7)) / 16.7); // 0.12 of the way each 60 Hz frame
+        last = at;
+        now = now === null ? to : now + (to - now) * step;
+        if (Math.abs(to - now) < 0.0015) now = to;
+        const v = now;
+        return () => {
+          set(v);
+          if (near && v !== to) schedule(job);
+          else last = 0;
+        };
+      }
     };
     const kick = () => {
-      if (near && !frame) frame = requestAnimationFrame(tick);
+      if (near) schedule(job);
     };
-    el.style.setProperty(name, target().toFixed(4)); // the starting state, before the first frame
+    set(target()); // the starting state, before the first frame
     const io = new IntersectionObserver(
       ([e]) => {
         near = e.isIntersecting;
@@ -142,10 +174,11 @@ export function useScrub(ref, progress, name = '--t') {
     window.addEventListener('resize', kick);
     return () => {
       io.disconnect();
-      cancelAnimationFrame(frame);
+      jobs.delete(job);
       window.removeEventListener('scroll', kick);
       window.removeEventListener('resize', kick);
-      el.style.removeProperty(name);
+      if (custom) apply.current(null);
+      else el.style.removeProperty(name);
     };
-  }, [ref, reduced, name]);
+  }, [ref, reduced, custom ? '' : name]); // eslint-disable-line react-hooks/exhaustive-deps
 }
