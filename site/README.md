@@ -17,6 +17,7 @@ After a red poster of a pianist (black shapes on red, cream keys). Tokens in `sr
 | `--color-crimson` | `#B42F35` | the canvas (Home hero, the stairs, About, Repertoire, Biography, Contact), the nav |
 | `--color-crimson-deep` | `#9A262C` | the red at a poster's edges (`--vignette`), hover on red |
 | `--color-oxblood` | `#6E0E12` | deep red surface (`.screen--oxblood`: the note from Selin) |
+| `--color-mahogany` | `#340C0D` | oxblood and ink, 2:3: the piano case framing the hero photograph |
 | `--color-ink` | `#0E0A0A` | headlines on red (`--fg-display`, large type only: 3.2:1), buttons on red, the ink stages |
 | `--color-ivory` | `#F4E9D8` | key cream: running text, labels and links on red (5.15:1) and on ink |
 | `--color-rose` | `#F5D9CF` | muted text on red (4.62:1) |
@@ -146,8 +147,10 @@ Deploy `dist/` to any static host (Netlify, Vercel, Cloudflare Pages, GitHub Pag
 ## The hero and sound
 
 The landing page is a still poster on the red (`src/components/Hero.jsx`): the supplied photograph of her at the
-piano in the Austrian Master Classes hall (`posters/portrait*.webp`, in its original colour) stands on a full
-keyboard that runs the width of the screen, and her name fills the column beside it in ink, each letter rising into
+piano in the Austrian Master Classes hall (`posters/portrait*.webp`, in its original colour), framed in a grand piano
+seen from above (`src/components/PianoFrame.jsx`, after a piano-lessons flyer the client supplied: a mahogany case,
+straight on the left and the top, its bentside sweeping down the right in an S, a row of cream keys along its foot,
+the photograph in the lid), stands over a full keyboard that runs the width of the screen, and her name fills the column beside it in ink, each letter rising into
 place. One fact and one action: "Filmed in concert at the Austrian Master Classes, [Year]." and *Watch the
 performance*, which opens that concert's film. Keys on the right of the keyboard fly off as birds (above). On phones
 the name comes first, then the photograph, the line, the button and the keyboard. There is no hero film any more

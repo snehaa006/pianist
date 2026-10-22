@@ -1,12 +1,14 @@
 import { useRef } from 'react';
 import Flight from './Flight.jsx';
+import PianoFrame from './PianoFrame.jsx';
 import { useLightbox } from './Lightbox.jsx';
 import { byId } from '../data/performances';
 import { site } from '../data/site';
 import { useSound } from '../lib/sound.jsx';
 
-// Screen 1, a poster on the red: her photograph at the piano in the Austrian Master Classes hall, standing on a full
-// keyboard that runs the width of the screen, and her name in ink beside it. Keys on the right lift out of the
+// Screen 1, a poster on the red: her photograph at the piano in the Austrian Master Classes hall, framed in the case of
+// a grand seen from above (PianoFrame) and standing on a full keyboard that runs the width of the screen, and her name
+// in ink beside it. Keys on the right lift out of the
 // keyboard and fly off as birds (Flight); moving the mouse along the keys sends them up too. While "Hear me play" is on,
 // the keys play along: each one goes down with the note she plays on it. One fact, one action: the concert the
 // photograph was taken at, and its film.
@@ -27,7 +29,7 @@ export default function Hero() {
   return (
     <section ref={section} className="hero hero--poster" aria-labelledby="name">
       <div className="container hero__stage">
-        <figure className="hero__photo frame">
+        <PianoFrame className="hero__photo" id="hero-piano">
           <img
             src="/media/posters/portrait.webp"
             srcSet="/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w"
@@ -38,7 +40,7 @@ export default function Hero() {
             fetchPriority="high"
             decoding="async"
           />
-        </figure>
+        </PianoFrame>
         <div className="hero__text">
           <h1 className="wordmark hero__name" id="name">
             <span className="sr-only">Selin Incekara</span>
