@@ -3,27 +3,29 @@
 # (a CSS mask, so the one file serves both). The same frame, untouched and in the same crop, is written beside it
 # (selin-grand-photo.webp): the About screen wipes from the silhouette to it.
 #
-# It also writes the matte of the people in the supplied photograph (cutouts/portrait-matte.webp), in the 4:5 crop of
-# posters/portrait.webp: the Biography cover masks the portrait with it, so the photograph's own pixels stand in front
-# of her name and the name passes behind her.
+# It also cuts her out at the black grand piano on the stage of the Austrian Master Classes concert, for the Biography
+# cover: cutouts/selin-stage{,-720}.webp is her, the bench and the whole grand, the piano fading out
+# toward the right where it runs on out of the frame; cutouts/selin-stage-front{,-720}.webp is her and the bench alone,
+# in the same canvas, to stand in front of the cover's word. That frame is upscaled 4x first (scripts/upscale.mjs):
+#   ffmpeg -ss 15 -i "../videos/WhatsApp Video 2026-10-06 at 14.23.41.mp4" -frames:v 1 in.png
+#   node scripts/upscale.mjs <model-dir> in.png stage4x.png
+#   python3 -I scripts/cutout.py package/dist stage stage4x.png
 #
 # The matte comes from the ISNet model that ships inside the @imgly/background-removal-node npm package:
 #   npm pack @imgly/background-removal-node@1.4.5 && tar xzf imgly-background-removal-node-1.4.5.tgz
-#   python3 -I scripts/cutout.py package/dist [grand | portrait]   (both when left out)
+#   python3 -I scripts/cutout.py package/dist [grand]
 # Needs ffmpeg, numpy, Pillow and onnxruntime.
 import json, os, subprocess, sys, tempfile
 from collections import deque
 
 import numpy as np
 import onnxruntime as ort
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFilter
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIDEO = os.path.join(HERE, '..', '..', 'videos', 'WhatsApp Video 2026-10-06 at 14.22.50.mp4')
 AT = '34'  # seconds in: both hands on the keys, head bowed, the lid up
 OUT = os.path.join(HERE, '..', 'public', 'media', 'cutouts')
-PHOTO = os.path.join(HERE, '..', '..', 'photos', 'selin-incekara-austrian-master-classes.jpg')
-PORTRAIT = (0, 100, 1200, 1600)  # posters/portrait.webp's crop of PHOTO (process-media.sh: crop=1200:1500:0:100)
 
 
 def matte(dist, rgb):
@@ -105,31 +107,69 @@ def grand(dist):
     print(photo)
 
 
-def portrait(dist):
-    """The people in the supplied photograph as an alpha matte (black, opaque where they are), in the portrait's crop."""
-    rgb = np.asarray(Image.open(PHOTO).convert('RGB'))
-    # The whole photograph: him and the piano's body come through firm; the faint lid drops out.
-    a = np.clip((matte(dist, rgb) - 0.15) / 0.45, 0, 1)
-    # Her and the bench, matted again from close crops at the model's own resolution: the whole-photo pass leaves
-    # her dotted dress and the bench half see-through, and the name would show through them.
-    for x0, y0, x1, y1 in ((120, 520, 760, 1480), (180, 560, 680, 1200)):
-        a[y0:y1, x0:x1] = np.maximum(a[y0:y1, x0:x1], matte(dist, rgb[y0:y1, x0:x1]))
-    x0, y0, x1, y1 = PORTRAIT
-    a = a[y0:y1, x0:x1]
-    rgba = np.zeros(a.shape + (4,), np.uint8)
-    rgba[..., 3] = np.clip(a * 255, 0, 255).astype(np.uint8)
+def stage(dist, frame):
+    """Her at the black grand on the Austrian Master Classes stage, from a 4x frame of the concert film (848 x 480 at
+    1x, 15 s in, the camera's closer shot). Two layers in the same canvas: the whole of it (her, the bench, the piano),
+    which stands behind the cover's word, and her alone with the bench, which stands in front of it."""
+    up = Image.open(frame).convert('RGB')
+    W, H = up.size
+    S = W / 848  # 1x pixels -> this frame's pixels
+    rgb = np.asarray(up).astype(np.float32)
+    r, b = rgb[..., 0], rgb[..., 2]
+    lum = rgb @ np.array([0.299, 0.587, 0.114], np.float32)
+
+    def poly(pts):
+        m = Image.new('L', (W, H), 0)
+        ImageDraw.Draw(m).polygon([(x * S, y * S) for x, y in pts], fill=255)
+        return np.asarray(m) > 127
+
+    # Her and the bench: the model on a close crop, at about 2x.
+    x0, x1, y1 = int(250 * S), int(480 * S), int(330 * S)
+    crop = up.crop((x0, 0, x1, y1))
+    m = matte(dist, np.asarray(crop.resize((crop.width // 2, crop.height // 2), Image.LANCZOS)))
+    her = np.zeros((H, W), np.float32)
+    her[:y1, x0:x1] = np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize(crop.size, Image.BILINEAR)) / 255
+    her = np.clip((her - 0.3) / 0.6, 0, 1)
+    her[:, :int(262 * S)] = 0  # a chair and a bag behind her
+    her *= ~(poly([(215, 135), (292, 135), (296, 225), (280, 320), (215, 320)]) & (b < 0.42 * r))  # the red chair; her pink dress stays
+    # The piano, which the model leaves half see-through: what is dark inside its traced outline. In the case the
+    # reflections are filled in; below it the legs and the lyre keep to their own dark pixels.
+    hull = poly([(408, 64), (570, 64), (572, 0), (848, 0), (848, 186), (614, 190), (614, 224), (602, 224), (602, 300),
+                 (548, 316), (502, 316), (500, 202), (472, 202), (472, 256), (434, 256), (434, 186), (406, 184)])
+    dark = hull & (lum < 72)
+    mk = Image.fromarray((dark * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.MinFilter(7))
+    for seed in ((0, 0), (W - 1, H - 1), (0, H - 1), (W - 1, int(250 * S))):
+        if mk.getpixel(seed) == 0:
+            ImageDraw.floodfill(mk, seed, 128)
+    closed = np.asarray(Image.fromarray((dark * 255).astype(np.uint8)).filter(ImageFilter.MaxFilter(3)).filter(ImageFilter.MinFilter(3))) > 127
+    below = (np.arange(H) / S > 186)[:, None]
+    piano = (((np.asarray(mk) != 128) & ~below) | (closed & below)) & hull
+    piano = np.asarray(Image.fromarray((piano * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(S * 0.3))) / 255
+    # The frame cuts the lid at the top and the tail at the right: both fade out.
+    piano = piano * (np.clip(np.arange(H) / S / 40, 0, 1) ** 1.5)[:, None] * (np.clip((848 - np.arange(W) / S) / 110, 0, 1) ** 1.2)[None, :]
+    # Colour: a little less saturated and warm, as the films; the piano's blacks lifted a touch, so it reads on ink.
+    c = rgb / 255
+    grey = (c * [0.299, 0.587, 0.114]).sum(-1, keepdims=True)
+    c = (grey + (c - grey) * 0.85) * np.array([1.02, 1.0, 0.96])
+    lift = (piano * (1 - her))[..., None]
+    c = c * (1 - lift) + (0.06 + c * 0.94) * lift
+    c = np.clip(c, 0, 1) * 255
     os.makedirs(OUT, exist_ok=True)
-    out = os.path.join(OUT, 'portrait-matte.webp')
-    Image.fromarray(rgba, 'RGBA').save(out, 'WEBP', lossless=True, method=6)
-    print(out, rgba.shape[1], 'x', rgba.shape[0])
+    box = (int(250 * S), 0, W, int(312 * S))  # from the bench to the right edge, down to the front row's chairs
+    for name, a in (('selin-stage', np.maximum(her, piano)), ('selin-stage-front', her)):
+        im = Image.fromarray(np.dstack([c, a * 255]).astype(np.uint8), 'RGBA').crop(box)
+        for h, size in ((1248, ''), (624, '-720')):
+            out = os.path.join(OUT, f'{name}{size}.webp')
+            im.resize((round(im.width * h / im.height), h), Image.LANCZOS).save(out, 'WEBP', quality=86, method=6)
+            print(out, im.width * h // im.height, h)
 
 
 def main():
     dist = sys.argv[1]
-    which = sys.argv[2] if len(sys.argv) > 2 else 'all'
-    if which in ('portrait', 'all'):
-        portrait(dist)
-    if which in ('grand', 'all'):
+    which = sys.argv[2] if len(sys.argv) > 2 else 'grand'
+    if which == 'stage':
+        stage(dist, sys.argv[3])
+    else:
         grand(dist)
 
 

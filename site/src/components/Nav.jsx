@@ -9,33 +9,41 @@ export const links = [
   { to: '/contact', label: 'Contact' }
 ];
 
-// Pages that open on an ink stage: the nav starts transparent with cream text; Watch stays on ink.
-// The red pages (Home opens on the red poster) get a solid red nav from the top.
-const onInk = { top: 'stage', after: 'ink', threshold: () => 24 };
+// Pages that open on an ink stage: the nav starts transparent with cream text, and turns ink once the page moves.
+// The red pages (Home opens on the red poster) get a solid red nav from the top. Each surface maps the scroll
+// position to the nav's look.
+const onInk = { mode: y => (y > 24 ? 'nav--ink' : 'nav--over-stage') };
 const surfaces = {
-  '/watch': onInk
+  '/watch': onInk,
+  // The Biography opens on its dark cover: ink while the cover passes under the nav, red once it has gone.
+  '/about': {
+    mode: y => {
+      const cover = document.querySelector('.bio-hero');
+      if (cover && y > cover.offsetTop + cover.offsetHeight - 72) return 'nav--solid';
+      return onInk.mode(y);
+    }
+  }
 };
-const redPages = ['/', '/repertoire', '/about', '/contact'];
+const redPages = ['/', '/repertoire', '/contact'];
 // Unknown paths render the 404, which is on ink too.
 const surfaceFor = path => surfaces[path] || (redPages.includes(path) ? undefined : onInk);
 
 export default function Nav() {
   const { pathname } = useLocation();
   const surface = surfaceFor(pathname.replace(/\/+$/, '') || '/');
-  const [scrolled, setScrolled] = useState(false);
+  const [look, setLook] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setMenuOpen(false);
     if (!surface) return undefined;
-    const onScroll = () => setScrolled(window.scrollY > surface.threshold());
+    const onScroll = () => setLook(surface.mode(window.scrollY));
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, [pathname, surface]);
 
-  let mode = 'nav--solid';
-  if (surface) mode = !scrolled ? 'nav--over-stage' : surface.after === 'ink' ? 'nav--ink' : 'nav--solid';
+  const mode = surface ? look || 'nav--over-stage' : 'nav--solid';
 
   return (
     <>
