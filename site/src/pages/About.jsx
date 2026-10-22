@@ -1,14 +1,15 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Headline from '../components/Headline.jsx';
-import Opus from '../components/Opus.jsx';
 import KeyFan from '../components/KeyFan.jsx';
-import { KeyPile, StrayKeys } from '../components/LooseKeys.jsx';
 import { useLightbox } from '../components/Lightbox.jsx';
+import CircularText from '../components/fx/CircularText/CircularText.jsx';
+import { presets } from '../components/fx/presets';
 import { site, isPlaceholder } from '../data/site';
 import { bio } from '../data/bio';
 import { byId, examFilms, inWords, performances, titleOf } from '../data/performances';
-import { useDrift, usePageTitle, useReveals } from '../lib/hooks';
+import { useDrift, useFx, usePageTitle, useReveals } from '../lib/hooks';
+import { useSound } from '../lib/sound.jsx';
 
 const Arrow = () => (
   <span className="arrow" aria-hidden="true">
@@ -27,7 +28,6 @@ const photos = {
   smileAndante: still('smile-andante', 'Selin Incekara seated at the piano, smiling, before playing Andante.', 372, 464),
   grandUp: still('grand-up', 'Selin Incekara at the grand piano at home, looking up as a piece ends.', 348, 464),
   score: still('score', 'Selin Incekara in profile at the piano, reading from the score.', 432, 576),
-  amcPlay: still('amc-play', 'Selin Incekara mid-phrase at the concert grand of the Austrian Master Classes, in a dotted dress.', 360, 480),
   smileHungry: still('smile-hungry', 'Selin Incekara smiling at the camera beside her piano, before playing Dog Hungry.', 432, 540),
   stageArms: still('stage-arms', 'Selin Incekara alone at a grand piano on a dark stage.', 348, 464),
   amcStand: still('amc-stand', 'Selin Incekara standing beside the grand piano on the stage of the Austrian Master Classes hall.', 720, 480),
@@ -35,7 +35,8 @@ const photos = {
   atHome: poster('at-home-grand', 'Selin Incekara in profile at the grand piano at home, by a window.', 832, 464),
   dogHungry: poster('dog-hungry', 'Selin Incekara at her piano, seen over her shoulder, both hands on the keys.', 1024, 576),
   twilight: poster('song-of-twilight', 'Selin Incekara at her piano, seen from behind, mid-phrase.', 1024, 576),
-  andante: poster('andante', 'Selin Incekara at the piano with the score open, playing from the music.', 832, 464)
+  // The supplied photograph, toned to the films' warm monochrome where it stands among them (tint).
+  portrait: { src: '/media/posters/portrait-600.webp', alt: site.portraitAlt, width: 600, height: 750, tint: true }
 };
 
 // A printed photograph: a mat round the still (cream on the red, ink on the sheet), a slight tilt, and a drift of its
@@ -48,19 +49,19 @@ function Print({ photo, className = '', tilt = 0, speed = 0, i = 0 }) {
   );
 }
 
-// Biography, after a run of editorial references, a flamenco poster above all, with piano keys where it has roses and a
-// fan: the cover and her words are a cream sheet laid on the red, her name running behind her in the photograph, keys
-// heaped under it and strays falling past the text, and a fan of keys opening across the sheet's foot. Then a name
-// behind a row of photographs, a quote among scattered prints, and stacked cards. Her supplied photograph is the
-// cover; every other picture is a moment taken from her films. Her bio stays exactly as she wrote it (src/data/bio.js).
+// Biography, after the client's references: a portfolio cover (a word across the top, the artist in front of it), then
+// her words on a cream sheet laid on the red, as on a flamenco poster, with a painted fan of piano keys across the
+// sheet's foot that lets music notes fly. Then a name behind a row of photographs, a quote among scattered prints, and
+// stacked cards. Every picture is her: the cover cut out of her concert film, the rest stills from her films and the
+// supplied photograph. Her bio stays exactly as she wrote it (src/data/bio.js).
 export default function About() {
   usePageTitle('Biography');
   useReveals();
 
   return (
     <div className="bio">
+      <Cover />
       <div className="bio-sheet" data-surface="paper">
-        <Cover />
         <Words />
         <KeyFan className="bio-fan" />
       </div>
@@ -71,54 +72,58 @@ export default function About() {
   );
 }
 
-// The cover: her name runs behind the people in the photograph (the portrait masked by their matte,
-// cutouts/portrait-matte.webp, stands in front of the name) and drifts out from behind them as the page scrolls.
+// The cover, after a portfolio cover the client supplied: the page's name across the top, and her in front of it at
+// the black grand on the Austrian Master Classes stage (cut out of the concert film, cutouts/selin-stage*.webp), her
+// head over the letters and the piano melting into the dark. Its colours are the repertoire band's: the ink stage, lit
+// scarlet behind her. Her name and the facts at the left; a line of hers and what she has done at the right; at the
+// corner a turning badge that plays her piano, as the nav's pill does.
 function Cover() {
-  const ref = useRef(null);
-  useDrift(ref);
-  const portrait = {
-    src: '/media/posters/portrait.webp',
-    srcSet: '/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w',
-    sizes: '(max-width: 899px) min(100vw, 560px), min(54svh, 576px)',
-    width: 1200,
-    height: 1500,
-    decoding: 'async'
-  };
+  const fx = useFx();
+  const { wanted, toggle } = useSound();
+  const badge = 'Hear her play • Hear her play • ';
   return (
-    <section ref={ref} className="screen bio-cover" aria-labelledby="bio-h">
-      <StrayKeys keys={coverStrays} />
-      <div className="container">
-        <div className="bio-cover__top">
-          <Opus>(Op. 03: About)</Opus>
-          <span className="label muted">Biography</span>
-        </div>
-        <div className="bio-cover__stage">
-          <div className="bio-cover__photo reveal reveal--wipe">
-            <img {...portrait} alt={site.portraitAlt} fetchPriority="high" />
-          </div>
-          <h1 className="bio-cover__name" id="bio-h">
-            <span className="bio-cover__line reveal reveal--rise">Selin</span>{' '}
-            <span className="bio-cover__line reveal reveal--rise" style={{ '--i': 2 }}>
-              Incekara
-            </span>
-          </h1>
-          <div className="bio-cover__front reveal reveal--wipe" aria-hidden="true">
-            <img {...portrait} alt="" />
-          </div>
-          <KeyPile className="bio-cover__pile" />
-          <Print photo={photos.smileGrade1} className="bio-cover__print bio-cover__print--a" tilt={-4} speed={-70} i={4} />
-          <Print photo={photos.amcLift} className="bio-cover__print bio-cover__print--b" tilt={3} speed={50} i={6} />
-        </div>
-        <div className="bio-cover__rule label">
-          <span>Pianist</span>
-          <i />
-          <span>Istanbul, Türkiye</span>
-        </div>
-        <div className="bio-cover__foot">
-          <p className="lead bio-cover__lead hero-in" style={{ '--d': '700ms' }}>
-            Selin Incekara is 11, lives in Istanbul and has played the piano for six years.
+    <section className="stage bio-hero" aria-labelledby="bio-h">
+      <div className="container bio-hero__top label">
+        <span>(Op. 03: About)</span>
+        <span>Istanbul, Türkiye</span>
+      </div>
+      <h1 className="bio-hero__word" id="bio-h">
+        Biography
+      </h1>
+      {/* Two layers of the one cut-out: the whole of it behind the word, her alone in front of it. */}
+      <div className="bio-hero__her">
+        <img
+          className="bio-hero__back"
+          src="/media/cutouts/selin-stage.webp"
+          srcSet="/media/cutouts/selin-stage-720.webp 1196w, /media/cutouts/selin-stage.webp 2392w"
+          sizes="(max-width: 899px) 160vw, min(136svh, 1340px)"
+          width="2392"
+          height="1248"
+          alt="Selin Incekara playing the black grand piano on the stage of the Austrian Master Classes concert."
+          fetchPriority="high"
+          decoding="async"
+        />
+        <img
+          className="bio-hero__front"
+          src="/media/cutouts/selin-stage-front.webp"
+          srcSet="/media/cutouts/selin-stage-front-720.webp 1196w, /media/cutouts/selin-stage-front.webp 2392w"
+          sizes="(max-width: 899px) 160vw, min(136svh, 1340px)"
+          width="2392"
+          height="1248"
+          alt=""
+          fetchPriority="high"
+          decoding="async"
+        />
+      </div>
+      <div className="container bio-hero__grid">
+        <div className="bio-hero__who hero-in" style={{ '--d': '500ms' }}>
+          <p className="bio-hero__name">
+            Selin <span>Incekara</span>
           </p>
-          <div className="actions hero-in" style={{ '--d': '1000ms' }}>
+          <p className="label bio-hero__role">Pianist</p>
+          <i className="bio-hero__rule" aria-hidden="true" />
+          <p className="body-sm muted bio-hero__lead">11 years old, in Istanbul, six years at the piano.</p>
+          <div className="actions">
             <Link className="link" to="/watch">
               Watch the performances <Arrow />
             </Link>
@@ -129,20 +134,60 @@ function Cover() {
             )}
           </div>
         </div>
+        <div className="bio-hero__what hero-in" style={{ '--d': '800ms' }}>
+          <p className="bio-hero__line">“Music helps me express my feelings.”</p>
+          <span className="bio-hero__keys" aria-hidden="true">
+            <i />
+            <i />
+            <b />
+            <i />
+            <i />
+            <i />
+          </span>
+          <ul className="label bio-hero__list">
+            <li>Austrian Master Classes</li>
+            <li>On stage</li>
+            <li>London College of Music exams</li>
+            <li>Piano competitions</li>
+          </ul>
+        </div>
+      </div>
+      <div className="bio-hero__badge">
+        {fx ? <CircularText {...presets.CircularText} text={badge.toUpperCase()} /> : <Ring text={badge.toUpperCase()} />}
+        <button type="button" className="play bio-hero__play" aria-label={wanted ? 'Pause the piano' : 'Hear her play'} onClick={toggle}>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            {wanted ? <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" /> : <path d="M8 5l11 7-11 7z" />}
+          </svg>
+        </button>
       </div>
     </section>
   );
 }
 
-// Her own words, as she wrote them, set in steps down the sheet like a poster's text, beside a photo-booth strip of
-// her smiling before three exam pieces, with stray keys falling past.
-function Words() {
-  const ref = useRef(null);
-  useDrift(ref);
-  const strip = [photos.smileTwilight, photos.smileTechnical, photos.smileAndante];
+// CircularText's ring, standing still (phones, touch, reduced motion).
+function Ring({ text }) {
+  const letters = Array.from(text);
   return (
-    <section ref={ref} className="screen bio-words" aria-labelledby="words-h">
-      <StrayKeys keys={wordsStrays} />
+    <div className="circular-text">
+      {letters.map((letter, i) => {
+        const f = (Math.PI / letters.length) * i;
+        const transform = `rotateZ(${(360 / letters.length) * i}deg) translate3d(${f}px, ${f}px, 0)`;
+        return (
+          <span key={i} style={{ transform }}>
+            {letter}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+// Her own words, as she wrote them, set in steps down the sheet like a poster's text, beside a photo-booth strip of
+// her smiling at the piano, four times.
+function Words() {
+  const strip = [photos.smileTwilight, photos.smileGrade1, photos.smileTechnical, photos.smileAndante];
+  return (
+    <section className="screen bio-words" aria-labelledby="words-h">
       <div className="container grid bio-words__grid">
         <Headline id="words-h" className="h1 bio-words__head" hinge="bottom" accent="own">
           [1] In her own words
@@ -172,28 +217,6 @@ function Words() {
   );
 }
 
-// Strays (StrayKeys): x and y in % of their section, w px wide (black keys are drawn narrower), r deg; speed px and
-// spin deg over a screen of scroll. Each sits in a gap the text leaves on wide screens, and drifts within it.
-const coverStrays = [
-  { kind: 'both', x: 46, y: 12, w: 30, r: 38, speed: 140, spin: 50 },
-  { kind: 'black', x: 1.5, y: 52, w: 34, r: -22, speed: 90, spin: -40 },
-  { kind: 'left', x: 93, y: 8, w: 26, r: -24, speed: 160, spin: 70 }
-];
-const wordsStrays = [
-  { kind: 'right', x: 66, y: 5, w: 34, r: 64, speed: 90, spin: 60 },
-  { kind: 'black', x: 58, y: 30, w: 36, r: -28, speed: 110, spin: -80 },
-  { kind: 'both', x: 8, y: 70, w: 30, r: -70, speed: 140, spin: 45 },
-  { kind: 'black', x: 22, y: 90, w: 32, r: 24, speed: 80, spin: -50 },
-  { kind: 'left', x: 88, y: 91, w: 34, r: 52, speed: 120, spin: 90 }
-];
-const quoteStrays = [
-  { kind: 'both', x: 34, y: 5, w: 34, r: -52, speed: 80, spin: 70 },
-  { kind: 'black', x: 64, y: 8, w: 36, r: 35, speed: 70, spin: -60 },
-  { kind: 'right', x: 56, y: 88, w: 36, r: 72, speed: 110, spin: 40 },
-  { kind: 'left', x: 9, y: 38, w: 28, r: 20, speed: 120, spin: -90 },
-  { kind: 'black', x: 40, y: 92, w: 32, r: -64, speed: 90, spin: 70 }
-];
-
 // Six years in five pictures, on the ink stage, her name in red running behind them and sliding as the page scrolls.
 function Years() {
   const ref = useRef(null);
@@ -201,7 +224,7 @@ function Years() {
   const row = [
     { photo: photos.grandUp, caption: 'At home' },
     { photo: photos.score, caption: 'Grade 1 exam' },
-    { photo: photos.amcPlay, caption: 'Austrian Master Classes' },
+    { photo: photos.portrait, caption: 'Austrian Master Classes' },
     { photo: photos.smileHungry, caption: 'Grade 3 exam' },
     { photo: photos.stageArms, caption: 'On stage' }
   ];
@@ -220,7 +243,7 @@ function Years() {
         <ol className="bio-years__row">
           {row.map(({ photo, caption }, i) => (
             <li key={photo.src} className="bio-years__item reveal" style={{ '--i': i }}>
-              <figure className="frame bio-years__frame">
+              <figure className={`frame bio-years__frame${photo.tint ? ' bio-years__frame--tint' : ''}`}>
                 <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
                 <figcaption className="label bio-years__caption">
                   <span className="bio-years__n">{String(i + 1).padStart(2, '0')}</span> {caption}
@@ -243,12 +266,11 @@ function Quote() {
     { photo: photos.atHome, tilt: 4, speed: -60 },
     { photo: photos.stageBow, tilt: 3, speed: 130 },
     { photo: photos.dogHungry, tilt: -3, speed: 40 },
-    { photo: photos.andante, tilt: -2, speed: -90 },
+    { photo: photos.amcLift, tilt: -2, speed: -90 },
     { photo: photos.twilight, tilt: 5, speed: 110 }
   ];
   return (
     <section ref={ref} className="screen bio-quote" aria-label="Why she plays, in her words">
-      <StrayKeys keys={quoteStrays} />
       <div className="container">
         <div className="bio-quote__board">
           <figure className="bio-quote__figure">
