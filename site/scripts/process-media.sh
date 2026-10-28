@@ -8,18 +8,20 @@
 #   - site sound: every piece as audio only, cut to the music (Opus WebM + AAC M4A), played on "Hear me play" and
 #     on the stairs; their notes come from scripts/notes.py
 #   - Biography stills: more moments of her, taken from the films (warm monochrome, public/media/about)
-# Usage: bash scripts/process-media.sh [--stills | --loops | --audio | --about] [--only=slug,slug]
+#   - her photographs and diplomas, in colour (public/media/photos)
+# Usage: bash scripts/process-media.sh [--stills | --loops | --audio | --about | --photos] [--only=slug,slug]
 #   --stills: redo images only, skip the video encodes. --loops: encode the film loops only.
-#   --audio: encode the site sound only. --about: cut the Biography stills only.
+#   --audio: encode the site sound only. --about: cut the Biography stills only. --photos: her photographs only.
 # Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
 set -euo pipefail
-STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ABOUT_ONLY=0; ONLY=""
+STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ABOUT_ONLY=0; PHOTOS_ONLY=0; ONLY=""
 for arg in "$@"; do
   case "$arg" in
     --stills) STILLS_ONLY=1 ;;
     --loops) LOOPS_ONLY=1 ;;
     --audio) AUDIO_ONLY=1 ;;
     --about) ABOUT_ONLY=1 ;;
+    --photos) PHOTOS_ONLY=1 ;;
     --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
   esac
 done
@@ -66,6 +68,8 @@ VIDEOS=(
   "dog-hungry|WhatsApp Video 2026-10-06 at 14.23.06.mp4|38"
   "grade-1-technical|WhatsApp Video 2026-10-06 at 14.23.15.mp4|62"
   "andante|WhatsApp Video 2026-10-06 at 14.23.23.mp4|40"
+  # The same Austrian Master Classes performance, filmed from across the hall: 11 s, the opening (October 2026).
+  "austrian-master-classes-wide|WhatsApp Video 2026-10-27 at 16.18.32.mp4|6.4"
 )
 
 # Imagery rules: performance colour is desaturated ~20% and warm-shifted, never cool.
@@ -112,6 +116,43 @@ about() {
   done
 }
 (( ABOUT_ONLY )) && { about; ls -la "$OUT"/about; exit 0; }
+
+# Her photographs (../photos, supplied October 2026): the diplomas, her with her teachers and her class at recitals.
+# In their original colour, like the portrait, no grade and no crop (the page frames them): 1200 px on the long edge
+# for 2x screens, 640 px for the rest.
+# slug | source file
+PHOTOS=(
+  "cert-ravel-award|WhatsApp Image 2026-10-27 at 16.18.05.jpeg"
+  "cert-piano-competition-online|WhatsApp Image 2026-10-27 at 16.18.06.jpeg"
+  "cert-lcm-distinction|WhatsApp Image 2026-10-27 at 16.18.22.jpeg"
+  "stage-recital|WhatsApp Image 2026-10-27 at 16.18.07.jpeg"
+  "class-stairs|WhatsApp Image 2026-10-27 at 16.18.08.jpeg"
+  "recital-hug|WhatsApp Image 2026-10-27 at 16.18.10.jpeg"
+  "class-salon|WhatsApp Image 2026-10-27 at 16.18.12.jpeg"
+  "class-studio|WhatsApp Image 2026-10-27 at 16.18.13.jpeg"
+  "studio-grand|WhatsApp Image 2026-10-27 at 16.18.14.jpeg"
+  "class-winter|WhatsApp Image 2026-10-27 at 16.18.15.jpeg"
+  "class-evening|WhatsApp Image 2026-10-27 at 16.18.17.jpeg"
+  "flowers|WhatsApp Image 2026-10-27 at 16.18.19.jpeg"
+  "class-salon-screen|WhatsApp Image 2026-10-27 at 16.18.20.jpeg"
+  "lights-piano|WhatsApp Image 2026-10-27 at 16.18.24.jpeg"
+  "gallery|WhatsApp Image 2026-10-27 at 16.18.25.jpeg"
+  "class-decollage|WhatsApp Image 2026-10-27 at 16.18.28.jpeg"
+  "after-concert|WhatsApp Image 2026-10-27 at 16.18.35.jpeg"
+)
+photos() {
+  mkdir -p "$OUT/photos"
+  for row in "${PHOTOS[@]}"; do
+    IFS='|' read -r slug file <<<"$row"
+    for size in 1200 640; do
+      local name="$slug"; (( size == 640 )) && name="$slug-640"
+      ffmpeg -v error -y -i "$SRC/../photos/$file" -frames:v 1 \
+        -vf "scale='if(gt(iw,ih),$size,-2)':'if(gt(iw,ih),-2,$size)':flags=lanczos,format=yuv420p" \
+        -c:v libwebp -quality 80 "$OUT/photos/$name.webp"
+    done
+  done
+}
+(( PHOTOS_ONLY )) && { photos; ls -la "$OUT"/photos; exit 0; }
 
 for row in "${VIDEOS[@]}"; do
   IFS='|' read -r slug file t <<<"$row"
@@ -173,6 +214,7 @@ ffmpeg -v error -y -f lavfi -i "color=c=0xB42F35:s=1200x630" -i "$CUT" \
 # Her cut-out at the grand piano (cutouts/selin-grand.webp) is made by scripts/cutout.py.
 
 about
+photos
 (( ! STILLS_ONLY )) && sound
 
 ls -la "$OUT"/*

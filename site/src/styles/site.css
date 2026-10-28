@@ -120,7 +120,13 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 @keyframes holo { 0%, 100% { opacity: 0.5; } 38% { opacity: 0.36; } 40% { opacity: 0.62; } 44% { opacity: 0.46; } 71% { opacity: 0.54; } }
 .reel__orbit { position: absolute; left: 0; top: 0; transform-style: preserve-3d; }
 .reel__ring { position: absolute; transform-style: preserve-3d; }
-.reel__tile { position: absolute; width: var(--tile-w); max-width: none; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+/* A film loop (FilmLoop.jsx): its still under its video, the video fading in once it plays. */
+.loop { display: block; overflow: hidden; }
+.loop > img, .loop > video { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; object-fit: cover; }
+.loop > video { opacity: 0; transition: opacity var(--dur-andante) var(--ease-legato); }
+.loop > video.is-on { opacity: 1; }
+.film__frame > .loop { position: absolute; inset: 0; }
+.reel__tile { position: absolute; width: var(--tile-w); max-width: none; height: auto; aspect-ratio: 16 / 9;
   left: calc(var(--tile-w) / -2); top: calc(var(--tile-w) * -9 / 32); background: var(--color-lacquer);
   outline: 1px solid rgba(232, 82, 74, 0.6); outline-offset: -1px;
   transform: rotateY(calc(var(--n) * 22.5deg)) translateZ(var(--ring-r)); } /* FLY.spread in lib/flyIn.js */
@@ -128,9 +134,11 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    and never taller than the screen allows. */
 .reel__films { position: absolute; inset: var(--nav-height) 0 var(--space-9); display: grid; place-items: center;
   max-width: none; padding-inline: 0; }
-.films--fly { grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; gap: var(--space-4);
+/* --cols x --rows of 16:9 films (Home sets them from the number of films): the height the screen allows, times the
+   grid's own width-to-height. */
+.films--fly { --cols: 4; --rows: 2; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); margin: 0; gap: var(--space-4);
   width: min(calc(100vw - var(--page-margin)), calc((min(100vw, var(--page-max)) - 2 * var(--page-margin)) * 1.12),
-    calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * 32 / 9)); }
+    calc((100svh - var(--nav-height) - var(--space-9) - var(--space-6) * 2) * var(--cols) * 16 / 9 / var(--rows))); }
 .films--fly .film { transition: none; will-change: transform, opacity; }
 .films--fly .film__play { width: 44px; height: 44px; font-size: 13px; left: var(--space-4); bottom: var(--space-4); }
 .films--fly .film__duration { right: var(--space-4); bottom: calc(var(--space-4) + 13px); }
@@ -238,10 +246,40 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .compare.is-right .compare__chevron { transform: scaleX(-1); }
 .compare:has(.compare__range:focus-visible) .compare__line { opacity: 1; outline: 2px solid var(--focus); outline-offset: 3px; }
 
-/* ---- A note from the artist ------------------------------------------- */
-.note__label { margin: 0 0 var(--space-6); }
-.note__body { max-width: 28ch; }
-.note__sign { margin-top: var(--space-6); }
+/* Her bio beside the silhouette: both paragraphs as she wrote them, signed, then her teachers. */
+.about__label { margin: var(--space-6) 0 var(--space-4); }
+.about__para { max-width: var(--measure); }
+.about__para + .about__para { margin-top: var(--space-4); }
+.about__sign { margin-top: var(--space-4); }
+
+/* Her teachers (Teachers.jsx): subject and name in a programme row between hairlines. */
+.teachers { margin-top: var(--space-6); max-width: 30rem; }
+.teachers__title { margin: 0 0 var(--space-3); }
+.teachers__list { margin: 0; border-top: 1px solid var(--rule); }
+.teachers__row { display: grid; grid-template-columns: 9ch minmax(0, 1fr); gap: var(--space-4); align-items: baseline;
+  padding-block: var(--space-3); border-bottom: 1px solid var(--rule); }
+.teachers__name { margin: 0; font-size: var(--text-h4); line-height: var(--leading-h4); letter-spacing: var(--tracking-h4); color: var(--fg); }
+
+/* ---- Prizes and certificates (Awards.jsx) ------------------------------
+   Each diploma on a cream mat like a printed photograph, deeper at the foot. Wide screens: side by side at one height
+   (--shapes gives each column the width its picture's shape needs). Tablets: two across. Phones: one under another. */
+.awards__list { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid; gap: var(--space-7) var(--gutter);
+  grid-template-columns: var(--shapes); align-items: start; }
+.award { min-width: 0; }
+.award__print { --mat: clamp(6px, 0.7vw, 10px); margin: 0; padding: var(--mat) var(--mat) calc(var(--mat) * 3.4);
+  background: var(--color-ivory); }
+.award__print img { display: block; width: 100%; height: auto; }
+.award__text { display: grid; gap: var(--space-2); margin-top: var(--space-5); }
+.award__text p { margin: 0; }
+.award__prize { margin: var(--space-1) 0 0; }
+.award__title { max-width: 26ch; }
+@media (max-width: 1099px) {
+  .awards__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .awards__list { grid-template-columns: minmax(0, 1fr); }
+  .award__print { max-width: 520px; }
+}
 
 /* ---- Biography (pages/About.jsx) ----------------------------------------
    Sections that drift get --p from useDrift (0 when the section's middle is at the viewport's middle, 1 a screen
@@ -258,7 +296,7 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    its own (--speed px a screen). */
 .print { --mat: clamp(5px, 0.55vw, 9px); margin: 0; padding: var(--mat) var(--mat) calc(var(--mat) * 3.4); box-sizing: border-box;
   background: var(--print-mat, var(--color-ivory)); rotate: var(--tilt, 0deg); translate: 0 calc(var(--p, 0) * var(--speed, 0) * -1px); }
-.print img { display: block; width: 100%; height: auto; object-fit: cover; }
+.print img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
 @media (max-width: 899px) { .print { translate: none; } } /* phones: the prints sit close to the text, so they hold still */
 
 /* Cover: the photograph stands at the right; her name runs from the left into it, behind the people (the same
@@ -422,7 +460,8 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .bio-words__para--1 { grid-column: 2 / span 5; grid-row: 2; }
 .bio-words__para--2 { grid-column: 5 / span 5; grid-row: 3; margin-top: var(--space-7); }
 .bio-words__sign { grid-column: 7 / span 3; grid-row: 4; margin-top: var(--space-5); }
-.bio-words__booth { grid-column: 10 / span 3; grid-row: 1 / span 4; align-self: center; }
+.bio-words__teachers { grid-column: 7 / span 3; grid-row: 5; margin-top: var(--space-7); }
+.bio-words__booth { grid-column: 10 / span 3; grid-row: 1 / span 5; align-self: center; }
 .booth { list-style: none; display: grid; gap: 10px; max-width: 200px; margin: 0 auto; padding: 10px 10px 40px;
   background: var(--color-ink); rotate: 2.5deg; }
 .booth img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
@@ -446,7 +485,6 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
   translate: calc((1 - var(--t, 1)) * 55vw) 0; will-change: translate; }
 .bio-years__item:nth-child(even) { margin-top: var(--space-8); }
 .bio-years__frame { aspect-ratio: 3 / 4; }
-.bio-years__frame--tint img { filter: grayscale(1) sepia(0.32) brightness(0.9) contrast(1.05); } /* the films' warm monochrome */
 .bio-years__frame::after { content: ''; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
 .bio-years__caption { position: absolute; z-index: 1; left: var(--space-4); right: var(--space-4); bottom: var(--space-4);
   color: var(--color-ivory); }
@@ -475,6 +513,22 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
 .card__line { margin-top: var(--space-5); }
 .card__photo { aspect-ratio: 16 / 9; }
 .bio-stages__more { margin-top: var(--space-8); }
+/* Recital days: five group photographs, one large with two beside it, two under them. Phones: the large one, then two
+   by two. */
+.bio-recitals__grid { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--gutter); }
+.bio-recitals__item { min-width: 0; }
+.bio-recitals__item:nth-child(1) { grid-column: span 4; grid-row: span 2; }
+.bio-recitals__item:nth-child(2), .bio-recitals__item:nth-child(3) { grid-column: span 2; }
+.bio-recitals__item:nth-child(n + 4) { grid-column: span 3; }
+.bio-recitals__frame { aspect-ratio: 4 / 3; }
+.bio-recitals__item:nth-child(1) .bio-recitals__frame { aspect-ratio: auto; height: 100%; }
+@media (max-width: 899px) {
+  .bio-recitals__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bio-recitals__item:nth-child(n) { grid-column: span 1; grid-row: auto; }
+  .bio-recitals__item:nth-child(1) { grid-column: 1 / -1; }
+  .bio-recitals__item:nth-child(1) .bio-recitals__frame { aspect-ratio: 4 / 3; height: auto; }
+}
 @media (max-width: 899px) {
   .card { position: relative; top: auto; min-height: 0; padding: 0 var(--space-5) var(--space-6); }
   .card + .card { margin-top: var(--space-5); }

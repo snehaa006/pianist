@@ -4,8 +4,11 @@ import Headline from '../components/Headline.jsx';
 import Opus from '../components/Opus.jsx';
 import KeyFan from '../components/KeyFan.jsx';
 import ScrubText from '../components/ScrubText.jsx';
+import Awards from '../components/Awards.jsx';
+import Teachers from '../components/Teachers.jsx';
 import { useLightbox } from '../components/Lightbox.jsx';
 import { site, isPlaceholder } from '../data/site';
+import { photos } from '../data/photos';
 import { bio, bioAccents } from '../data/bio';
 import { byId, examFilms, inWords, performances, titleOf } from '../data/performances';
 import { useDrift, usePageTitle, useReveals, useScrub } from '../lib/hooks';
@@ -16,36 +19,47 @@ const Arrow = () => (
   </span>
 );
 
-// Stills from the films (public/media/about, cut by `npm run media -- --about`), warm monochrome.
-const still = (slug, alt, width, height) => ({ src: `/media/about/${slug}.webp`, alt, width, height });
-const photos = {
-  smileGrade1: still('smile-grade-1', 'Selin Incekara at the piano at home, smiling sideways after her Grade 1 piece.', 432, 540),
-  amcLift: still('amc-lift', 'Selin Incekara lifting both hands from the keys at the Austrian Master Classes concert.', 400, 480),
-  smileTwilight: still('smile-twilight', 'Selin Incekara smiling at the camera before playing Song of Twilight.', 432, 540),
-  smileTechnical: still('smile-technical', 'Selin Incekara turning from the keys to smile at the camera before her scales.', 432, 540),
-  smileAndante: still('smile-andante', 'Selin Incekara seated at the piano, smiling, before playing Andante.', 372, 464),
-  grandUp: still('grand-up', 'Selin Incekara at the grand piano at home, looking up as a piece ends.', 348, 464),
-  score: still('score', 'Selin Incekara in profile at the piano, reading from the score.', 432, 576),
-  smileHungry: still('smile-hungry', 'Selin Incekara smiling at the camera beside her piano, before playing Dog Hungry.', 432, 540),
-  stageArms: still('stage-arms', 'Selin Incekara alone at a grand piano on a dark stage.', 348, 464),
-  // The supplied photograph, toned to the films' warm monochrome where it stands among them (tint).
-  portrait: { src: '/media/posters/portrait-600.webp', alt: site.portraitAlt, width: 600, height: 750, tint: true }
+// Her photographs (data/photos.js), in colour, and the supplied portrait from the Austrian Master Classes.
+const amcPortrait = {
+  src: '/media/posters/portrait-600.webp',
+  srcSet: '/media/posters/portrait-600.webp 600w, /media/posters/portrait.webp 1200w',
+  alt: site.portraitAlt,
+  width: 600,
+  height: 750
 };
 
-// A printed photograph: a mat round the still (cream on the red, ink on the sheet), a slight tilt, and a drift of its
-// own as the screen scrolls (`speed`, px across one screen of scroll; the section's --p drives it, see useDrift).
+// A photograph at a given width on the page (`sizes`), cropped where its frame cuts it to keep `at` in view.
+const Img = ({ photo, sizes, className }) => (
+  <img
+    className={className}
+    src={photo.src}
+    srcSet={photo.srcSet}
+    sizes={sizes}
+    alt={photo.alt}
+    width={photo.width}
+    height={photo.height}
+    style={photo.at ? { objectPosition: photo.at } : undefined}
+    loading="lazy"
+    decoding="async"
+  />
+);
+
+// A printed photograph: a mat round the picture (cream on the red, ink on the sheet), cut to 4:5, a slight tilt, and a
+// drift of its own as the screen scrolls (`speed`, px across one screen of scroll; the section's --p drives it, see
+// useDrift).
 function Print({ photo, className = '', tilt = 0, speed = 0, i = 0 }) {
   return (
     <figure className={`print reveal ${className}`} style={{ '--tilt': `${tilt}deg`, '--speed': speed, '--i': i }}>
-      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+      <Img photo={photo} sizes="(max-width: 899px) 30vw, 210px" />
     </figure>
   );
 }
 
 // Biography, after the client's references, a flamenco poster above all: the cover and her words are a cream sheet
 // laid on the red, her name running behind her in the photograph, and a painted fan of piano keys across the sheet's
-// foot that sends music notes flying up the page. Then a row of photographs that come in from the right, and stacked
-// cards. Her supplied photograph is the cover; every other picture is a moment from her films.
+// foot that sends music notes flying up the page. Then a row of photographs that come in from the right, stacked
+// cards of her films, her prizes, and her recitals with the other young pianists. The pictures are her own
+// photographs (October 2026); the cards show stills from the films they open.
 // Her bio stays exactly as she wrote it (src/data/bio.js).
 export default function About() {
   usePageTitle('Biography');
@@ -60,6 +74,8 @@ export default function About() {
       </div>
       <Years />
       <Stages />
+      <Awards id="bio-awards-h" heading="[4] Prizes and certificates" className="screen--oxblood" />
+      <Recitals />
     </div>
   );
 }
@@ -97,8 +113,8 @@ function Cover() {
           <div className="bio-cover__front reveal reveal--wipe" aria-hidden="true">
             <img {...portrait} alt="" />
           </div>
-          <Print photo={photos.smileGrade1} className="bio-cover__print bio-cover__print--a" tilt={-4} speed={-70} i={4} />
-          <Print photo={photos.amcLift} className="bio-cover__print bio-cover__print--b" tilt={3} speed={50} i={6} />
+          <Print photo={photos.lightsPiano} className="bio-cover__print bio-cover__print--a" tilt={-4} speed={-70} i={4} />
+          <Print photo={photos.studioGrand} className="bio-cover__print bio-cover__print--b" tilt={3} speed={50} i={6} />
         </div>
         <div className="bio-cover__rule label">
           <span>Pianist</span>
@@ -126,10 +142,10 @@ function Cover() {
 }
 
 // Her own words, as she wrote them, set in steps down the sheet like a poster's text and read as the page moves (each
-// word comes up from faded, ScrubText), beside a photo-booth strip of her smiling at the piano before three exam
-// pieces.
+// word comes up from faded, ScrubText), signed, with her teachers under them, beside a photo-booth strip of her
+// photographs: after a recital, after a concert, in a gallery.
 function Words() {
-  const strip = [photos.smileTwilight, photos.smileTechnical, photos.smileAndante];
+  const strip = [photos.recitalHug, photos.afterConcert, photos.gallery];
   return (
     <section className="screen bio-words" aria-labelledby="words-h">
       <div className="container grid bio-words__grid">
@@ -145,11 +161,12 @@ function Words() {
         <p className="label muted bio-words__sign reveal" style={{ '--i': 3 }}>
           — Selin Incekara
         </p>
+        <Teachers className="bio-words__teachers reveal" style={{ '--i': 4 }} />
         <div className="bio-words__booth">
           <ol className="booth reveal">
             {strip.map(photo => (
               <li key={photo.src}>
-                <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+                <Img photo={photo} sizes="(max-width: 899px) 30vw, 180px" />
               </li>
             ))}
           </ol>
@@ -159,7 +176,8 @@ function Words() {
   );
 }
 
-// Six years in five pictures, on the ink stage. As the row comes up the screen it slides in from the right as one strip
+// Six years in five of her photographs, on the ink stage, from a bouquet when she was younger to the Austrian Master
+// Classes. As the row comes up the screen it slides in from the right as one strip
 // and comes to rest, and slides back out when the page is scrolled back (useScrub; on phones it is a rail).
 const rowIn = (r, vh) => (vh - r.top) / (vh * 0.75);
 
@@ -167,11 +185,11 @@ function Years() {
   const row = useRef(null);
   useScrub(row, rowIn);
   const pictures = [
-    { photo: photos.grandUp, caption: 'At home' },
-    { photo: photos.score, caption: 'Grade 1 exam' },
-    { photo: photos.portrait, caption: 'Austrian Master Classes' },
-    { photo: photos.smileHungry, caption: 'Grade 3 exam' },
-    { photo: photos.stageArms, caption: 'On stage' }
+    { photo: photos.flowers, caption: 'After a concert' },
+    { photo: photos.classStairs, caption: 'At Christmas' },
+    { photo: photos.stageRecital, caption: 'On stage' },
+    { photo: photos.classDecollage, caption: 'Decollage Art Space' },
+    { photo: amcPortrait, caption: 'Austrian Master Classes' }
   ];
   return (
     <section className="stage screen bio-years" aria-labelledby="years-h">
@@ -180,13 +198,13 @@ function Years() {
           <Headline id="years-h" hinge="left" accent="Six">
             [2] Six years at the piano
           </Headline>
-          <ScrubText className="lead muted" text="From her piano at home to the stage of the Austrian Master Classes." />
+          <ScrubText className="lead muted" text="From a bouquet after an early concert to the stage of the Austrian Master Classes." />
         </div>
         <ol ref={row} className="bio-years__row">
           {pictures.map(({ photo, caption }, i) => (
             <li key={photo.src} className="bio-years__item">
-              <figure className={`frame bio-years__frame${photo.tint ? ' bio-years__frame--tint' : ''}`}>
-                <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+              <figure className="frame bio-years__frame">
+                <Img photo={photo} sizes="(max-width: 899px) min(62vw, 280px), 18vw" />
                 <figcaption className="label bio-years__caption">
                   <span className="bio-years__n">{String(i + 1).padStart(2, '0')}</span> {caption}
                 </figcaption>
@@ -287,6 +305,34 @@ function Stages() {
             All performances <Arrow />
           </Link>
         </div>
+      </div>
+    </section>
+  );
+}
+
+// Recitals with the other young pianists: five group photographs on the ink stage, one large and four beside and
+// under it (phones: one large, then two by two).
+function Recitals() {
+  const pictures = [photos.classSalon, photos.classWinter, photos.classStudio, photos.classSalonScreen, photos.classEvening];
+  return (
+    <section className="stage screen bio-recitals" aria-labelledby="recitals-h">
+      <div className="container">
+        <Headline id="recitals-h" hinge="bottom" accent="Recital">
+          [5] Recital days
+        </Headline>
+        <ScrubText
+          className="lead muted"
+          text="Recitals with other young pianists, in salons and studios, in summer and at Christmas."
+        />
+        <ul className="bio-recitals__grid">
+          {pictures.map((photo, i) => (
+            <li key={photo.src} className="bio-recitals__item reveal" style={{ '--i': i }}>
+              <figure className="frame bio-recitals__frame">
+                <Img photo={photo} sizes={i === 0 ? '(max-width: 899px) 100vw, 62vw' : '(max-width: 899px) 50vw, 31vw'} />
+              </figure>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
   );

@@ -17,7 +17,8 @@ gsap.registerPlugin(ScrollTrigger);
 //   4. Trails of light circle her on tilted orbits (lib/trails.js), behind her and in front of her.
 //   5. The ring pulls back to a thin ribbon at the top and sweeps off to the top right; she fades, the light goes
 //      out, and the words, which have been crossing all along, slide off the other way.
-//   6. The films fly into a 4x2 grid one at a time, each from its own side, swinging like a sheet of paper.
+//   6. The films fly into a grid (three or four across, Home sets it) one at a time, each from its own side, swinging
+//      like a sheet of paper.
 //   7. Red blinds close over the grid, lowest band first.
 //   8. On the red, the piano-key stairs build (components/Stairs.jsx, lib/stairs.js): the keys come out of the left
 //      wall a step at a time, from the floor up; then her pieces arrive beside them, to choose one and hear it. The
@@ -40,7 +41,7 @@ export const FLY = {
     gone: { x: 0.6, y: -0.75, z: -1100, rotationX: -16, rotationZ: -13 }
   },
   tilt: { rotationX: -16, rotationZ: -4 }, // the ring settled round her, seen from a little above
-  spread: 22.5, // degrees between films on the ring: 16 tiles (every film twice), as .reel__tile sets in site.css
+  spread: 22.5, // degrees between films on the ring: 16 tiles (the films in turn, round again), as .reel__tile sets in site.css
   turn: -470, // degrees the ring turns from coming in to leaving (front films travel right to left)
   spin: 9, // degrees a second it turns by itself while the screen is pinned
   // Timeline units: when each move starts.
@@ -80,6 +81,7 @@ const station = (s, deep) => {
 
 // Play a muted loop only while it can be seen; pause it otherwise.
 const run = (video, on) => {
+  if (!video) return;
   if (on && video.paused) video.play().catch(() => {});
   else if (!on && !video.paused) video.pause();
 };
@@ -147,7 +149,7 @@ export function useFlyIn(ref, stairs) {
           const facing = Math.cos(((n * FLY.spread + angle) * Math.PI) / 180);
           const near = gsap.utils.clamp(0, 1, (facing + 0.2) / 0.5);
           tile.style.opacity = show.v * (near + (1 - near) * 0.32 * far.show);
-          run(tile, ringUp && facing > 0.3);
+          run(tile.querySelector('video'), ringUp && facing > 0.3);
         });
         cards.forEach((card, i) => run(card.querySelector('video'), active && t > at.films + i * FLY.step && t < blinds + 1));
       };
@@ -259,10 +261,23 @@ export function useFlyIn(ref, stairs) {
     }, stage);
     const onResize = () => trails?.resize();
     window.addEventListener('resize', onResize);
+    // Fetch the loops a screen and a half before the reel arrives, so the films are playing, not loading, when it
+    // pins (they are small: 6 s at 640x360). Until then nothing is fetched but their stills.
+    const ahead = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      ahead.disconnect();
+      stage.querySelectorAll('video').forEach(v => {
+        if (v.preload === 'auto') return;
+        v.preload = 'auto';
+        if (v.readyState === 0 && v.paused) v.load();
+      });
+    }, { rootMargin: '150% 0px' });
+    ahead.observe(stage);
     // Later triggers on the page (headline folds) must measure with the pin's extra scroll in place.
     const id = requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => {
       cancelAnimationFrame(id);
+      ahead.disconnect();
       window.removeEventListener('resize', onResize);
       if (tick) gsap.ticker.remove(tick);
       ctx.revert();
