@@ -8,13 +8,15 @@ import Compare from '../components/Compare.jsx';
 import Stairs from '../components/Stairs.jsx';
 import Count from '../components/Count.jsx';
 import Opus from '../components/Opus.jsx';
+import Awards from '../components/Awards.jsx';
+import Teachers from '../components/Teachers.jsx';
 import { Staff } from '../components/Motifs.jsx';
 import { SlatsLayer } from '../components/Effects.jsx';
-import { byId, examFilms, inWords, performances, pieces } from '../data/performances';
+import { byId, examFilms, inWords, performances, pieces, unfilmed } from '../data/performances';
 import { site } from '../data/site';
 import { bio } from '../data/bio';
 import { usePageTitle, useReveals } from '../lib/hooks';
-import { useFlyIn } from '../lib/flyIn';
+import { FLY, useFlyIn } from '../lib/flyIn';
 
 const Arrow = () => (
   <span className="arrow" aria-hidden="true">
@@ -33,6 +35,11 @@ export default function Home() {
   const films = useRef(null);
   const stairs = useRef({ v: 0 });
   const fly = useFlyIn(films, stairs);
+  // The ring always holds the same number of frames (FLY.spread apart), the films in turn, round again as needed.
+  const ring = Array.from({ length: Math.round(360 / FLY.spread) }, (_, i) => performances[i % performances.length]);
+  // The landed grid: three across for nine films, otherwise four.
+  const cols = performances.length % 3 === 0 && performances.length % 4 !== 0 ? 3 : 4;
+  const grid = { '--cols': cols, '--rows': Math.ceil(performances.length / cols) };
 
   return (
     <>
@@ -62,7 +69,7 @@ export default function Home() {
               </div>
               <div className="reel__orbit">
                 <div className="reel__ring">
-                  {[...performances, ...performances].map((p, i) => (
+                  {ring.map((p, i) => (
                     <FilmLoop key={`${p.id}-${i}`} item={p} className="reel__tile" style={{ '--n': i }} />
                   ))}
                 </div>
@@ -71,7 +78,7 @@ export default function Home() {
           </div>
           <canvas className="reel__light reel__light--front" aria-hidden="true" />
           <div className="container reel__films">
-            <div className="films films--fly">
+            <div className="films films--fly" style={grid}>
               {performances.map((p, i) => (
                 <PerformanceCard key={p.id} item={p} index={i} compact />
               ))}
@@ -138,17 +145,7 @@ export default function Home() {
 
       <About />
 
-      <section className="screen screen--oxblood" aria-labelledby="note-h">
-        <div className="container">
-          <h2 className="label note__label reveal reveal--track" id="note-h">
-            A note from Selin Incekara
-          </h2>
-          <p className="h3 note__body reveal reveal--wipe">{bio[1]}</p>
-          <p className="label muted note__sign reveal" style={{ '--i': 3 }}>
-            — S.
-          </p>
-        </div>
-      </section>
+      <Awards className="screen--oxblood" opus="(Op. 04: Prizes)" />
     </>
   );
 }
@@ -160,8 +157,9 @@ function RepertoireBand() {
   const facts = [
     { n: pieces.length, label: 'Pieces on film' },
     { n: examFilms.length, label: 'London College of Music exam films' },
-    { n: performances.filter(p => p.tags.includes('stage')).length, label: 'Performances on stage' }
+    { n: pieces.filter(p => p.tags.includes('stage')).length, label: 'Performances on stage' }
   ];
+  const all = pieces.length + unfilmed.length;
   return (
     <section ref={zone} className="stage screen band" id="repertoire" aria-labelledby="rep-h">
       <SlatsLayer zoneRef={zone} />
@@ -171,7 +169,9 @@ function RepertoireBand() {
         <Headline id="rep-h" hinge="top" accent="plays">
           What she plays
         </Headline>
-        <p className="lead muted reveal reveal--rise">{inWords(pieces.length, true)} solo pieces, each one on film, {site.repertoireRange}.</p>
+        <p className="lead muted reveal reveal--rise">
+          {inWords(all, true)} solo pieces {site.repertoireRange}, {all === pieces.length ? 'each one' : `${inWords(pieces.length)} of them`} on film.
+        </p>
         <dl className="facts">
           {facts.map((f, i) => (
             <div className="facts__item reveal" style={{ '--i': i }} key={f.label}>
@@ -196,9 +196,9 @@ function RepertoireBand() {
 // Op. 03: her at the grand piano at home, an ink silhouette on the red (the cut-out from the films ring, as a mask),
 // its open lid fading where the photograph's frame cut it. Moving the mouse wipes it to the photograph it was cut from
 // (Compare, after the MCIL products page): a line trails the pointer across the page, the photograph left of it and
-// the silhouette right, starting halfway.
+// the silhouette right, starting halfway. Beside it, her bio in her own words (both paragraphs, as she wrote them),
+// signed, and her teachers.
 function About() {
-  const stage = byId('on-stage');
   return (
     <section className="screen about" id="about" aria-labelledby="about-h">
       <div className="container grid split">
@@ -229,11 +229,16 @@ function About() {
           <Headline id="about-h" hinge="right">
             The pianist
           </Headline>
-          <p className="body reveal reveal--rise">{bio[0]}</p>
-          <p className="body muted reveal" style={{ '--i': 2 }}>
-            On film so far: an Austrian Master Classes concert, a performance on stage at {stage.venue}, and London
-            College of Music exams at Grades 1 and 3.
+          <p className="label muted about__label reveal reveal--track">In her own words</p>
+          {bio.map((paragraph, i) => (
+            <p key={i} className="body about__para reveal reveal--rise" style={{ '--i': i + 1 }}>
+              {paragraph}
+            </p>
+          ))}
+          <p className="label muted about__sign reveal" style={{ '--i': 3 }}>
+            — Selin Incekara
           </p>
+          <Teachers className="about__teachers reveal" style={{ '--i': 4 }} />
           <div className="actions">
             <Link className="link" to="/about">
               Read the biography <Arrow />

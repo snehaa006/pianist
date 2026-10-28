@@ -5,7 +5,7 @@ import { Keys } from '../components/Motifs.jsx';
 import { useLightbox } from '../components/Lightbox.jsx';
 import OptionWheel from '../components/fx/OptionWheel/OptionWheel.jsx';
 import { presets } from '../components/fx/presets';
-import { inWords, metaOf, pieces } from '../data/performances';
+import { inWords, metaOf, pieces, unfilmed } from '../data/performances';
 import { isPlaceholder } from '../data/site';
 import { useFx, usePageTitle, useReveals } from '../lib/hooks';
 
@@ -34,7 +34,9 @@ export default function Repertoire() {
   const fx = useFx();
   const { open } = useLightbox();
   const [index, setIndex] = useState(0);
-  const groups = byComposer(pieces);
+  // The programme lists every piece she plays; those not on film yet say so in place of Watch.
+  const groups = byComposer([...pieces, ...unfilmed]);
+  const all = pieces.length + unfilmed.length;
   const current = pieces[index];
 
   return (
@@ -45,7 +47,10 @@ export default function Repertoire() {
           <Headline as="h1" className="display" id="rep-page-h" hinge="top">
             Repertoire
           </Headline>
-          <p className="lead muted reveal reveal--rise">{inWords(pieces.length, true)} solo pieces, each one filmed, grouped by composer.</p>
+          <p className="lead muted reveal reveal--rise">
+            {inWords(all, true)} solo pieces, grouped by composer, {all === pieces.length ? 'each one' : `${inWords(pieces.length)} of them`}{' '}
+            filmed.
+          </p>
 
           {/* Desktop: turn the dial to pick a piece; the programme list below stays for everyone. */}
           {fx && (
@@ -93,21 +98,27 @@ export default function Repertoire() {
                     <li className="programme__work" key={w.id}>
                       <div>
                         <p className="programme__title">{w.work}</p>
-                        <p className="body-sm muted programme__meta">
-                          {[w.collection && `From ${w.collection}`, w.occasion, w.syllabus].filter(Boolean).join(' · ')}
-                        </p>
+                        {w.occasion && (
+                          <p className="body-sm muted programme__meta">
+                            {[w.collection && `From ${w.collection}`, w.occasion, w.syllabus].filter(Boolean).join(' · ')}
+                          </p>
+                        )}
                       </div>
-                      <button
-                        type="button"
-                        className="link programme__watch"
-                        aria-label={`Watch ${w.composer}: ${w.work}`}
-                        onClick={e => open(w, e.currentTarget)}
-                      >
-                        Watch{' '}
-                        <span className="arrow" aria-hidden="true">
-                          →
-                        </span>
-                      </button>
+                      {w.sources ? (
+                        <button
+                          type="button"
+                          className="link programme__watch"
+                          aria-label={`Watch ${w.composer}: ${w.work}`}
+                          onClick={e => open(w, e.currentTarget)}
+                        >
+                          Watch{' '}
+                          <span className="arrow" aria-hidden="true">
+                            →
+                          </span>
+                        </button>
+                      ) : (
+                        <span className="label muted programme__watch">Not on film yet</span>
+                      )}
                     </li>
                   ))}
                 </ul>

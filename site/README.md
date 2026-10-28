@@ -16,7 +16,7 @@ After a red poster of a pianist (black shapes on red, cream keys). Tokens in `sr
 |---|---|---|
 | `--color-crimson` | `#B42F35` | the canvas (Home hero, the stairs, About, Repertoire, Biography, Contact), the nav |
 | `--color-crimson-deep` | `#9A262C` | the red at a poster's edges (`--vignette`), hover on red |
-| `--color-oxblood` | `#6E0E12` | deep red surface (`.screen--oxblood`: the note from Selin) |
+| `--color-oxblood` | `#6E0E12` | deep red surface (`.screen--oxblood`: her prizes) |
 | `--color-ink` | `#0E0A0A` | headlines on red (`--fg-display`, large type only: 3.2:1), buttons on red, the ink stages |
 | `--color-ivory` | `#F4E9D8` | key cream: running text, labels and links on red (5.15:1) and on ink |
 | `--color-rose` | `#F5D9CF` | muted text on red (4.62:1) |
@@ -49,15 +49,15 @@ tags (tracking closes from 0.6em to label width), *lift* for the Biography foote
 display numerals, an ink curtain between pages and the keyboard-rhythm loader while a page loads.
 
 The films reel (`src/lib/flyIn.js`, Home's "On stage, and at home"): one pinned screen on the ink stage with all
-eight films, each playing as a 6 s muted loop (`public/media/video/loops/`, made by `npm run media -- --loops`), and
-her at the middle. Two words slide in from opposite sides. She rises out of the dark at the grand piano at home, lit
+the films, each playing as a 6 s muted loop (`public/media/video/loops/`, made by `npm run media -- --loops`) over its
+still, which shows at once (the loops are fetched as the reel comes near), and her at the middle. Two words slide in from opposite sides. She rises out of the dark at the grand piano at home, lit
 like a hologram (her cut-out, `public/media/cutouts/selin-grand.webp`, with a red glow, LED dots and scan lines); a
 ring of the films comes in from the bottom left, far back and tilted so it reads as a thin ribbon, glides to the
 middle, then swings in and settles round her at the height of the keys, seen from a little above, and turns: she
 stands at the ring's centre in the same 3D scene, so the near films pass in front of her and the far ones behind.
 Trails of light circle her on tilted orbits (`src/lib/trails.js`, two canvases: behind her and in front of her). The
 ring pulls back to a ribbon at the top and sweeps off to the top right (the entrance and exit are the ones from before
-she was added), she fades, the light goes out, and the films fly into a 4x2 grid one at a time, each from its own
+she was added), she fades, the light goes out, and the films fly into a grid (3x3 for nine films, 4x2 for eight) one at a time, each from its own
 side, swinging like a sheet of paper (the grid runs 12% wider than the text column, as far as half a page margin from
 the screen's edges); red blinds close over the grid, and the piano-key stairs follow them up out of the red (below),
 before the screen lets go into the repertoire band. GSAP ScrollTrigger, scrubbed, so scrolling back plays it in

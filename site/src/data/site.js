@@ -2,11 +2,18 @@
 
 export const site = {
   name: 'Selin Incekara',
-  repertoireRange: 'from [earliest composer] to [latest composer]',
+  // Haydn (born 1732) is the earliest composer she plays, Sonny Chua (a composer working today) the latest.
+  repertoireRange: 'from Haydn to Sonny Chua',
 
   // The supplied photograph (About, Home): same hall and dress as the Austrian Master Classes concert film.
   portraitAlt:
-    'Selin Incekara smiling on the bench of a grand piano in the stuccoed hall of the Austrian Master Classes concert, [Name] standing behind her.',
+    'Selin Incekara smiling on the bench of a grand piano in the stuccoed hall of the Austrian Master Classes concert, a man standing behind her.',
+
+  // Her teachers (supplied October 2026). Solfège is "solfej" in Turkish.
+  teachers: [
+    { subject: 'Piano', name: 'Eser Bilgeman' },
+    { subject: 'Solfège', name: 'Eser Tiryakioglu' }
+  ],
 
   contacts: [
     { role: 'Management', name: '[Name], [Agency]', email: '[email]' },
