@@ -20,6 +20,8 @@ export const photos = {
     'The Ravel Award diploma: Gold Prize, presented to Selin İncekara, category piano, age group C, Gdańsk, Poland, 16 October 2026.'),
   certOnline: photo('cert-piano-competition-online', 1170, 828,
     'The Piano Competition Online diploma, 17th edition: Gold Prize, category III, Selin İncekara, Gdańsk, Poland, 16 October 2026.'),
+  certSanFrancisco: photo('cert-san-francisco', 1200, 928,
+    'The San Francisco International Innovative Music Competition certificate: Second Place, to Selin Incekara, in category intermediate piano, 30 October 2026.'),
   certDistinction: photo('cert-lcm-distinction', 900, 1200,
     'Selin Incekara holding her London College of Music certificate, marked Distinction, with a woman beside her.', '50% 40%'),
 

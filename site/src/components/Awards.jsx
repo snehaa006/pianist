@@ -19,7 +19,8 @@ export default function Awards({ id = 'awards-h', opus, heading = 'Prizes and ce
           {heading}
         </Headline>
         <p className="lead muted reveal reveal--rise">
-          {inWords(golds, true)} gold prizes, both on 16 October 2026, and a Distinction from London College of Music.
+          {inWords(golds, true)} gold prizes, both on 16 October 2026, a second place at the San Francisco International
+          Innovative Music Competition two weeks later, and a Distinction from London College of Music.
         </p>
         <ol className="awards__list" style={{ '--shapes': shapes }}>
           {awards.map((a, i) => {

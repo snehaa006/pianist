@@ -1,6 +1,7 @@
 import { photos } from './photos';
 
-// Her prizes and certificates, as printed on the diplomas she supplied (October 2026). Only what they say: never guess.
+// Her prizes and certificates, as printed on the diplomas she supplied (October and November 2026). Only what they
+// say: never guess.
 export const awards = [
   {
     id: 'ravel-award',
@@ -21,6 +22,17 @@ export const awards = [
     date: '16 Oct 2026',
     dateIso: '2026-10-16',
     image: photos.certOnline
+  },
+  {
+    // The certificate gives no place, only the competition, the category and the date it was signed, so none is given.
+    id: 'san-francisco',
+    prize: 'Second Place',
+    title: 'San Francisco International Innovative Music Competition',
+    detail: 'Intermediate piano',
+    where: null,
+    date: '30 Oct 2026',
+    dateIso: '2026-10-30',
+    image: photos.certSanFrancisco
   },
   {
     // The certificate in the photograph is headed University of West London (the home of London College of Music

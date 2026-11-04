@@ -1,8 +1,8 @@
 # Content notes: what the videos show, and what is still unknown
 
 Most facts on the site come from the videos in `../videos/`. One photograph and a short first-person bio were supplied
-later (October 2026), then her photographs, diplomas, teachers and three of her pieces (27 October 2026; see below). No
-press quotes have been supplied.
+later (October 2026), then her photographs, diplomas, teachers and three of her pieces (27 October 2026; see below),
+then the San Francisco certificate (4 November 2026; see below). No press quotes have been supplied.
 Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 
 ## The supplied photograph and bio
@@ -38,6 +38,12 @@ site (`src/data/photos.js` has the alt text):
 - Diplomas, on Home's *Prizes* screen and Biography's *[4] Prizes and certificates* (`src/data/awards.js`):
   - Ravel Award International Music Competition: **Gold Prize**, category piano, age group C, Gdańsk, Poland, 16 October 2026 (16.18.05).
   - Piano Competition Online, 17th edition (international competition for pianists): **Gold Prize**, category III, Gdańsk, Poland, 16 October 2026 (16.18.06).
+  - San Francisco International Innovative Music Competition: **Second Place**, category intermediate piano, signed
+    30 October 2026 by the competition committee chair and the programme coordinator for the Bay Area Music
+    Association, California. It gives no place, so the site gives none. Supplied 4 November 2026 as a one-page PDF
+    (`../photos/San Francisco International Innovative Music Competition.pdf`), the only source that is not a
+    photograph: `npm run media -- --photos` rasterizes its page with `pdftoppm` (poppler) before the WebPs, so
+    poppler is needed as well as ffmpeg.
   - Her holding a University of West London certificate (the home of London College of Music exams) marked
     **Distinction** (16.18.22). Its grade and year are too small to read and the client does not know them, so the
     site gives neither.

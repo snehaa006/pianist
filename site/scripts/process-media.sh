@@ -12,7 +12,8 @@
 # Usage: bash scripts/process-media.sh [--stills | --loops | --audio | --about | --photos] [--only=slug,slug]
 #   --stills: redo images only, skip the video encodes. --loops: encode the film loops only.
 #   --audio: encode the site sound only. --about: cut the Biography stills only. --photos: her photographs only.
-# Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp.
+# Needs ffmpeg with libx264, libvpx-vp9, libopus, libwebp; a certificate supplied as a PDF also needs
+# pdftoppm (poppler) to rasterize its page.
 set -euo pipefail
 STILLS_ONLY=0; LOOPS_ONLY=0; AUDIO_ONLY=0; ABOUT_ONLY=0; PHOTOS_ONLY=0; ONLY=""
 for arg in "$@"; do
@@ -22,7 +23,7 @@ for arg in "$@"; do
     --audio) AUDIO_ONLY=1 ;;
     --about) ABOUT_ONLY=1 ;;
     --photos) PHOTOS_ONLY=1 ;;
-    --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: encode just these films
+    --only=*) ONLY=",${arg#--only=}," ;;   # e.g. --only=dog-hungry,andante: just these slugs (films, sound, photographs)
   esac
 done
 
@@ -125,6 +126,7 @@ PHOTOS=(
   "cert-ravel-award|WhatsApp Image 2026-10-27 at 16.18.05.jpeg"
   "cert-piano-competition-online|WhatsApp Image 2026-10-27 at 16.18.06.jpeg"
   "cert-lcm-distinction|WhatsApp Image 2026-10-27 at 16.18.22.jpeg"
+  "cert-san-francisco|San Francisco International Innovative Music Competition.pdf"
   "stage-recital|WhatsApp Image 2026-10-27 at 16.18.07.jpeg"
   "class-stairs|WhatsApp Image 2026-10-27 at 16.18.08.jpeg"
   "recital-hug|WhatsApp Image 2026-10-27 at 16.18.10.jpeg"
@@ -142,15 +144,25 @@ PHOTOS=(
 )
 photos() {
   mkdir -p "$OUT/photos"
+  local raster; raster="$(mktemp -d)"
   for row in "${PHOTOS[@]}"; do
     IFS='|' read -r slug file <<<"$row"
+    [[ -n "$ONLY" && "$ONLY" != *",$slug,"* ]] && continue
+    local src="$SRC/../photos/$file"
+    # A certificate sent as a PDF is rasterized first, since ffmpeg cannot read PDF: its one page at 150 dpi, which
+    # is over 1200 px on the long edge for a letter page.
+    if [[ "$file" == *.pdf ]]; then
+      pdftoppm -png -r 150 -singlefile "$src" "$raster/$slug"
+      src="$raster/$slug.png"
+    fi
     for size in 1200 640; do
       local name="$slug"; (( size == 640 )) && name="$slug-640"
-      ffmpeg -v error -y -i "$SRC/../photos/$file" -frames:v 1 \
+      ffmpeg -v error -y -i "$src" -frames:v 1 \
         -vf "scale='if(gt(iw,ih),$size,-2)':'if(gt(iw,ih),-2,$size)':flags=lanczos,format=yuv420p" \
         -c:v libwebp -quality 80 "$OUT/photos/$name.webp"
     done
   done
+  rm -rf "$raster"
 }
 (( PHOTOS_ONLY )) && { photos; ls -la "$OUT"/photos; exit 0; }
 

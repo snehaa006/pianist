@@ -265,13 +265,15 @@ button.link { background: none; border: 0; font-family: inherit; color: inherit;
    (--shapes gives each column the width its picture's shape needs). Tablets: two across. Phones: one under another. */
 .awards__list { list-style: none; margin: var(--space-8) 0 0; padding: 0; display: grid; gap: var(--space-7) var(--gutter);
   grid-template-columns: var(--shapes); align-items: start; }
-.award { min-width: 0; }
+.award { min-width: 0; container-type: inline-size; }
 .award__print { --mat: clamp(6px, 0.7vw, 10px); margin: 0; padding: var(--mat) var(--mat) calc(var(--mat) * 3.4);
   background: var(--color-ivory); }
 .award__print img { display: block; width: 100%; height: auto; }
 .award__text { display: grid; gap: var(--space-2); margin-top: var(--space-5); }
 .award__text p { margin: 0; }
-.award__prize { margin: var(--space-1) 0 0; }
+/* The prize is set to its own column: on wide screens the portrait certificate's column is the narrowest, and a
+   one-word prize like DISTINCTION would otherwise run past it. */
+.award__prize { margin: var(--space-1) 0 0; font-size: min(var(--text-h2), 21cqi); }
 .award__title { max-width: 26ch; }
 @media (max-width: 1099px) {
   .awards__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
