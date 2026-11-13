@@ -16,9 +16,10 @@ const media = slug => ({
 });
 
 // The piece she plays at the Austrian Master Classes concert. Two films show it (the full performance, and its opening
-// from across the hall), so it is filled in once, here. Not one of the three pieces named in October 2026: those are
-// in D minor, E-flat major and G major, and this one is in E minor.
-const amcPiece = { composer: '[Composer]', lifespan: '[Lifespan]', work: '[Work]' };
+// from across the hall), so it is filled in once, here. Named by the client (13 November 2026), who wrote it down by
+// ear as "Elfentans": the published German title is Elfentanz (Norwegian "Alfedans"). Grieg wrote one Elfentanz for
+// piano, Lyric Pieces Op. 12 No. 4, in E minor, which is this film's key; the opus is left off until it is confirmed.
+const amcPiece = { composer: 'Edvard Grieg', lifespan: '1843–1907', work: 'Elfentanz' };
 
 export const performances = [
   {
@@ -28,47 +29,48 @@ export const performances = [
     ...amcPiece,
     // The roll-up banner on stage reads "austrian master classes · in concert" (amc).
     occasion: 'Austrian Master Classes concert',
-    venue: '[Hall]',
     year: '[Year]',
     duration: '1:37',
     durationIso: 'PT1M37S',
     alt: 'Selin Incekara at a concert grand in a stucco-panelled hall, mid-phrase, the lid raised beside her.',
-    hint: 'E minor; flowing broken chords, a middle phrase in B minor. Hall looks like the Rococo Festsaal of Schloss Zell an der Pram (AMC concert venue). Confirm.',
+    hint: 'E minor; flowing broken chords, a middle phrase in B minor. Piece named by the client; E minor matches Grieg’s Elfentanz, Op. 12 No. 4.',
     ...media('austrian-master-classes')
   },
   {
     id: 'on-stage',
     short: 'On stage',
     tags: ['stage'],
-    // Named by the client (October 2026) among her pieces; her only film in D minor, and the study is a D minor Allegro.
+    // Named by the client (October 2026, title corrected by Selin 13 November 2026): "Etude, Op. 65 No. 40 by Carl
+    // Löschhorn". Her only film in D minor, and the etude is a D minor Allegro.
     composer: 'Carl Albert Löschhorn',
     lifespan: '1819–1905',
-    work: 'Study in D minor, Op. 65 No. 40',
+    work: 'Etude, Op. 65 No. 40',
     occasion: 'On stage',
-    venue: '[Venue], [City]',
     year: '[Year]',
     duration: '1:16',
     durationIso: 'PT1M16S',
     alt: 'Selin Incekara alone at a grand piano on a dark stage, lit from above.',
-    hint: 'D minor, fast, about 50 seconds of music. Walk-on, bow, applause. Matched to the named piece by key and tempo; confirm.',
+    hint: 'D minor, fast, about 50 seconds of music. Walk-on, bow, applause. Piece named by the client.',
     ...media('on-stage')
   },
   {
     id: 'at-home-grand',
     short: 'At the grand piano',
     tags: ['home'],
-    // Named by the client (October 2026) among her pieces; her only waltz on film, in the waltz's key, E-flat major.
+    // Named by the client (October 2026, number corrected by Selin 13 November 2026): "Waltz in E-flat Major,
+    // Op. 39 No. 8". Her only waltz on film, and it opens in the waltz's key, E-flat major.
     composer: 'Pyotr Ilyich Tchaikovsky',
     lifespan: '1840–1893',
-    work: 'Waltz, Op. 39 No. 9',
+    work: 'Waltz in E-flat major, Op. 39 No. 8',
+    // Too long for the Repertoire dial, which cuts a label off at the wheel's edge: the dial turns on this instead.
+    wheelWork: 'Waltz, Op. 39 No. 8',
     collection: 'Album for the Young',
     occasion: 'At home, on the grand piano',
-    venue: null,
     year: '[Year]',
     duration: '1:34',
     durationIso: 'PT1M34S',
     alt: 'Selin Incekara in profile at a grand piano beside a window, hands on the keys.',
-    hint: 'E-flat major opening, a middle section in C minor; waltz pattern in 3/4 (bass on the beat, two chords). Matched to the named piece by key and metre; confirm.',
+    hint: 'E-flat major opening, a middle section in C minor; waltz pattern in 3/4 (bass on the beat, two chords). Piece named by the client.',
     ...media('at-home-grand')
   },
   {
@@ -82,7 +84,6 @@ export const performances = [
     // Spoken on camera: "LCM recorded exam, grade 3 … Song of Twilight by Yoshinao Nakada, from performance list B."
     occasion: 'London College of Music exam, Grade 3',
     syllabus: 'List B',
-    venue: 'At home',
     year: '[Year]',
     duration: '1:45',
     durationIso: 'PT1M45S',
@@ -94,19 +95,19 @@ export const performances = [
     id: 'lcm-grade-1',
     short: 'Grade 1 exam',
     tags: ['home', 'exam'],
-    composer: '[Composer]',
-    lifespan: '[Lifespan]',
-    work: '[Work]',
-    // Spoken on camera: "LCM recorded exam, grade 1 … from performance list B". The title and composer
-    // were not clear enough to transcribe (it sounds like "Dusk… Mood" by "Frederick B…").
+    // Named by the client (13 November 2026): "Das Kind ist müde by Friedrich Baumfelder", which is what the
+    // spoken introduction says ("LCM recorded exam, grade 1 … from performance list B"); the German title and the
+    // surname were what had been too unclear to transcribe.
+    composer: 'Friedrich Baumfelder',
+    lifespan: '1836–1916',
+    work: 'Das Kind ist müde',
     occasion: 'London College of Music exam, Grade 1',
     syllabus: 'List B',
-    venue: 'At home',
     year: '[Year]',
     duration: '1:55',
     durationIso: 'PT1M55S',
     alt: 'Selin Incekara at a digital piano with the score open, eyes on the keys.',
-    hint: 'C major, slow and quiet over a low C. Title heard as "Dusk… Mood", composer as "Frederick B…".',
+    hint: 'C major, slow and quiet over a low C. Piece named by the client.',
     ...media('lcm-grade-1')
   },
   {
@@ -120,7 +121,6 @@ export const performances = [
     // "Dog Hungry" by Sonny Chua is on the LCM 2021–2024 Grade 3 List C, which matches.
     occasion: 'London College of Music exam, Grade 3',
     syllabus: 'List C',
-    venue: 'At home',
     year: '[Year]',
     duration: '1:11',
     durationIso: 'PT1M11S',
@@ -139,7 +139,6 @@ export const performances = [
     // An Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook, which matches.
     occasion: 'London College of Music exam, Grade 1',
     syllabus: 'List A',
-    venue: 'At home',
     year: '[Year]',
     duration: '1:04',
     durationIso: 'PT1M4S',
@@ -158,7 +157,6 @@ export const performances = [
     // Spoken on camera: "LCM recorded exam, grade 1 … technical work", then each item by name
     // (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios).
     occasion: 'London College of Music exam, Grade 1',
-    venue: 'At home',
     year: '[Year]',
     duration: '2:17',
     durationIso: 'PT2M17S',
@@ -175,12 +173,11 @@ export const performances = [
     // Sent October 2026: the Austrian Master Classes performance again, from another phone across the hall. Same dress,
     // and its notes are the concert film's opening, so it is the same piece. Not a piece of its own (left out of Repertoire).
     occasion: 'Austrian Master Classes concert, the opening from across the hall',
-    venue: '[Hall]',
     year: '[Year]',
     duration: '0:11',
     durationIso: 'PT11S',
     alt: 'The Austrian Master Classes hall from across the floor: Selin Incekara at the grand piano between the stucco columns.',
-    hint: 'E minor; the first five seconds of music of the concert film, from a wider angle.',
+    hint: 'E minor; the first five seconds of music of the concert film, from a wider angle. Same piece, named by the client.',
     ...media('austrian-master-classes-wide')
   }
 ];
@@ -219,4 +216,5 @@ export const byId = id => performances.find(p => p.id === id);
 
 // "Composer: Work", or "Work" alone when the composer is already shown separately.
 export const titleOf = p => `${p.composer}: ${p.work}`;
-export const metaOf = p => [p.occasion, p.venue].filter(Boolean).join(' · ');
+// Where a film was filmed is left off at the client's request (13 November 2026): the occasion only.
+export const metaOf = p => p.occasion || '';

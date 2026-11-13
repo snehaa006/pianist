@@ -232,7 +232,7 @@ function Stages() {
       kicker: 'In concert',
       when: concert.year,
       title: 'Austrian Master Classes',
-      line: `${titleOf(concert)}. ${concert.venue}.`,
+      line: `${titleOf(concert)}.`,
       photo: { src: concert.poster, alt: concert.alt, width: 848, height: 480 },
       film: concert
     },
@@ -240,7 +240,7 @@ function Stages() {
       surface: 'oxblood',
       kicker: 'On stage',
       when: stage.year,
-      title: stage.venue,
+      title: 'A theatre stage',
       line: `${titleOf(stage)}.`,
       photo: { src: stage.poster, alt: stage.alt, width: 832, height: 464 },
       film: stage

@@ -25,8 +25,9 @@ function byComposer(list) {
   ];
 }
 
-// The wheel shows the work's title once it is known, otherwise where it was filmed.
-const wheelLabel = p => (isPlaceholder(p.work) ? p.short : p.work);
+// The wheel shows the work's title once it is known, otherwise where it was filmed. A title too long for the wheel
+// (it cuts labels off at its edge) gives a shorter one in `wheelWork`; the panel beside the dial has it in full.
+const wheelLabel = p => p.wheelWork || (isPlaceholder(p.work) ? p.short : p.work);
 
 export default function Repertoire() {
   usePageTitle('Repertoire');

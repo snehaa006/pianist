@@ -2,7 +2,8 @@
 
 Most facts on the site come from the videos in `../videos/`. One photograph and a short first-person bio were supplied
 later (October 2026), then her photographs, diplomas, teachers and three of her pieces (27 October 2026; see below),
-then the San Francisco certificate (4 November 2026; see below). No press quotes have been supplied.
+then the San Francisco certificate (4 November 2026; see below), then the name of every piece she plays and the
+instruction to leave the places out (13 November 2026; see below). No press quotes have been supplied.
 Nothing was guessed onto the site: anything not certain is a `[placeholder]`.
 
 ## The supplied photograph and bio
@@ -62,63 +63,97 @@ polka-dot dress, and its notes are that film's opening, note for note. On the si
 (Watch, the Home reel, the lightbox); left out of Repertoire and the site sound because it is not another piece.
 
 **Her pieces**, named by the client:
-- **Pyotr Ilyich Tchaikovsky: Waltz, Op. 39 No. 9** (*Album for the Young*, E-flat major, 3/4) is `at-home-grand`: her
-  only waltz on film, and it opens in E-flat major with a C minor middle section.
-- **Carl Albert Löschhorn: Study in D minor, Op. 65 No. 40** (an Allegro) is `on-stage`: her only film in D minor, fast,
-  about 50 seconds of music.
-- **Joseph Haydn: Sonata in G major, Hob. XVI:G1, Finale (Presto)** is in none of the films. G major is not the key of
-  any piece still unnamed (the Austrian Master Classes piece is in E minor, the Grade 1 List B piece in C major), so it
-  is listed on Repertoire as not on film yet (`unfilmed` in `src/data/performances.js`).
+- **Pyotr Ilyich Tchaikovsky: Waltz in E-flat major, Op. 39 No. 8** (*Album for the Young*, 3/4) is `at-home-grand`: her
+  only waltz on film, and it opens in E-flat major with a C minor middle section. (Given as No. 9 in October and
+  corrected to No. 8 by Selin on 13 November 2026, with the key in the title.)
+- **Carl Albert Löschhorn: Etude, Op. 65 No. 40** (an Allegro in D minor) is `on-stage`: her only film in D minor,
+  fast, about 50 seconds of music. (Given as *Study in D minor* in October; Selin gave the title as *Etude* on
+  13 November 2026.)
+- **Joseph Haydn: Sonata in G major, Hob. XVI:G1, Finale (Presto)** is in none of the films: every other film is now
+  named and none of them is this. It is listed on Repertoire as not on film yet (`unfilmed` in
+  `src/data/performances.js`).
 
-The first two are matched by key and metre, not by ear against a score: confirm with her teacher.
+The first two were matched by key and metre, not by ear against a score; Selin confirmed both titles on
+13 November 2026 (see below).
+
+## Supplied 13 November 2026: every piece named, and the places taken off
+
+Selin named the two pieces that were still unknown and corrected two of October's titles, in a call with the client:
+
+- **Edvard Grieg (1843–1907): Elfentanz** is the Austrian Master Classes piece (`austrian-master-classes` and its
+  second angle `austrian-master-classes-wide`). She wrote it down by ear as "Elfentans"; the published German title is
+  *Elfentanz* (Norwegian *Alfedans*). Grieg wrote one Elfentanz for piano, **Lyric Pieces, Op. 12 No. 4**, in E minor,
+  which is this film's key — but she gave no opus, so the site gives none. Worth one question to her teacher: if that
+  is the piece, the site can say *Elfentanz, Op. 12 No. 4*, and the Burgmüller guess below can go for good.
+- **Friedrich Baumfelder (1836–1916): Das Kind ist müde** is `lcm-grade-1`, the Grade 1 List B piece whose spoken
+  title had been too unclear to transcribe (it was heard as "Dusk… Mood" by "Frederick B…").
+- **Carl Löschhorn: Etude, Op. 65 No. 40** — `on-stage`, the title corrected from *Study in D minor*.
+- **Pyotr Ilyich Tchaikovsky: Waltz in E-flat Major, Op. 39 No. 8** — `at-home-grand`, corrected from *No. 9*.
+- *Song of Twilight*, *Dog Hungry*, *Andante* and the Grade 1 technical work were read back to her and confirmed as
+  they already stood.
+
+The composers' dates (Grieg, Baumfelder) are the published ones, not hers to supply.
+
+**The places are off the site, at the client's request**: the halls and venues were hard to pin down, and the name of
+the piece is enough. The `venue` field is gone from every film in `src/data/performances.js`, so there is no longer a
+`[Hall]` or `[Venue], [City]` to fill; `metaOf()` now gives the occasion alone (the concert, the exam and grade, "at
+home, on the grand piano"), which is what the cards, the lightbox, the stairs and the Repertoire dial show. On
+Biography's *[3] Where she has played*, the concert card no longer names the hall and the stage card is titled
+"A theatre stage" where it used to carry the venue; Home's photograph of the hall is captioned "Austrian Master
+Classes, [Year]." Her prizes keep the place printed on the diploma (Gdańsk, Poland): those are certain, and were not
+part of the request.
 
 ## What each video contains
 
 | Site slug | Source file | What it is | How we know | Confidence |
 |---|---|---|---|---|
 | `song-of-twilight` | `WhatsApp Video 2026-10-06 at 14.22.59.mp4` (1:45) | **Yoshinao Nakada (1923–2000): Song of Twilight**, from *Piano Pieces for Children*. London College of Music (LCM) recorded exam, **Grade 3, Performance List B**. Filmed at home on a red digital piano. | She says so on camera (speech transcribed); note analysis gives A major, matching published notes on the piece; the piece is on the LCM 2021–2024 Grade 3 List B. | High |
-| `lcm-grade-1` | `WhatsApp Video 2026-10-06 at 14.23.31.mp4` (1:55) | LCM recorded exam, **Grade 1, Performance List B**. Filmed at home on a red digital piano. | Spoken introduction. The title and composer were not clear enough to transcribe: they sound like "Dusk… Mood" / "Dusk in the Wood" by "Frederick B…". | Exam and grade: high. Title: unknown |
-| `austrian-master-classes` | `WhatsApp Video 2026-10-06 at 14.23.41.mp4` (1:37) | Concert performance at an **Austrian Master Classes** concert, in a Rococo hall with stucco and columns. Walk-on, bow, applause. | The roll-up banner on stage reads "austrian master classes · in concert" (amc logo). AMC concerts take place at Schloss Zell an der Pram (Upper Austria), a Cuvilliès castle whose hall matches. | Event: high. Hall: likely, confirm |
-| `on-stage` | `WhatsApp Video 2026-10-06 at 14.22.40.mp4` (1:16) | **Carl Albert Löschhorn (1819–1905): Study in D minor, Op. 65 No. 40**. Performance on a theatre stage (black drapes, grand piano, audience applause). | Piece named by the client (October 2026); her only D minor film. | Piece: likely, confirm. Venue unknown |
-| `at-home-grand` | `WhatsApp Video 2026-10-06 at 14.22.50.mp4` (1:34) | **Pyotr Ilyich Tchaikovsky (1840–1893): Waltz, Op. 39 No. 9**, from *Album for the Young*. At home on a black grand piano, by a window. | Piece named by the client (October 2026); her only waltz on film, in its key. | Likely, confirm |
-| `austrian-master-classes-wide` | `WhatsApp Video 2026-10-27 at 16.18.32.mp4` (0:11) | The Austrian Master Classes performance's opening, from across the hall. | Same dress and hall; the notes match the concert film's first bars. | High |
-| `dog-hungry` | `WhatsApp Video 2026-10-06 at 14.23.06.mp4` (1:11) | **Sonny Chua: Dog Hungry**. LCM recorded exam, **Grade 3, Performance List C**. Same room and dress as *Song of Twilight*. | Spoken introduction (heard as "Dog Hug by Sonny…"); "Dog Hungry" by Sonny Chua is on the LCM 2021–2024 Grade 3 List C. Note analysis: C minor. | High (confirm spelling) |
-| `andante` | `WhatsApp Video 2026-10-06 at 14.23.23.mp4` (1:04) | **Charles Henry Wilton: Andante**. LCM recorded exam, **Grade 1, Performance List A**. Same session as the Grade 1 List B piece. | Spoken introduction (heard as "Andante by … Wilton"); an Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook. Note analysis: G major. | Likely, confirm |
+| `lcm-grade-1` | `WhatsApp Video 2026-10-06 at 14.23.31.mp4` (1:55) | **Friedrich Baumfelder (1836–1916): Das Kind ist müde**. LCM recorded exam, **Grade 1, Performance List B**. Filmed at home on a red digital piano. | Spoken introduction for the exam and grade; the piece was named by the client (13 November 2026), which is what the unclear words were ("Dusk… Mood" by "Frederick B…"). | High |
+| `austrian-master-classes` | `WhatsApp Video 2026-10-06 at 14.23.41.mp4` (1:37) | **Edvard Grieg (1843–1907): Elfentanz**, at an **Austrian Master Classes** concert, in a Rococo hall with stucco and columns. Walk-on, bow, applause. | Piece named by the client (13 November 2026); its E minor matches Grieg's Elfentanz, Lyric Pieces Op. 12 No. 4. The roll-up banner on stage reads "austrian master classes · in concert" (amc logo). | Event: high. Piece: high (opus unconfirmed) |
+| `on-stage` | `WhatsApp Video 2026-10-06 at 14.22.40.mp4` (1:16) | **Carl Albert Löschhorn (1819–1905): Etude, Op. 65 No. 40**. Performance on a theatre stage (black drapes, grand piano, audience applause). | Piece named by the client (October 2026), title confirmed as *Etude* by Selin (13 November 2026); her only D minor film. | High |
+| `at-home-grand` | `WhatsApp Video 2026-10-06 at 14.22.50.mp4` (1:34) | **Pyotr Ilyich Tchaikovsky (1840–1893): Waltz in E-flat major, Op. 39 No. 8**, from *Album for the Young*. At home on a black grand piano, by a window. | Piece named by the client (October 2026), number corrected to No. 8 by Selin (13 November 2026); her only waltz on film, in its key. | High |
+| `austrian-master-classes-wide` | `WhatsApp Video 2026-10-27 at 16.18.32.mp4` (0:11) | The Austrian Master Classes performance's opening (Grieg: *Elfentanz*), from across the hall. | Same dress and hall; the notes match the concert film's first bars, and the client named it as the same piece. | High |
+| `dog-hungry` | `WhatsApp Video 2026-10-06 at 14.23.06.mp4` (1:11) | **Sonny Chua: Dog Hungry**. LCM recorded exam, **Grade 3, Performance List C**. Same room and dress as *Song of Twilight*. | Spoken introduction (heard as "Dog Hug by Sonny…"); "Dog Hungry" by Sonny Chua is on the LCM 2021–2024 Grade 3 List C. Note analysis: C minor. Title read back to Selin and confirmed (13 November 2026). | High |
+| `andante` | `WhatsApp Video 2026-10-06 at 14.23.23.mp4` (1:04) | **Charles Henry Wilton: Andante**. LCM recorded exam, **Grade 1, Performance List A**. Same session as the Grade 1 List B piece. | Spoken introduction (heard as "Andante by … Wilton"); an Andante by Charles Henry Wilton is in the LCM 2021–2024 Grade 1 handbook. Note analysis: G major. The title was read back to Selin and confirmed (13 November 2026); the composer was not. | Title: high. Composer: likely |
 | `grade-1-technical` | `WhatsApp Video 2026-10-06 at 14.23.15.mp4` (2:17) | LCM recorded exam, **Grade 1 technical work**: scales, broken chords and arpeggios, each named on camera (C major hands together, A minor, D major broken chords, C, F and D minor arpeggios). | Spoken throughout. Shown on Watch; left out of Repertoire (not a piece). | High |
 
 ### The pieces as sound (Home's stairs and "Hear me play")
 Each of the seven pieces (every film but the technical work) is also on the site as audio only, cut to the music:
 the exam films lose her spoken introduction (the first 10–14 s), the two stage films their walk-on and applause. The
 cut points (`scripts/process-media.sh`) were found from the loudness and the transcribed notes, not by ear; if a cut
-clips a breath or a last chord, move it there. The stairs name each piece as the Repertoire dial does: its work once
-known, otherwise where it was filmed, with `[Composer]` until it is filled in.
+clips a breath or a last chord, move it there. The stairs name each piece by its work, as the Repertoire dial does.
+The dial cuts a long label off at the wheel's edge, so a title too long for it gives a short form in `wheelWork`
+(only the Tchaikovsky waltz needs one: "Waltz, Op. 39 No. 8"); the panel beside the dial still gives it in full.
 
-### Musical analysis of the pieces still unnamed (never shown on the site)
-Notes were transcribed from the audio and analysed for key and texture. These are leads for you to confirm, not identifications:
+### Musical analysis (never shown on the site)
+Every piece is now named by the client, so none of this is load-bearing; it is kept because it is how the site's keys
+and the audio cut points were found, and because one opus number is still open.
 
 - **austrian-master-classes** (and its second angle): E minor, flowing broken-chord figures, a middle phrase in B minor.
   It opens on broken E minor chords with E above, then a C major chord, rising through A, F♯ and D to an A♯ that
-  leads to B. The key fits Burgmüller's Inquiétude (*25 Études faciles, Op. 100*, No. 18), but that is only a
-  hypothesis. Please confirm with her teacher or the programme.
-- **lcm-grade-1**: C major, slow and quiet over a low C (see the table above).
+  leads to B. E minor is the key of Grieg's Elfentanz, Lyric Pieces Op. 12 No. 4 — the one Elfentanz he wrote for
+  piano — so that is most likely the edition she played, but she gave no opus and the site prints none. (The earlier
+  guess here, Burgmüller's *Inquiétude*, is wrong: the piece is Grieg's.)
+- **lcm-grade-1**: C major, slow and quiet over a low C — Baumfelder's *Das Kind ist müde* (see the table above).
 
 ## Placeholders to fill
 
 Edit `src/data/performances.js` (per film) and `src/data/site.js` (site-wide). Nothing else needs touching.
 
 ### Per film (`src/data/performances.js`)
+Every piece is named (13 November 2026) and the places are off the site at the client's request, so what is left is the
+year of each film and two composers' dates:
+
 | Film | Fields |
 |---|---|
-| austrian-master-classes and austrian-master-classes-wide | `[Composer]`, `[Lifespan]`, `[Work]` (once, in `amcPiece`), `[Hall]` (likely Schloss Zell an der Pram, confirm), `[Year]` |
-| on-stage | `[Venue], [City]`, `[Year]` |
-| at-home-grand | `[Year]` |
-| song-of-twilight | `[Year]` |
-| lcm-grade-1 | `[Composer]`, `[Lifespan]`, `[Work]`, `[Year]` |
-| dog-hungry | `[Lifespan]`, `[Year]` |
-| andante | `[Lifespan]`, `[Year]` |
-| grade-1-technical | `[Year]` |
+| every film | `[Year]` |
+| dog-hungry | `[Lifespan]` (Sonny Chua) |
+| andante | `[Lifespan]` (Charles Henry Wilton) |
 
-These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Year]." and the film its button opens), the fermata caption, every card, the lightbox and the repertoire page.
+`[Year]` is the one placeholder a visitor can still see: it is in the hero line on Home ("Filmed in concert at the
+Austrian Master Classes, [Year]."), in the caption under the photograph of the hall, and on the tab of each card in
+Biography's *[3] Where she has played*. `[Lifespan]` shows in the brackets after those two composers' names on
+Repertoire. Ask her for the years, or drop the year the way the places were dropped.
 
 ### Site-wide (`src/data/site.js`)
 | Field | Appears on |
@@ -135,6 +170,9 @@ These feed the hero line ("Filmed in concert at the Austrian Master Classes, [Ye
 - `[Site URL]`: once the domain is known, make `og:image` in `index.html` an absolute URL (some platforms ignore relative share images).
 
 ## Things deliberately left out
+- **Where each film was filmed** (the hall, the venue, the city): removed at the client's request (13 November 2026).
+  They were hard to pin down and the piece is enough. The films keep the occasion (the concert, the exam and grade,
+  "at home, on the grand piano"); her prizes keep the place printed on the diploma.
 - **Concerts screen** (Upcoming / Past concerts) and the Home **Book a concert** screen: removed from Home at the client's
   request. Contact details stay on the Contact page.
 - **Mailing-list band** (Home and Contact, before the footer): removed at the client's request, so each page ends on
