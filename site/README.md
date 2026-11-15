@@ -235,7 +235,7 @@ each) load when it first plays them. A piece's audio (0.6 to 1.6 MB) loads when 
 
 Everything a visitor reads that is not yet known is written as `[bracketed]` text. Fill it in two files:
 
-- `src/data/performances.js`: composer, work, venue and year for each film. The `hint` field holds what the video analysis found (key, metre, likely venue); it never renders.
+- `src/data/performances.js`: composer, work and year for each film. Every piece is named (13 November 2026), so only `[Year]` and two composers' `[Lifespan]` are left. Where a film was filmed is deliberately not on the site (the client's request, 13 November 2026), so there is no venue field. The `hint` field holds what the video analysis found (key, metre); it never renders.
 - `src/data/site.js`: city, teacher, contacts, newsletter endpoint, social links, press kit.
 
 Then search the source for remaining brackets: `grep -rn "\[" src --include=*.jsx`.

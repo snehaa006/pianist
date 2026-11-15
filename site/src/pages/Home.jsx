@@ -138,7 +138,7 @@ export default function Home() {
             />
           </div>
           <figcaption className="container fermata__caption label reveal reveal--wipe">
-            Austrian Master Classes, {concert.venue}, {concert.year}.
+            Austrian Master Classes, {concert.year}.
           </figcaption>
         </figure>
       </section>
